@@ -7,6 +7,10 @@ import { sampleReports, getDashboardData, Report } from "@/lib/reports";
 import { SessionManager, User, users } from "@/lib/auth";
 import { RealTimeManager, PentestVerificationManager, PentestVerification } from "@/lib/realtime";
 
+// Chart Components
+import SecurityTrendsChart from "@/components/SecurityTrendsChart";
+import ThreatCategoriesChart from "@/components/ThreatCategoriesChart";
+
 type Tab = "Reports Dashboard" | "Submit Report" | "Workflow Audit" | "Pentest Verification";
 
 // Report Submission Form Component
@@ -798,8 +802,22 @@ export default function Page() {
               </div>
             </div>
           ) : (
-            /* Clickable Reports List */
-            <div className="card p-6">
+            <div>
+              {/* Analytics & Charts Section */}
+              <div className="space-y-6 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  📊 Security Analytics Dashboard
+                </h2>
+                
+                {/* Charts Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <SecurityTrendsChart />
+                  <ThreatCategoriesChart />
+                </div>
+              </div>
+
+              {/* Clickable Reports List */}
+              <div className="card p-6">
               <h2 className="text-lg font-semibold mb-4">
                 📄 Security Reports Dashboard
                 <span className="text-sm font-normal text-gray-500 ml-2">(Click any report below to view executive & technical details)</span>
@@ -847,6 +865,7 @@ export default function Page() {
                   </div>
                 ))}
               </div>
+            </div>
             </div>
           )}
         </section>
