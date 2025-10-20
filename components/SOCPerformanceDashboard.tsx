@@ -23,125 +23,175 @@ export default function SOCPerformanceDashboard() {
   };
 
   return (
-    <div className="space-y-2">
-      {/* ULTRA COMPACT 3-COLUMN GRID - NO SCROLLING */}
+    <div className="space-y-3">
+      {/* COMPACT 3-COLUMN GRID WITH CHARTS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         
-        {/* LEFT: Metrics */}
+        {/* LEFT: Metrics + Charts */}
         <div className="space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            <div className="card p-2">
+            <div className="card p-3">
               <div className="flex justify-between mb-1">
-                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">MTD</span>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">MTD</span>
                 {getTrendIcon(metrics.meanTimeToDetect, 10, true)}
               </div>
-              <div className="text-xl font-bold text-blue-600">{metrics.meanTimeToDetect}<span className="text-xs">m</span></div>
-              <div className="text-[9px] text-gray-500">Target &lt;10</div>
+              <div className="text-2xl font-bold text-blue-600">{metrics.meanTimeToDetect}<span className="text-sm">m</span></div>
+              <div className="text-[10px] text-gray-500">Target &lt;10</div>
             </div>
 
-            <div className="card p-2">
+            <div className="card p-3">
               <div className="flex justify-between mb-1">
-                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">MTR</span>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">MTR</span>
                 {getTrendIcon(metrics.meanTimeToRespond, 15, true)}
               </div>
-              <div className="text-xl font-bold text-green-600">{metrics.meanTimeToRespond}<span className="text-xs">m</span></div>
-              <div className="text-[9px] text-gray-500">Target &lt;15</div>
+              <div className="text-2xl font-bold text-green-600">{metrics.meanTimeToRespond}<span className="text-sm">m</span></div>
+              <div className="text-[10px] text-gray-500">Target &lt;15</div>
             </div>
 
-            <div className="card p-2">
+            <div className="card p-3">
               <div className="flex justify-between mb-1">
-                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">MTC</span>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">MTC</span>
                 {getTrendIcon(metrics.meanTimeToContain, 60, true)}
               </div>
-              <div className="text-xl font-bold text-orange-600">{metrics.meanTimeToContain}<span className="text-xs">m</span></div>
-              <div className="text-[9px] text-gray-500">Target &lt;60</div>
+              <div className="text-2xl font-bold text-orange-600">{metrics.meanTimeToContain}<span className="text-sm">m</span></div>
+              <div className="text-[10px] text-gray-500">Target &lt;60</div>
             </div>
 
-            <div className="card p-2">
+            <div className="card p-3">
               <div className="flex justify-between mb-1">
-                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">MTTR</span>
-                <Clock className="w-3 h-3 text-purple-500" />
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400">MTTR</span>
+                <Clock className="w-4 h-4 text-purple-500" />
               </div>
-              <div className="text-xl font-bold text-purple-600">{metrics.meanTimeToResolve}<span className="text-xs">h</span></div>
-              <div className="text-[9px] text-gray-500">Avg Resolve</div>
+              <div className="text-2xl font-bold text-purple-600">{metrics.meanTimeToResolve}<span className="text-sm">h</span></div>
+              <div className="text-[10px] text-gray-500">Avg Resolve</div>
+            </div>
+          </div>
+
+          {/* Response Time Trend Graph */}
+          <div className="card p-3">
+            <h4 className="text-xs font-bold mb-2">7-Day Response Trend</h4>
+            <div className="h-20 flex items-end justify-between gap-1">
+              {[15.2, 13.8, 12.1, 14.5, 11.9, 12.3, 12.3].map((val, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center">
+                  <div 
+                    className={`w-full rounded-t transition-all ${val < 13 ? 'bg-green-500' : val < 15 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                    style={{ height: `${(val / 20) * 100}%` }}
+                  />
+                  <span className="text-[9px] text-gray-500 mt-1">{i === 6 ? 'Now' : `D${i+1}`}</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-[9px] text-gray-500 text-center mt-1">Minutes to respond</div>
+          </div>
+
+          {/* Severity Distribution Pie Chart */}
+          <div className="card p-3">
+            <h4 className="text-xs font-bold mb-2">Incident Severity (30d)</h4>
+            <div className="flex items-center gap-3">
+              <div className="relative w-20 h-20">
+                <svg viewBox="0 0 100 100" className="transform -rotate-90">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="20" strokeDasharray="25 75" strokeDashoffset="0" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#f97316" strokeWidth="20" strokeDasharray="30 70" strokeDashoffset="-25" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eab308" strokeWidth="20" strokeDasharray="28 72" strokeDashoffset="-55" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#22c55e" strokeWidth="20" strokeDasharray="17 83" strokeDashoffset="-83" />
+                </svg>
+              </div>
+              <div className="flex-1 space-y-1">
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span>Critical</span>
+                  <span className="font-bold">25%</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span>High</span>
+                  <span className="font-bold">30%</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span>Medium</span>
+                  <span className="font-bold">28%</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px]">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span>Low</span>
+                  <span className="font-bold">17%</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div className="card p-2">
               <div className="flex items-center gap-1">
-                <Activity className="w-4 h-4 text-blue-600" />
+                <Activity className="w-5 h-5 text-blue-600" />
                 <div>
-                  <div className="text-lg font-bold">{metrics.alertsGenerated}</div>
-                  <div className="text-[9px] text-gray-600">Alerts/24h</div>
+                  <div className="text-xl font-bold">{metrics.alertsGenerated}</div>
+                  <div className="text-[10px] text-gray-600">Alerts/24h</div>
                 </div>
               </div>
             </div>
 
             <div className="card p-2">
               <div className="flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-green-600" />
                 <div>
-                  <div className="text-lg font-bold">{Math.round((metrics.incidentsResolved / metrics.incidentsCreated) * 100)}%</div>
-                  <div className="text-[9px] text-gray-600">Resolved</div>
+                  <div className="text-xl font-bold">{Math.round((metrics.incidentsResolved / metrics.incidentsCreated) * 100)}%</div>
+                  <div className="text-[10px] text-gray-600">Resolved</div>
                 </div>
               </div>
             </div>
 
             <div className="card p-2">
               <div className="flex items-center gap-1">
-                <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                <AlertTriangle className="w-5 h-5 text-yellow-600" />
                 <div>
-                  <div className="text-lg font-bold">{metrics.falsePositiveRate}%</div>
-                  <div className="text-[9px] text-gray-600">False Pos</div>
+                  <div className="text-xl font-bold">{metrics.falsePositiveRate}%</div>
+                  <div className="text-[10px] text-gray-600">False Pos</div>
                 </div>
               </div>
             </div>
 
             <div className="card p-2">
               <div className="flex items-center gap-1">
-                <TrendingUp className="w-4 h-4 text-red-600" />
+                <TrendingUp className="w-5 h-5 text-red-600" />
                 <div>
-                  <div className="text-lg font-bold">{metrics.escalationRate}%</div>
-                  <div className="text-[9px] text-gray-600">Escalation</div>
+                  <div className="text-xl font-bold">{metrics.escalationRate}%</div>
+                  <div className="text-[10px] text-gray-600">Escalation</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="card p-2">
-            <h4 className="text-[10px] font-bold mb-1">30d Volume</h4>
-            <div className="space-y-0.5">
-              <div className="flex justify-between text-[10px]">
+          <div className="card p-3">
+            <h4 className="text-xs font-bold mb-2">30d Volume</h4>
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-600">Created</span>
                 <span className="font-bold">{metrics.incidentsCreated}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-600">Resolved</span>
                 <span className="font-bold text-green-600">{metrics.incidentsResolved}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-600">Open</span>
                 <span className="font-bold text-orange-600">{metrics.incidentsCreated - metrics.incidentsResolved}</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-1">
-                <div className="bg-green-600 h-1 rounded" style={{ width: `${(metrics.incidentsResolved / metrics.incidentsCreated) * 100}%` }} />
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-1.5">
+                <div className="bg-green-600 h-1.5 rounded" style={{ width: `${(metrics.incidentsResolved / metrics.incidentsCreated) * 100}%` }} />
               </div>
             </div>
           </div>
 
-          <div className="card p-2">
-            <h4 className="text-[10px] font-bold mb-1">Top Analysts</h4>
-            <div className="space-y-0.5">
-              <div className="flex justify-between text-[9px]">
+          <div className="card p-3">
+            <h4 className="text-xs font-bold mb-2">Top Analysts</h4>
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px]">
                 <span>Ahmed (SOC-1)</span>
                 <span className="font-bold text-green-600">32 closed</span>
               </div>
-              <div className="flex justify-between text-[9px]">
+              <div className="flex justify-between text-[10px]">
                 <span>Fatima (SOC-2)</span>
                 <span className="font-bold text-green-600">28 closed</span>
               </div>
-              <div className="flex justify-between text-[9px]">
+              <div className="flex justify-between text-[10px]">
                 <span>Ali (SOC-3)</span>
                 <span className="font-bold text-blue-600">16 active</span>
               </div>
@@ -150,31 +200,31 @@ export default function SOCPerformanceDashboard() {
         </div>
 
         {/* MIDDLE: Events */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-xs font-bold">Recent Events</h3>
-            <span className="text-[8px] text-gray-500">Click details</span>
+            <h3 className="text-sm font-bold">Recent Events</h3>
+            <span className="text-[10px] text-gray-500">Click details</span>
           </div>
           {events.map((event) => (
             <div
               key={event.id}
-              className="border border-gray-200 dark:border-gray-700 rounded p-2 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
+              className="border border-gray-200 dark:border-gray-700 rounded p-2.5 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
               onClick={() => setSelectedEvent(event)}
             >
               <div className="flex justify-between mb-1">
-                <div className="flex gap-1">
-                  <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${
+                <div className="flex gap-1.5">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     event.severity === 'Critical' ? 'bg-red-100 text-red-800' :
                     event.severity === 'High' ? 'bg-orange-100 text-orange-800' :
                     'bg-yellow-100 text-yellow-800'
                   }`}>{event.severity}</span>
-                  <span className={`px-1 py-0.5 rounded text-[9px] ${getStatusColor(event.status)}`}>{event.status}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] ${getStatusColor(event.status)}`}>{event.status}</span>
                 </div>
-                <span className="text-[8px] text-gray-500">{new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-[10px] text-gray-500">{new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <h4 className="font-medium text-[11px] mb-0.5 line-clamp-1">{event.title}</h4>
-              <p className="text-[9px] text-gray-600 line-clamp-1 mb-1">{event.description}</p>
-              <div className="flex gap-2 text-[8px] text-gray-500">
+              <h4 className="font-medium text-xs mb-1 line-clamp-1">{event.title}</h4>
+              <p className="text-[10px] text-gray-600 line-clamp-1 mb-1">{event.description}</p>
+              <div className="flex gap-2 text-[10px] text-gray-500">
                 <span className="truncate">{event.source}</span>
                 {event.responseTime && (
                   <span className="text-green-600 whitespace-nowrap">⚡{formatDuration(calculateTimeDiff(event.detectionTime, event.responseTime))}</span>
@@ -185,41 +235,41 @@ export default function SOCPerformanceDashboard() {
         </div>
 
         {/* RIGHT: Tasks */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <h3 className="text-xs font-bold">Remediation Tasks</h3>
-            <span className="text-[8px] text-gray-500">Click steps</span>
+            <h3 className="text-sm font-bold">Remediation Tasks</h3>
+            <span className="text-[10px] text-gray-500">Click steps</span>
           </div>
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="border border-gray-200 dark:border-gray-700 rounded p-2 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
+              className="border border-gray-200 dark:border-gray-700 rounded p-2.5 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer"
               onClick={() => setSelectedTask(task)}
             >
               <div className="flex justify-between mb-1">
-                <span className={`px-1 py-0.5 rounded text-[9px] font-bold ${
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                   task.priority === 'Critical' ? 'bg-red-100 text-red-800' :
                   'bg-orange-100 text-orange-800'
                 }`}>{task.priority}</span>
-                <div className="text-lg font-bold text-blue-600">{task.progress}%</div>
+                <div className="text-xl font-bold text-blue-600">{task.progress}%</div>
               </div>
-              <h4 className="font-medium text-[11px] mb-1 line-clamp-2">{task.title}</h4>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-1 mb-1">
-                <div className="bg-blue-600 h-1 rounded" style={{ width: `${task.progress}%` }} />
+              <h4 className="font-medium text-xs mb-1.5 line-clamp-2">{task.title}</h4>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-1.5 mb-1.5">
+                <div className="bg-blue-600 h-1.5 rounded" style={{ width: `${task.progress}%` }} />
               </div>
-              <div className="flex justify-between text-[8px] text-gray-500">
+              <div className="flex justify-between text-[10px] text-gray-500">
                 <span className="truncate">{task.assignedTo}</span>
-                <span className={`px-1 py-0.5 rounded ${getStatusColor(task.status)}`}>{task.status}</span>
+                <span className={`px-1.5 py-0.5 rounded ${getStatusColor(task.status)}`}>{task.status}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="card p-2 bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-500">
+      <div className="card p-2.5 bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-500">
         <div className="flex items-center gap-2">
-          <Activity className="w-3 h-3 text-blue-600" />
-          <p className="text-[9px] text-blue-800 dark:text-blue-200">🔔 Auto email alerts for Critical/High • CISO & SOC leads notified</p>
+          <Activity className="w-4 h-4 text-blue-600" />
+          <p className="text-[11px] text-blue-800 dark:text-blue-200">🔔 Auto email alerts for Critical/High • CISO & SOC leads notified</p>
         </div>
       </div>
 
