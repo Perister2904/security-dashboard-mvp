@@ -1,9 +1,12 @@
 "use client";
 
-import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { sampleSOCEvents, currentSOCMetrics, sampleRemediationTasks, formatDuration, calculateTimeDiff, getStatusColor } from '@/lib/soc-data';
+import { useState } from 'react';
+import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus, X, User, FileText } from 'lucide-react';
+import { sampleSOCEvents, currentSOCMetrics, sampleRemediationTasks, formatDuration, calculateTimeDiff, getStatusColor, SOCEvent, RemediationTask } from '@/lib/soc-data';
 
 export default function SOCPerformanceDashboard() {
+  const [selectedEvent, setSelectedEvent] = useState<SOCEvent | null>(null);
+  const [selectedTask, setSelectedTask] = useState<RemediationTask | null>(null);
   const metrics = currentSOCMetrics;
   const events = sampleSOCEvents;
   const tasks = sampleRemediationTasks;
@@ -161,14 +164,18 @@ export default function SOCPerformanceDashboard() {
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Recent Security Events
         </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Click any event for full details and response actions
+        </p>
         <div className="space-y-3">
           {events.map((event) => (
             <div
               key={event.id}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+              onClick={() => setSelectedEvent(event)}
             >
               <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-gray-900 dark:text-white">
                     {event.title}
                   </span>
@@ -189,11 +196,11 @@ export default function SOCPerformanceDashboard() {
                     {event.status}
                   </span>
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
                   {new Date(event.timestamp).toLocaleString()}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
                 {event.description}
               </p>
               <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -209,6 +216,7 @@ export default function SOCPerformanceDashboard() {
                     Response: {formatDuration(calculateTimeDiff(event.detectionTime, event.responseTime))}
                   </span>
                 )}
+                <span className="text-blue-600 ml-auto">View Details →</span>
               </div>
             </div>
           ))}
@@ -220,14 +228,18 @@ export default function SOCPerformanceDashboard() {
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Active Remediation Tasks
         </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Click any task for detailed steps and progress tracking
+        </p>
         <div className="space-y-4">
           {tasks.map((task) => (
             <div
               key={task.id}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+              onClick={() => setSelectedTask(task)}
             >
               <div className="flex items-start justify-between mb-3">
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-medium text-gray-900 dark:text-white">
                       {task.title}
@@ -246,11 +258,11 @@ export default function SOCPerformanceDashboard() {
                       {task.priority}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                     {task.description}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-right ml-4">
                   <div className="text-2xl font-bold text-blue-600">
                     {task.progress}%
                   </div>
@@ -268,28 +280,6 @@ export default function SOCPerformanceDashboard() {
                 </div>
               </div>
 
-              {/* Steps */}
-              <div className="space-y-2 mb-3">
-                {task.steps.map((step, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    {step.completed ? (
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    ) : (
-                      <div className="w-4 h-4 border-2 border-gray-300 rounded-full flex-shrink-0" />
-                    )}
-                    <span
-                      className={`text-sm ${
-                        step.completed
-                          ? 'text-gray-500 line-through'
-                          : 'text-gray-900 dark:text-white'
-                      }`}
-                    >
-                      {step.step}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>
                   <strong>Assigned:</strong> {task.assignedTo}
@@ -300,6 +290,7 @@ export default function SOCPerformanceDashboard() {
                 <span className={`px-2 py-1 rounded-full font-medium ${getStatusColor(task.status)}`}>
                   {task.status}
                 </span>
+                <span className="text-blue-600">View Details →</span>
               </div>
             </div>
           ))}
@@ -321,6 +312,215 @@ export default function SOCPerformanceDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedEvent(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {selectedEvent.title}
+                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedEvent.severity === 'Critical' ? 'bg-red-100 text-red-800' :
+                    selectedEvent.severity === 'High' ? 'bg-orange-100 text-orange-800' :
+                    selectedEvent.severity === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedEvent.severity}
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedEvent.status)}`}>
+                    {selectedEvent.status}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(selectedEvent.timestamp).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <button onClick={() => setSelectedEvent(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Event Description</h4>
+                <p className="text-gray-700 dark:text-gray-300">{selectedEvent.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">Event Source</div>
+                  <div className="font-medium">{selectedEvent.source}</div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">Assigned Analyst</div>
+                  <div className="font-medium flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {selectedEvent.assignedTo}
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">Detection Time</div>
+                  <div className="font-medium">{new Date(selectedEvent.detectionTime).toLocaleString()}</div>
+                </div>
+                {selectedEvent.responseTime && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Response Time</div>
+                    <div className="font-medium text-green-600">
+                      {formatDuration(calculateTimeDiff(selectedEvent.detectionTime, selectedEvent.responseTime))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {selectedEvent.responseTime && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Response Actions Taken</h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    SOC team responded within {formatDuration(calculateTimeDiff(selectedEvent.detectionTime, selectedEvent.responseTime))} and initiated containment procedures. 
+                    Event is currently being monitored and investigated.
+                  </p>
+                </div>
+              )}
+
+              {!selectedEvent.responseTime && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⚠️ Pending Response</h4>
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    This event is awaiting analyst response. Assigned to {selectedEvent.assignedTo}.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end">
+              <button onClick={() => setSelectedEvent(null)} className="btn btn-primary">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Task Details Modal */}
+      {selectedTask && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedTask(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {selectedTask.title}
+                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    selectedTask.priority === 'Critical' ? 'bg-red-100 text-red-800' :
+                    selectedTask.priority === 'High' ? 'bg-orange-100 text-orange-800' :
+                    selectedTask.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedTask.priority} Priority
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTask.status)}`}>
+                    {selectedTask.status}
+                  </span>
+                  <span className="text-2xl font-bold text-blue-600">{selectedTask.progress}%</span>
+                </div>
+              </div>
+              <button onClick={() => setSelectedTask(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Task Description</h4>
+                <p className="text-gray-700 dark:text-gray-300">{selectedTask.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">Assigned To</div>
+                  <div className="font-medium flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {selectedTask.assignedTo}
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">Due Date</div>
+                  <div className="font-medium">{new Date(selectedTask.dueDate).toLocaleDateString()}</div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-900 dark:text-white">Overall Progress</h4>
+                  <span className="text-sm font-medium text-blue-600">{selectedTask.progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div
+                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${selectedTask.progress}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Detailed Steps */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Remediation Steps</h4>
+                <div className="space-y-3">
+                  {selectedTask.steps.map((step, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex items-start gap-3 p-3 rounded-lg ${
+                        step.completed ? 'bg-green-50 dark:bg-green-900/20' : 'bg-gray-50 dark:bg-gray-800'
+                      }`}
+                    >
+                      <div className="mt-0.5">
+                        {step.completed ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <div className="w-5 h-5 border-2 border-gray-400 rounded-full" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className={`font-medium ${
+                          step.completed ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-white'
+                        }`}>
+                          Step {index + 1}: {step.step}
+                        </div>
+                        {step.completed && (
+                          <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                            ✓ Completed
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedTask.progress < 100 && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Next Steps</h4>
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    {selectedTask.steps.find(s => !s.completed)?.step || 'All steps completed - awaiting final review'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end">
+              <button onClick={() => setSelectedTask(null)} className="btn btn-primary">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

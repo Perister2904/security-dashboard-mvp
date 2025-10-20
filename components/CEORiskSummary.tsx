@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Mail, Download, Shield, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Mail, Download, Shield, DollarSign, X, Calendar, FileText, Activity } from 'lucide-react';
 import { currentRiskPosture, currentSOCMetrics } from '@/lib/soc-data';
 
 export default function CEORiskSummary() {
   const [emailSent, setEmailSent] = useState(false);
+  const [selectedRisk, setSelectedRisk] = useState<typeof currentRiskPosture.criticalRisks[0] | null>(null);
   const riskPosture = currentRiskPosture;
 
   const handleSendEmail = () => {
@@ -149,9 +150,16 @@ export default function CEORiskSummary() {
           <AlertTriangle className="w-5 h-5 text-red-600" />
           Top Business Risks Requiring Attention
         </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Click any risk for detailed mitigation recommendations
+        </p>
         <div className="space-y-4">
           {riskPosture.criticalRisks.slice(0, 3).map((risk, index) => (
-            <div key={index} className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div 
+              key={index} 
+              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 hover:border-red-400 cursor-pointer transition-all"
+              onClick={() => setSelectedRisk(risk)}
+            >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -162,7 +170,7 @@ export default function CEORiskSummary() {
                       {risk.title}
                     </h4>
                   </div>
-                  <p className="text-red-800 dark:text-red-200 mb-3 pl-10">
+                  <p className="text-red-800 dark:text-red-200 mb-3 pl-10 line-clamp-2">
                     {risk.description}
                   </p>
                   <div className="bg-red-100 dark:bg-red-900/40 p-3 rounded-lg ml-10">
@@ -172,7 +180,7 @@ export default function CEORiskSummary() {
                         <div className="font-semibold text-red-900 dark:text-red-100 text-sm mb-1">
                           Business Impact:
                         </div>
-                        <div className="text-sm text-red-800 dark:text-red-200">
+                        <div className="text-sm text-red-800 dark:text-red-200 line-clamp-2">
                           {risk.businessImpact}
                         </div>
                       </div>
@@ -184,6 +192,9 @@ export default function CEORiskSummary() {
                   <div className="text-3xl font-bold text-red-600">{risk.riskScore}</div>
                   <div className="text-xs text-gray-500">/100</div>
                 </div>
+              </div>
+              <div className="text-sm text-blue-600 dark:text-blue-400 text-right mt-2">
+                View Details →
               </div>
             </div>
           ))}
@@ -319,6 +330,165 @@ export default function CEORiskSummary() {
           </div>
         </div>
       </div>
+
+      {/* Risk Details Modal */}
+      {selectedRisk && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedRisk(null)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-900 rounded-lg max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header - Sticky */}
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 rounded-t-lg z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {selectedRisk.title}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-3 ml-9">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                      Risk Score: {selectedRisk.riskScore}/100
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedRisk(null)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body - Scrollable */}
+            <div className="overflow-y-auto flex-1 p-6 space-y-6">
+              {/* Full Description */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  Risk Overview
+                </h4>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {selectedRisk.description}
+                </p>
+              </div>
+
+              {/* Business Impact */}
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2 flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-red-600" />
+                  Business Impact Assessment
+                </h4>
+                <p className="text-red-800 dark:text-red-200">
+                  {selectedRisk.businessImpact}
+                </p>
+              </div>
+
+              {/* Mitigation Timeline */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-green-600" />
+                  Recommended Mitigation Timeline
+                </h4>
+                <div className="space-y-3">
+                  <div className="border-l-4 border-red-500 pl-4 py-2 bg-red-50 dark:bg-red-900/20 rounded-r">
+                    <div className="font-semibold text-red-900 dark:text-red-100 text-sm mb-1">
+                      Immediate (0-7 days)
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Deploy temporary security controls, increase monitoring frequency, notify affected departments
+                    </p>
+                  </div>
+                  <div className="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 dark:bg-orange-900/20 rounded-r">
+                    <div className="font-semibold text-orange-900 dark:text-orange-100 text-sm mb-1">
+                      Short-term (1-4 weeks)
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Implement primary security tools, conduct user training, establish incident response procedures
+                    </p>
+                  </div>
+                  <div className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 dark:bg-green-900/20 rounded-r">
+                    <div className="font-semibold text-green-900 dark:text-green-100 text-sm mb-1">
+                      Long-term (1-3 months)
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      Complete security architecture review, achieve compliance certification, establish continuous monitoring
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Risk Metrics */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-600" />
+                  Risk Assessment
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-800/50">
+                    <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">Likelihood</div>
+                    <div className="text-2xl font-bold text-orange-600">{selectedRisk.likelihood}/10</div>
+                  </div>
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-800/50">
+                    <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">Impact</div>
+                    <div className="text-2xl font-bold text-red-600">{selectedRisk.impact}/10</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Remediation Timeline */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">
+                  Recommended Immediate Actions
+                </h4>
+                <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Schedule emergency board meeting to review risk exposure and mitigation budget</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Engage third-party security consultants for rapid assessment and gap analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Implement temporary security controls and increased monitoring on affected assets</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Update cyber insurance policy and review coverage for potential breach scenarios</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Establish weekly executive briefings until risk is reduced to acceptable levels</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Modal Footer - Sticky */}
+            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-6 rounded-b-lg">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Last updated: {new Date().toLocaleDateString()}
+                </div>
+                <button
+                  onClick={() => setSelectedRisk(null)}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Close Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

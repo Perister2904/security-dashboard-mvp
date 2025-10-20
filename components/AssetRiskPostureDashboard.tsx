@@ -1,9 +1,11 @@
 "use client";
 
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Server, Laptop, Network } from 'lucide-react';
-import { sampleAssets, currentRiskPosture } from '@/lib/soc-data';
+import { useState } from 'react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Server, Laptop, Network, X, Calendar, Activity } from 'lucide-react';
+import { sampleAssets, currentRiskPosture, Asset } from '@/lib/soc-data';
 
 export default function AssetRiskPostureDashboard() {
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const assets = sampleAssets;
   const riskPosture = currentRiskPosture;
 
@@ -263,6 +265,9 @@ export default function AssetRiskPostureDashboard() {
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Asset Inventory & Security Tools Status
         </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Click any asset row for detailed information
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -277,7 +282,11 @@ export default function AssetRiskPostureDashboard() {
             </thead>
             <tbody>
               {assets.map((asset) => (
-                <tr key={asset.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <tr 
+                  key={asset.id} 
+                  className="border-b border-gray-100 dark:border-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-colors"
+                  onClick={() => setSelectedAsset(asset)}
+                >
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <div className={`${
@@ -361,6 +370,195 @@ export default function AssetRiskPostureDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Asset Details Modal */}
+      {selectedAsset && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedAsset(null)}>
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                  selectedAsset.criticality === 'Critical' ? 'bg-red-100 text-red-600' :
+                  selectedAsset.criticality === 'High' ? 'bg-orange-100 text-orange-600' :
+                  'bg-blue-100 text-blue-600'
+                }`}>
+                  {getAssetIcon(selectedAsset.type)}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    {selectedAsset.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {selectedAsset.type} • {selectedAsset.ipAddress || 'No IP'}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedAsset(null)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Asset Overview */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Asset Overview
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Department</div>
+                    <div className="font-medium">{selectedAsset.department}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Criticality</div>
+                    <div className="font-medium">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        selectedAsset.criticality === 'Critical' ? 'bg-red-100 text-red-800' :
+                        selectedAsset.criticality === 'High' ? 'bg-orange-100 text-orange-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {selectedAsset.criticality}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Department</div>
+                    <div className="font-medium">{selectedAsset.department}</div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">Compliance Status</div>
+                    <div className="font-medium">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        selectedAsset.complianceStatus === 'Compliant' ? 'bg-green-100 text-green-800' :
+                        selectedAsset.complianceStatus === 'Partially Compliant' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {selectedAsset.complianceStatus}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security Tools Status */}
+              <div>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Security Tools Coverage
+                </h4>
+                <div className="space-y-3">
+                  {/* EDR */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Endpoint Detection & Response (EDR)</span>
+                        {getToolStatusBadge(selectedAsset.edr.status)}
+                      </div>
+                      {selectedAsset.edr.version && (
+                        <span className="text-sm text-gray-500">Version {selectedAsset.edr.version}</span>
+                      )}
+                    </div>
+                    {selectedAsset.edr.lastUpdate && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        Last Updated: {selectedAsset.edr.lastUpdate}
+                      </div>
+                    )}
+                    {selectedAsset.edr.status === 'Not Installed' && (
+                      <div className="mt-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                        ⚠️ Action Required: EDR installation needed for endpoint protection
+                      </div>
+                    )}
+                  </div>
+
+                  {/* DLP */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Data Loss Prevention (DLP)</span>
+                        {getToolStatusBadge(selectedAsset.dlp.status)}
+                      </div>
+                      {selectedAsset.dlp.version && (
+                        <span className="text-sm text-gray-500">Version {selectedAsset.dlp.version}</span>
+                      )}
+                    </div>
+                    {selectedAsset.dlp.lastUpdate && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        Last Updated: {selectedAsset.dlp.lastUpdate}
+                      </div>
+                    )}
+                    {selectedAsset.dlp.status === 'Not Installed' && (
+                      <div className="mt-2 text-sm text-orange-600 bg-orange-50 dark:bg-orange-900/20 p-2 rounded">
+                        ⚠️ Recommended: DLP installation for data protection
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Antivirus */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Antivirus Protection</span>
+                        {getToolStatusBadge(selectedAsset.antivirus.status)}
+                      </div>
+                      {selectedAsset.antivirus.version && (
+                        <span className="text-sm text-gray-500">Version {selectedAsset.antivirus.version}</span>
+                      )}
+                    </div>
+                    {selectedAsset.antivirus.lastUpdate && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        Last Updated: {selectedAsset.antivirus.lastUpdate}
+                      </div>
+                    )}
+                    {selectedAsset.antivirus.status === 'Inactive' && (
+                      <div className="mt-2 text-sm text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded">
+                        ⚠️ Alert: Antivirus is installed but not active
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommended Actions */}
+              {(selectedAsset.edr.status === 'Not Installed' || 
+                selectedAsset.dlp.status === 'Not Installed' || 
+                selectedAsset.antivirus.status !== 'Active') && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                    Recommended Actions
+                  </h4>
+                  <ul className="space-y-1 text-sm text-yellow-800 dark:text-yellow-200">
+                    {selectedAsset.edr.status === 'Not Installed' && (
+                      <li>• Install and configure EDR solution immediately</li>
+                    )}
+                    {selectedAsset.dlp.status === 'Not Installed' && (
+                      <li>• Deploy DLP agent to protect sensitive data</li>
+                    )}
+                    {selectedAsset.antivirus.status !== 'Active' && (
+                      <li>• Activate or reinstall antivirus protection</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 flex justify-end">
+              <button 
+                onClick={() => setSelectedAsset(null)}
+                className="btn btn-primary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
