@@ -96,19 +96,20 @@ export default function CEORiskSummary() {
             {/* 7-Day Risk Score Trend */}
             <div>
               <div className="text-[10px] font-bold text-gray-700 mb-1">7-Day Risk Score Trend</div>
-              <div className="flex items-end justify-between h-20 gap-1">
+              <div className="flex items-end justify-between gap-1" style={{ height: '80px' }}>
                 {[68, 70, 69, 71, 70, 71, 72].map((score, i) => {
-                  const height = (score / 100) * 100;
+                  const heightPx = (score / 100) * 80; // Scale to 80px
                   const color = score >= 80 ? 'bg-green-500' : score >= 60 ? 'bg-yellow-500' : 'bg-red-500';
                   return (
-                    <div key={i} className="flex-1 flex flex-col items-center">
-                      <div className={`w-full ${color} rounded-t`} style={{ height: `${height}%` }}></div>
-                      <div className="text-[8px] text-gray-500 mt-1">{['M','T','W','T','F','S','S'][i]}</div>
-                      <div className="text-[9px] font-bold">{score}</div>
+                    <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+                      <div className="text-[9px] font-bold text-gray-700">{score}</div>
+                      <div className={`w-full ${color} rounded-t`} style={{ height: `${heightPx}px` }}></div>
+                      <div className="text-[9px] text-gray-500 mt-0.5">{['M','T','W','T','F','S','S'][i]}</div>
                     </div>
                   );
                 })}
               </div>
+              <div className="text-[9px] text-gray-500 text-center mt-1">Risk score (out of 100)</div>
             </div>
           </div>
 

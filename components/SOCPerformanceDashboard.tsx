@@ -70,18 +70,23 @@ export default function SOCPerformanceDashboard() {
           {/* Response Time Trend Graph */}
           <div className="card p-3">
             <h4 className="text-xs font-bold mb-2">7-Day Response Trend</h4>
-            <div className="h-20 flex items-end justify-between gap-1">
-              {[15.2, 13.8, 12.1, 14.5, 11.9, 12.3, 12.3].map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center">
-                  <div 
-                    className={`w-full rounded-t transition-all ${val < 13 ? 'bg-green-500' : val < 15 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                    style={{ height: `${(val / 20) * 100}%` }}
-                  />
-                  <span className="text-[9px] text-gray-500 mt-1">{i === 6 ? 'Now' : `D${i+1}`}</span>
-                </div>
-              ))}
+            <div className="flex items-end justify-between gap-1" style={{ height: '80px' }}>
+              {[15.2, 13.8, 12.1, 14.5, 11.9, 12.3, 12.3].map((val, i) => {
+                const heightPx = (val / 20) * 80; // Scale to 80px max height
+                const color = val < 13 ? 'bg-green-500' : val < 15 ? 'bg-yellow-500' : 'bg-red-500';
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="text-[9px] font-bold text-gray-700">{val}</div>
+                    <div 
+                      className={`w-full rounded-t ${color}`}
+                      style={{ height: `${heightPx}px` }}
+                    />
+                    <span className="text-[9px] text-gray-500 mt-1">{['M','T','W','T','F','S','S'][i]}</span>
+                  </div>
+                );
+              })}
             </div>
-            <div className="text-[9px] text-gray-500 text-center mt-1">Minutes to respond</div>
+            <div className="text-[9px] text-gray-500 text-center mt-1">Response time (minutes)</div>
           </div>
 
           {/* Severity Distribution Pie Chart */}

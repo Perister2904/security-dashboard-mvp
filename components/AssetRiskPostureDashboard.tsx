@@ -95,7 +95,7 @@ export default function AssetRiskPostureDashboard() {
           {/* Coverage Trend Chart */}
           <div className="card p-3">
             <h4 className="text-xs font-bold mb-2">7-Day Coverage Trend</h4>
-            <div className="h-20 flex items-end justify-between gap-1">
+            <div className="flex items-end justify-between gap-1" style={{ height: '80px' }}>
               {[
                 { edr: 55, dlp: 35, av: 75 },
                 { edr: 57, dlp: 37, av: 77 },
@@ -104,16 +104,21 @@ export default function AssetRiskPostureDashboard() {
                 { edr: 60, dlp: 39, av: 79 },
                 { edr: 60, dlp: 40, av: 80 },
                 { edr: 60, dlp: 40, av: 80 }
-              ].map((day, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-                  <div className="w-full flex flex-col gap-0.5">
-                    <div className="w-full bg-blue-500 rounded-t" style={{ height: `${(day.edr / 100) * 60}px` }} title={`EDR: ${day.edr}%`} />
-                    <div className="w-full bg-purple-500" style={{ height: `${(day.dlp / 100) * 60}px` }} title={`DLP: ${day.dlp}%`} />
-                    <div className="w-full bg-orange-500 rounded-b" style={{ height: `${(day.av / 100) * 60}px` }} title={`AV: ${day.av}%`} />
+              ].map((day, i) => {
+                const edrHeight = (day.edr / 100) * 80;
+                const dlpHeight = (day.dlp / 100) * 80;
+                const avHeight = (day.av / 100) * 80;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full flex items-end gap-0.5">
+                      <div className="flex-1 bg-blue-500 rounded-t" style={{ height: `${edrHeight}px` }} title={`EDR: ${day.edr}%`} />
+                      <div className="flex-1 bg-purple-500 rounded-t" style={{ height: `${dlpHeight}px` }} title={`DLP: ${day.dlp}%`} />
+                      <div className="flex-1 bg-orange-500 rounded-t" style={{ height: `${avHeight}px` }} title={`AV: ${day.av}%`} />
+                    </div>
+                    <span className="text-[9px] text-gray-500">{['M','T','W','T','F','S','S'][i]}</span>
                   </div>
-                  <span className="text-[9px] text-gray-500">{i === 6 ? 'Now' : `D${i+1}`}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="flex gap-3 mt-2 text-[9px] justify-center">
               <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded"></span>EDR</span>
