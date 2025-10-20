@@ -1,17 +1,22 @@
 "use client";
 /* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState, useCallback } from "react";
-import { Moon, Sun, ShieldCheck, FileText, Download, Users, AlertTriangle, CheckCircle, Clock, Play, Loader, Eye, EyeOff, LogOut } from "lucide-react";
+import { Moon, Sun, FileText, Download, Users, AlertTriangle, CheckCircle, Clock, Eye, EyeOff, LogOut, Activity, TrendingUp, Target } from "lucide-react";
 import { useTheme } from "next-themes";
 import { sampleReports, getDashboardData, Report } from "@/lib/reports";
 import { SessionManager, User, users } from "@/lib/auth";
-import { RealTimeManager, PentestVerificationManager, PentestVerification } from "@/lib/realtime";
+import { RealTimeManager } from "@/lib/realtime";
 
 // Chart Components
 import SecurityTrendsChart from "@/components/SecurityTrendsChart";
 import ThreatCategoriesChart from "@/components/ThreatCategoriesChart";
 
-type Tab = "Reports Dashboard" | "Submit Report" | "Workflow Audit" | "Pentest Verification";
+// New Dashboard Components
+import SOCPerformanceDashboard from "@/components/SOCPerformanceDashboard";
+import AssetRiskPostureDashboard from "@/components/AssetRiskPostureDashboard";
+import CEORiskSummary from "@/components/CEORiskSummary";
+
+type Tab = "SOC Performance" | "Asset & Risk Posture" | "CEO Risk Summary" | "Reports Dashboard";
 
 // Report Submission Form Component
 function ReportSubmissionForm({ currentUser, onSubmit, existingReports }: { 
@@ -214,14 +219,13 @@ function ReportSubmissionForm({ currentUser, onSubmit, existingReports }: {
 
 export default function Page() {
   const { theme, setTheme } = useTheme();
-  const [tab, setTab] = useState<Tab>("Reports Dashboard");
+  const [tab, setTab] = useState<Tab>("SOC Performance");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [reports, setReports] = useState<Report[]>(sampleReports);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [pentestVerifications, setPentestVerifications] = useState<Map<string, PentestVerification>>(new Map());
   const [mounted, setMounted] = useState(false);
   const [meetingMode, setMeetingMode] = useState(false);
   
@@ -357,13 +361,6 @@ export default function Page() {
 
 
 
-
-  const startPentestVerification = (reportId: string) => {
-    PentestVerificationManager.startVerification(reportId, (verification) => {
-      setPentestVerifications(prev => new Map(prev.set(reportId, verification)));
-    });
-  };
-
   const getExecutiveSummary = useCallback((report: Report) => {
     if (report.id === "RPT-001") {
       return "A critical security flaw was found in our mobile banking app that could allow hackers to access customer accounts without passwords. This affects all mobile banking users and requires immediate attention. The security team has identified the exact problem and is working on a fix.";
@@ -448,7 +445,7 @@ export default function Page() {
             break;
           case '2':
             e.preventDefault();
-            setTab("Submit Report");
+            setTab("Asset & Risk Posture");
             break;
           case 'e':
             e.preventDefault();
@@ -475,7 +472,7 @@ export default function Page() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <ShieldCheck className="mx-auto h-12 w-12 text-blue-600" />
+            <FileText className="mx-auto h-12 w-12 text-blue-600" />
             <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
               Security Dashboard Access
             </h2>
@@ -528,7 +525,7 @@ export default function Page() {
             >
               {isLoading ? (
                 <>
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  <Clock className="w-4 h-4 mr-2" />
                   Signing In...
                 </>
               ) : (
@@ -607,15 +604,15 @@ export default function Page() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <ShieldCheck className="w-8 h-8 text-blue-600" />
+            <Activity className="w-8 h-8 text-blue-600" />
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full" />
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Security Reports & Workflow Management
+              Security Operations Center Dashboard
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Report-based workflow • Executive meetings • Department coordination
+              SOC Performance • Asset Management • Risk Posture • Executive Reporting
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
               Logged in as: {currentUser.name} ({currentUser.role}) • {currentUser.department}
@@ -662,17 +659,17 @@ export default function Page() {
 
       <nav className="flex flex-wrap gap-2 mb-6">
         {(currentUser?.role === 'CEO' || currentUser?.role === 'CISO' ? 
-          ["Reports Dashboard","Submit Report","Workflow Audit","Pentest Verification"] :
-          ["Reports Dashboard","Submit Report"]
+          ["SOC Performance", "Asset & Risk Posture", "CEO Risk Summary", "Reports Dashboard"] :
+          ["Reports Dashboard"]
         ).map((t) => (
           <button key={t} className={`tab ${tab === t ? "tab-active" : ""}`} onClick={() => {
             setTab(t as Tab);
-            setSelectedReport(null); // Reset selected report when switching tabs
+            setSelectedReport(null);
           }}>
+            {t === "SOC Performance" && <Activity className="w-4 h-4 mr-1" />}
+            {t === "Asset & Risk Posture" && <Target className="w-4 h-4 mr-1" />}
+            {t === "CEO Risk Summary" && <TrendingUp className="w-4 h-4 mr-1" />}
             {t === "Reports Dashboard" && <FileText className="w-4 h-4 mr-1" />}
-            {t === "Submit Report" && <FileText className="w-4 h-4 mr-1" />}
-            {t === "Workflow Audit" && <CheckCircle className="w-4 h-4 mr-1" />}
-            {t === "Pentest Verification" && <ShieldCheck className="w-4 h-4 mr-1" />}
             {t}
           </button>
         ))}
@@ -871,70 +868,43 @@ export default function Page() {
         </section>
       )}
 
-      {tab === "Submit Report" && (
+      {/* SOC Performance Dashboard Tab */}
+      {tab === "SOC Performance" && (
         <section className="space-y-6">
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4">Submit New Security Report</h2>
-            <ReportSubmissionForm 
-              currentUser={currentUser} 
-              existingReports={reports}
-              onSubmit={(newReport) => {
-                RealTimeManager.addReport(newReport);
-                setReports(RealTimeManager.getReports());
-                showNotification('success', `Report ${newReport.id} submitted successfully!`);
-                setTab("Reports Dashboard");
-              }} 
-            />
-          </div>
+          <SOCPerformanceDashboard />
         </section>
       )}
 
-
-
-      {tab === "Workflow Audit" && (
+      {/* SOC Performance Dashboard Tab */}
+      {tab === "SOC Performance" && (
         <section className="space-y-6">
-          {/* Executive Summary Dashboard */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="card p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-red-600">
-                    {accessibleReports.filter(r => r.severity === 'Critical' && r.status !== 'Fixed').length}
-                  </div>
-                  <div className="text-xs text-gray-600">Critical Issues Active</div>
-                </div>
-              </div>
-            </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {accessibleReports.filter(r => r.workflowStage === 'Development' || r.workflowStage === 'Testing').length}
-                  </div>
-                  <div className="text-xs text-gray-600">In Progress</div>
-                </div>
-              </div>
-            </div>
-            <div className="card p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {accessibleReports.filter(r => r.workflowStage === 'Closed' || r.status === 'Fixed').length}
-                  </div>
-                  <div className="text-xs text-gray-600">Resolved This Month</div>
-                </div>
-              </div>
-            </div>
-            <div className="card p-4">
+          <SOCPerformanceDashboard />
+        </section>
+      )}
+
+      {/* Asset & Risk Posture Tab */}
+      {tab === "Asset & Risk Posture" && (
+        <section className="space-y-6">
+          <AssetRiskPostureDashboard />
+        </section>
+      )}
+
+      {/* CEO Risk Summary Tab */}
+      {/* CEO Risk Summary Tab */}
+      {tab === "CEO Risk Summary" && (
+        <section className="space-y-6">
+          <CEORiskSummary />
+        </section>
+      )}
+
+      
+
+      {false && (
+        <section className="space-y-6">
+          {/* <ThreatIntelPanel data={data.threatIntel} /> */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="card p-6">
+              <h3 className="text-lg font-semibold mb-4">Threat Landscape</h3>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
@@ -1141,112 +1111,26 @@ export default function Page() {
         </section>
       )}
 
-      {tab === "Pentest Verification" && (
+      {/* SOC Performance Dashboard Tab */}
+      {tab === "SOC Performance" && (
         <section className="space-y-6">
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4">Pentest AI - Vulnerability Verification</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Test if reported vulnerabilities have been properly fixed
-            </p>
-            
-            <div className="space-y-4">
-              {reports.filter(r => r.type === 'vulnerability' || r.type === 'fix').map((report) => (
-                <div key={report.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{report.title}</span>
-                    <button 
-                      onClick={() => startPentestVerification(report.id)}
-                      className="btn btn-primary text-sm"
-                      disabled={pentestVerifications.get(report.id)?.status === 'scanning'}
-                    >
-                      <ShieldCheck className="w-4 h-4" />
-                      {pentestVerifications.get(report.id)?.status === 'scanning' ? 'Testing...' : 'Test Vulnerability'}
-                    </button>
-                  </div>
-                  
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Affected Systems: {report.affectedSystems.join(', ')}
-                  </div>
-                  
-                  {/* Pentest Verification Progress */}
-                  {pentestVerifications.get(report.id) && (
-                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
-                      <div className="flex items-center gap-2 mb-2">
-                        {pentestVerifications.get(report.id)?.status === 'complete' ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <Loader className="w-4 h-4 animate-spin" />
-                        )}
-                        <span className="text-sm font-medium">
-                          {pentestVerifications.get(report.id)?.currentStep}
-                        </span>
-                      </div>
-                      
-                      {pentestVerifications.get(report.id)?.status !== 'complete' && (
-                        <>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
-                              style={{ width: `${pentestVerifications.get(report.id)?.progress || 0}%` }}
-                            />
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {pentestVerifications.get(report.id)?.progress}% complete
-                          </div>
-                        </>
-                      )}
-                      
-                      {pentestVerifications.get(report.id)?.results && (
-                        <div className="mt-3 p-2 bg-white dark:bg-gray-800 rounded border">
-                          <div className="flex items-center gap-2 mb-1">
-                            {pentestVerifications.get(report.id)?.results?.vulnerabilityFixed ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <AlertTriangle className="w-4 h-4 text-red-500" />
-                            )}
-                            <span className="text-sm font-medium">
-                              {pentestVerifications.get(report.id)?.results?.vulnerabilityFixed ? 'Fixed' : 'Still Vulnerable'}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            {pentestVerifications.get(report.id)?.results?.details}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  
-                  {report.id === 'RPT-001' && (
-                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded">
-                      <div className="flex items-center gap-2 text-red-700 dark:text-red-300 text-sm">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span className="font-medium">Vulnerability Still Exists</span>
-                      </div>
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                        SQL injection still exploitable on /api/auth/login endpoint
-                      </p>
-                    </div>
-                  )}
-                  
-                  {report.id === 'RPT-002' && (
-                    <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-                      <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300 text-sm">
-                        <Clock className="w-4 h-4" />
-                        <span className="font-medium">Fix In Progress</span>
-                      </div>
-                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        Development team implementing parameterized queries
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <SOCPerformanceDashboard />
         </section>
       )}
 
+      {/* Asset & Risk Posture Tab */}
+      {tab === "Asset & Risk Posture" && (
+        <section className="space-y-6">
+          <AssetRiskPostureDashboard />
+        </section>
+      )}
 
+      {/* CEO Risk Summary Tab */}
+      {tab === "CEO Risk Summary" && (
+        <section className="space-y-6">
+          <CEORiskSummary />
+        </section>
+      )}
 
       
 
