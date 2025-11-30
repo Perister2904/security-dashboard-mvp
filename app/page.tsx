@@ -338,21 +338,37 @@ export default function Page() {
 
     setIsLoading(true);
     
-    // Simulate authentication delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const user = SessionManager.login(loginEmail, loginPassword);
-    if (user) {
-      setCurrentUser(user);
-      showNotification('success', `Welcome back, ${user.name}!`);
-      RealTimeManager.initialize(sampleReports);
+    try {
+      // Try real backend API first
+      const user = await SessionManager.loginAsync(loginEmail, loginPassword);
       
-      // Subscribe to real-time updates
-      RealTimeManager.subscribe((updatedReports) => {
-        setReports(updatedReports);
-      });
-    } else {
-      showNotification('error', 'Invalid credentials. Please try again.');
+      if (user) {
+        setCurrentUser(user);
+        showNotification('success', `Welcome back, ${user.name}!`);
+        RealTimeManager.initialize(sampleReports);
+        
+        // Subscribe to real-time updates
+        RealTimeManager.subscribe((updatedReports) => {
+          setReports(updatedReports);
+        });
+      } else {
+        showNotification('error', 'Invalid credentials. Please try again.');
+      }
+    } catch (error: any) {
+      console.error('Login failed:', error);
+      
+      // Fallback to mock authentication for demo
+      const user = SessionManager.login(loginEmail, loginPassword);
+      if (user) {
+        setCurrentUser(user);
+        showNotification('success', `Welcome back, ${user.name}! (Demo Mode)`);
+        RealTimeManager.initialize(sampleReports);
+        RealTimeManager.subscribe((updatedReports) => {
+          setReports(updatedReports);
+        });
+      } else {
+        showNotification('error', error.message || 'Invalid credentials. Please try again.');
+      }
     }
     
     setIsLoading(false);
@@ -380,8 +396,8 @@ export default function Page() {
     
     // Filter reports based on user role
     const userReports = reports.filter(report => {
-      // Full access for executives
-      if (currentUser.role === 'CEO' || currentUser.role === 'CISO') {
+      // Full access for executives and admins
+      if (currentUser.role === 'CEO' || currentUser.role === 'CISO' || currentUser.role === 'admin' || currentUser.role === 'ciso' || currentUser.role === 'ceo') {
         return true;
       }
       // Department-based access for others
@@ -536,10 +552,13 @@ export default function Page() {
             <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Demo Accounts:</h3>
               <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                <div>• CEO/CISO (Full Access): sarah.khan@meezanbank.com</div>
-                <div>• SOC Analyst (Limited): ali.raza@meezanbank.com</div>
-                <div>• Penetration Tester: omar.sheikh@meezanbank.com</div>
-                <div className="mt-2 font-medium">Password for all: demo123</div>
+                <div className="font-semibold text-green-700 dark:text-green-300">✅ Real Backend (Recommended):</div>
+                <div>• SOC Analyst: analyst / SecurePass@123</div>
+                <div>• Admin: admin / Admin@123</div>
+                <div className="mt-2 font-semibold text-orange-600 dark:text-orange-300">📋 Demo Mode (Fallback):</div>
+                <div>• CEO/CISO: sarah.khan@meezanbank.com</div>
+                <div>• SOC Analyst: ali.raza@meezanbank.com</div>
+                <div className="mt-1 font-medium">Demo Password: demo123</div>
               </div>
             </div>
           </div>
@@ -554,8 +573,8 @@ export default function Page() {
   const accessibleReports = reports.filter(report => {
     if (!currentUser) return false;
     
-    // Full access for executives
-    if (currentUser.role === 'CEO' || currentUser.role === 'CISO') {
+    // Full access for executives and admins
+    if (currentUser.role === 'CEO' || currentUser.role === 'CISO' || currentUser.role === 'admin' || currentUser.role === 'ciso' || currentUser.role === 'ceo') {
       return true;
     }
     
@@ -658,7 +677,7 @@ export default function Page() {
       </header>
 
       <nav className="flex flex-wrap gap-2 mb-6">
-        {(currentUser?.role === 'CEO' || currentUser?.role === 'CISO' ? 
+        {(currentUser?.role === 'CEO' || currentUser?.role === 'CISO' || currentUser?.role === 'admin' || currentUser?.role === 'ciso' || currentUser?.role === 'ceo' ? 
           ["SOC Performance", "Asset & Risk Posture", "CEO Risk Summary", "Reports Dashboard"] :
           ["Reports Dashboard"]
         ).map((t) => (
@@ -687,7 +706,7 @@ export default function Page() {
                 <FileText className="w-8 h-8 text-blue-600 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentUser?.role === 'CEO' || currentUser?.role === 'CISO' ? 'Total' : 'My'}
+                    {currentUser?.role === 'CEO' || currentUser?.role === 'CISO' || currentUser?.role === 'admin' || currentUser?.role === 'ciso' || currentUser?.role === 'ceo' ? 'Total' : 'My'}
                   </p>
                   <p className="text-2xl font-bold">{accessibleReports.length}</p>
                 </div>

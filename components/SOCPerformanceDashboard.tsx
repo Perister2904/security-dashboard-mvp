@@ -1,15 +1,76 @@
 "use client";
 
-import { useState } from 'react';
-import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus, X, User } from 'lucide-react';
-import { sampleSOCEvents, currentSOCMetrics, sampleRemediationTasks, formatDuration, calculateTimeDiff, getStatusColor, SOCEvent, RemediationTask } from '@/lib/soc-data';
+import { useState, useEffect } from 'react';
+import { Activity, Clock, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Minus, X, User, RefreshCw } from 'lucide-react';
+import { socAPI } from '@/lib/api';
+import { sampleSOCEvents, currentSOCMetrics, sampleRemediationTasks, formatDuration, calculateTimeDiff, getStatusColor, SOCEvent, RemediationTask, SOCMetrics } from '@/lib/soc-data';
 
 export default function SOCPerformanceDashboard() {
   const [selectedEvent, setSelectedEvent] = useState<SOCEvent | null>(null);
   const [selectedTask, setSelectedTask] = useState<RemediationTask | null>(null);
-  const metrics = currentSOCMetrics;
-  const events = sampleSOCEvents;
-  const tasks = sampleRemediationTasks;
+  const [isLoading, setIsLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+  
+  // State for data (starts with mock, updates with real)
+  const [metrics, setMetrics] = useState<SOCMetrics>(currentSOCMetrics);
+  const [events, setEvents] = useState<SOCEvent[]>(sampleSOCEvents);
+  const [tasks, setTasks] = useState<RemediationTask[]>(sampleRemediationTasks);
+
+  // Fetch data from backend
+  const fetchData = async () => {
+    setIsLoading(true);
+    
+    try {
+      const [metricsResponse, incidentsResponse] = await Promise.all([
+        socAPI.getMetrics().catch(() => null),
+        socAPI.getIncidents({ limit: 10 }).catch(() => null),
+      ]);
+
+      if (metricsResponse?.data) {
+        setMetrics({
+          meanTimeToDetect: metricsResponse.data.mtd || currentSOCMetrics.meanTimeToDetect,
+          meanTimeToRespond: metricsResponse.data.mtr || currentSOCMetrics.meanTimeToRespond,
+          meanTimeToContain: metricsResponse.data.mtc || currentSOCMetrics.meanTimeToContain,
+          meanTimeToResolve: metricsResponse.data.mttr || currentSOCMetrics.meanTimeToResolve,
+          alertsGenerated: metricsResponse.data.alerts_24h || currentSOCMetrics.alertsGenerated,
+          incidentsCreated: metricsResponse.data.incidents_created || currentSOCMetrics.incidentsCreated,
+          incidentsResolved: metricsResponse.data.incidents_resolved || currentSOCMetrics.incidentsResolved,
+          falsePositiveRate: metricsResponse.data.false_positive_rate || currentSOCMetrics.falsePositiveRate,
+          escalationRate: metricsResponse.data.escalation_rate || currentSOCMetrics.escalationRate,
+        });
+        setUsingMockData(false);
+      } else {
+        setUsingMockData(true);
+      }
+
+      if (incidentsResponse?.data && Array.isArray(incidentsResponse.data)) {
+        const mappedEvents: SOCEvent[] = incidentsResponse.data.map((incident: any) => ({
+          id: incident.id,
+          title: incident.title || 'Security Incident',
+          description: incident.description || '',
+          severity: incident.severity || 'Medium',
+          status: incident.status || 'Open',
+          source: incident.source || 'SIEM',
+          timestamp: incident.created_at || new Date().toISOString(),
+          detectionTime: incident.detection_time || incident.created_at,
+          responseTime: incident.response_time,
+          assignedTo: incident.assigned_to || 'Unassigned',
+        }));
+        if (mappedEvents.length > 0) setEvents(mappedEvents);
+      }
+    } catch (err) {
+      console.error('Failed to fetch SOC data:', err);
+      setUsingMockData(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getTrendIcon = (value: number, benchmark: number, lower: boolean = true) => {
     if (lower) {
@@ -24,6 +85,38 @@ export default function SOCPerformanceDashboard() {
 
   return (
     <div className="space-y-3">
+      {/* Data Source Indicator */}
+      <div className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
+        usingMockData 
+          ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200'
+          : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200'
+      }`}>
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : usingMockData ? (
+            <AlertTriangle className="w-4 h-4" />
+          ) : (
+            <CheckCircle className="w-4 h-4" />
+          )}
+          <span>
+            {isLoading 
+              ? 'Loading live data...' 
+              : usingMockData 
+                ? '⚠️ Using demo data (backend unavailable)' 
+                : '✓ Connected to live backend'}
+          </span>
+        </div>
+        <button 
+          onClick={fetchData}
+          disabled={isLoading}
+          className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-xs"
+        >
+          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+      </div>
+
       {/* COMPACT 3-COLUMN GRID WITH CHARTS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         

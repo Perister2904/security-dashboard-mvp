@@ -1,14 +1,86 @@
 "use client";
 
-import { useState } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Server, Laptop, Network, X, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Server, Laptop, Network, X, Calendar, RefreshCw } from 'lucide-react';
+import { assetsAPI, risksAPI } from '@/lib/api';
 import { sampleAssets, currentRiskPosture, Asset } from '@/lib/soc-data';
 
 export default function AssetRiskPostureDashboard() {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [selectedRisk, setSelectedRisk] = useState<typeof currentRiskPosture.criticalRisks[0] | null>(null);
-  const assets = sampleAssets;
-  const riskPosture = currentRiskPosture;
+  const [isLoading, setIsLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+  
+  // State for data
+  const [assets, setAssets] = useState<Asset[]>(sampleAssets);
+  const [riskPosture, setRiskPosture] = useState(currentRiskPosture);
+
+  // Fetch data from backend
+  const fetchData = async () => {
+    setIsLoading(true);
+    
+    try {
+      const [assetsResponse, risksResponse, coverageResponse] = await Promise.all([
+        assetsAPI.getAssets({ limit: 50 }).catch(() => null),
+        risksAPI.getRisks({ limit: 20 }).catch(() => null),
+        assetsAPI.getCoverage().catch(() => null),
+      ]);
+
+      if (assetsResponse?.data && Array.isArray(assetsResponse.data)) {
+        const mappedAssets: Asset[] = assetsResponse.data.map((asset: any) => ({
+          id: asset.id,
+          name: asset.name || asset.hostname || 'Unknown Asset',
+          type: asset.type || 'Server',
+          department: asset.department || 'IT',
+          ipAddress: asset.ip_address || asset.ipAddress || '0.0.0.0',
+          criticality: asset.criticality || 'Medium',
+          complianceStatus: asset.compliance_status || 'Partially Compliant',
+          edr: { installed: asset.edr_installed || false, status: asset.edr_status || 'Not Installed', version: asset.edr_version },
+          dlp: { installed: asset.dlp_installed || false, status: asset.dlp_status || 'Not Installed', version: asset.dlp_version },
+          antivirus: { installed: asset.av_installed || false, status: asset.av_status || 'Not Installed', version: asset.av_version },
+        }));
+        if (mappedAssets.length > 0) {
+          setAssets(mappedAssets);
+          setUsingMockData(false);
+        }
+      } else {
+        setUsingMockData(true);
+      }
+
+      if (risksResponse?.data) {
+        // Map risks to our format if available
+        const mappedRisks = risksResponse.data.map((risk: any) => ({
+          title: risk.title || risk.name,
+          description: risk.description,
+          riskScore: risk.risk_score || risk.score || 50,
+          likelihood: risk.likelihood || 5,
+          impact: risk.impact || 5,
+          businessImpact: risk.business_impact || 'Impact assessment pending',
+        }));
+        if (mappedRisks.length > 0) {
+          setRiskPosture(prev => ({ ...prev, criticalRisks: mappedRisks.slice(0, 4) }));
+        }
+      }
+
+      if (coverageResponse?.data) {
+        setRiskPosture(prev => ({
+          ...prev,
+          overallScore: coverageResponse.data.overall_score || prev.overallScore,
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch asset/risk data:', err);
+      setUsingMockData(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 60000); // Refresh every minute
+    return () => clearInterval(interval);
+  }, []);
 
   const totalAssets = assets.length;
   const compliantAssets = assets.filter(a => a.complianceStatus === 'Compliant').length;
@@ -37,6 +109,38 @@ export default function AssetRiskPostureDashboard() {
 
   return (
     <div className="space-y-3">
+      {/* Data Source Indicator */}
+      <div className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
+        usingMockData 
+          ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200'
+          : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200'
+      }`}>
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : usingMockData ? (
+            <AlertTriangle className="w-4 h-4" />
+          ) : (
+            <CheckCircle className="w-4 h-4" />
+          )}
+          <span>
+            {isLoading 
+              ? 'Loading asset data...' 
+              : usingMockData 
+                ? '⚠️ Using demo data (backend unavailable)' 
+                : '✓ Connected to live backend'}
+          </span>
+        </div>
+        <button 
+          onClick={fetchData}
+          disabled={isLoading}
+          className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-xs"
+        >
+          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+      </div>
+
       {/* COMPACT 2-COLUMN GRID WITH CHARTS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         

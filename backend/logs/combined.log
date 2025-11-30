@@ -1,0 +1,217 @@
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 13:29:44"}
+{"level":"error","message":"❌ Database connection failed. Exiting...","service":"app","timestamp":"2025-11-30 13:29:44"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 13:54:30"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"error":"column \"enabled\" does not exist","level":"error","message":"Failed to initialize connectors","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"0":"c","1":"o","10":"a","11":"b","12":"l","13":"e","14":"d","15":"\"","16":" ","17":"d","18":"o","19":"e","2":"l","20":"s","21":" ","22":"n","23":"o","24":"t","25":" ","26":"e","27":"x","28":"i","29":"s","3":"u","30":"t","4":"m","5":"n","6":" ","7":"\"","8":"e","9":"n","level":"warn","message":"⚠️  Failed to initialize connectors:","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 13:54:36"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 13:56:24"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 13:56:26"}
+{"error":"column \"enabled\" does not exist","level":"error","message":"Failed to initialize connectors","service":"app","timestamp":"2025-11-30 13:56:26"}
+{"0":"c","1":"o","10":"a","11":"b","12":"l","13":"e","14":"d","15":"\"","16":" ","17":"d","18":"o","19":"e","2":"l","20":"s","21":" ","22":"n","23":"o","24":"t","25":" ","26":"e","27":"x","28":"i","29":"s","3":"u","30":"t","4":"m","5":"n","6":" ","7":"\"","8":"e","9":"n","level":"warn","message":"⚠️  Failed to initialize connectors:","service":"app","timestamp":"2025-11-30 13:56:26"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 13:56:26"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:56:26"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 13:56:28"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 13:57:07"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 13:57:09"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 13:57:09"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 13:57:09"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 13:57:09"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:57:09"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 13:57:10"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 13:57:52"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 13:57:55"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 13:57:55"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 13:57:55"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 13:57:55"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:57:55"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 13:57:56"}
+{"level":"info","message":{"duration":"5ms","ip":"::1","method":"GET","path":"/api/v1/health","status":404},"service":"app","timestamp":"2025-11-30 13:58:11"}
+{"level":"info","message":{"duration":"1958ms","ip":"::1","method":"GET","path":"/health","status":200},"service":"app","timestamp":"2025-11-30 13:58:39"}
+{"level":"info","message":{"duration":"5ms","ip":"::1","method":"POST","path":"/api/v1/auth/register","status":404},"service":"app","timestamp":"2025-11-30 13:59:00"}
+{"level":"info","message":{"duration":"1ms","ip":"::1","method":"POST","path":"/api/v1/auth/register","status":404},"service":"app","timestamp":"2025-11-30 13:59:24"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:00:18"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:00:20"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:00:50"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:00:52"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:00:52"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:00:52"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:00:52"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:00:52"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:00:53"}
+{"level":"info","message":{"duration":"1977ms","ip":"::1","method":"POST","path":"/register","status":201},"service":"app","timestamp":"2025-11-30 14:02:00"}
+{"level":"info","message":{"duration":"1572ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:02:25"}
+{"level":"info","message":{"duration":"848ms","ip":"::1","method":"GET","path":"/metrics","status":500},"service":"app","timestamp":"2025-11-30 14:02:37"}
+{"level":"info","message":{"duration":"1978ms","ip":"::1","method":"GET","path":"/incidents","status":500},"service":"app","timestamp":"2025-11-30 14:02:51"}
+{"level":"info","message":{"duration":"637ms","ip":"::1","method":"GET","path":"/me","status":200},"service":"app","timestamp":"2025-11-30 14:03:02"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:15:13"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:15:16"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:15:16"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:15:16"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:15:16"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:15:16"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:15:17"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"app","timestamp":"2025-11-30 14:15:50"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:17:19"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:17:21"}
+{"level":"info","message":{"duration":"2153ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:18:24"}
+{"level":"info","message":{"duration":"2170ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:19:16"}
+{"level":"info","message":{"duration":"760ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:19:18"}
+{"level":"info","message":{"duration":"2767ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:20:12"}
+{"level":"info","message":{"duration":"2289ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:21:34"}
+{"level":"info","message":{"duration":"2ms","ip":"::1","method":"POST","path":"/login","status":429},"service":"app","timestamp":"2025-11-30 14:21:35"}
+{"level":"info","message":{"duration":"2ms","ip":"::1","method":"POST","path":"/login","status":429},"service":"app","timestamp":"2025-11-30 14:21:36"}
+{"level":"info","message":{"duration":"1ms","ip":"::1","method":"GET","path":"/api/v1/health","status":404},"service":"app","timestamp":"2025-11-30 14:22:25"}
+{"level":"info","message":{"duration":"1ms","ip":"::1","method":"POST","path":"/login","status":429},"service":"app","timestamp":"2025-11-30 14:22:34"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:23:50"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:23:52"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:23:53"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:30:24"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:30:26"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:30:27"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:32:33"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:32:35"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:32:35"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:32:35"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:32:35"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:32:35"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:32:36"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:34:28"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:34:30"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:34:31"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","service":"app","timestamp":"2025-11-30 14:35:16"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:36:04"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:36:06"}
+{"level":"info","message":{"duration":"2387ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:36:13"}
+{"level":"info","message":{"duration":"231ms","ip":"::1","method":"POST","path":"/register","status":500},"service":"app","timestamp":"2025-11-30 14:36:28"}
+{"level":"info","message":{"duration":"1034ms","ip":"::1","method":"POST","path":"/login","status":401},"service":"app","timestamp":"2025-11-30 14:36:45"}
+{"level":"info","message":{"duration":"6494ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:37:01"}
+{"level":"info","message":{"duration":"539ms","ip":"::1","method":"POST","path":"/register","status":201},"service":"app","timestamp":"2025-11-30 14:37:14"}
+{"level":"info","message":{"duration":"1599ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:37:31"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:39:42"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:39:43"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:39:44"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:39:44"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:39:44"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:39:44"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:39:44"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:41:36"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:41:38"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:41:39"}
+{"level":"info","message":{"duration":"2804ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:43:44"}
+{"level":"info","message":{"duration":"1431ms","ip":"::1","method":"POST","path":"/login","status":200},"service":"app","timestamp":"2025-11-30 14:46:56"}
+{"level":"info","message":"🚀 Starting Security Dashboard Backend...","service":"app","timestamp":"2025-11-30 14:51:41"}
+{"level":"warn","message":"⚠️  LDAP connection failed. AD authentication will be disabled.","service":"app","timestamp":"2025-11-30 14:51:43"}
+{"level":"info","message":"Initialized 0 connectors","service":"app","timestamp":"2025-11-30 14:51:43"}
+{"level":"info","message":"✅ Security tool connectors initialized","service":"app","timestamp":"2025-11-30 14:51:43"}
+{"level":"info","message":"WebSocket heartbeat started","service":"app","timestamp":"2025-11-30 14:51:43"}
+{"level":"info","message":"WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:51:43"}
+{"level":"info","message":"Database triggers setup complete","service":"app","timestamp":"2025-11-30 14:51:44"}
+{"level":"info","message":"✅ WebSocket server initialized","service":"app","timestamp":"2025-11-30 14:51:44"}
+{"level":"info","message":"✅ Server running on port 5000","service":"app","timestamp":"2025-11-30 14:51:44"}
+{"level":"info","message":"📊 API Base URL: /api/v1","service":"app","timestamp":"2025-11-30 14:51:44"}
+{"level":"info","message":"🔌 WebSocket URL: ws://localhost:5000/ws","service":"app","timestamp":"2025-11-30 14:51:44"}
+{"level":"info","message":"🌍 Environment: development","service":"app","timestamp":"2025-11-30 14:51:44"}

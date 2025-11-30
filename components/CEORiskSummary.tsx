@@ -1,13 +1,67 @@
 "use client";
 
-import { useState } from 'react';
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Mail, Download, Shield, DollarSign, X, Activity } from 'lucide-react';
-import { currentRiskPosture, currentSOCMetrics } from '@/lib/soc-data';
+import { useState, useEffect } from 'react';
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Mail, Download, Shield, DollarSign, X, Activity, RefreshCw } from 'lucide-react';
+import { ceoAPI, socAPI } from '@/lib/api';
+import { currentRiskPosture, currentSOCMetrics, SOCMetrics } from '@/lib/soc-data';
 
 export default function CEORiskSummary() {
   const [emailSent, setEmailSent] = useState(false);
   const [selectedRisk, setSelectedRisk] = useState<typeof currentRiskPosture.criticalRisks[0] | null>(null);
-  const riskPosture = currentRiskPosture;
+  const [isLoading, setIsLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+  
+  // State for data
+  const [riskPosture, setRiskPosture] = useState(currentRiskPosture);
+  const [socMetrics, setSocMetrics] = useState<SOCMetrics>(currentSOCMetrics);
+
+  // Fetch data from backend
+  const fetchData = async () => {
+    setIsLoading(true);
+    
+    try {
+      const [ceoResponse, socResponse] = await Promise.all([
+        ceoAPI.getOverview().catch(() => null),
+        socAPI.getMetrics().catch(() => null),
+      ]);
+
+      if (ceoResponse?.data) {
+        setRiskPosture(prev => ({
+          ...prev,
+          overallScore: ceoResponse.data.risk_score || prev.overallScore,
+          trend: ceoResponse.data.trend || prev.trend,
+        }));
+        setUsingMockData(false);
+      } else {
+        setUsingMockData(true);
+      }
+
+      if (socResponse?.data) {
+        setSocMetrics({
+          meanTimeToDetect: socResponse.data.mtd || currentSOCMetrics.meanTimeToDetect,
+          meanTimeToRespond: socResponse.data.mtr || currentSOCMetrics.meanTimeToRespond,
+          meanTimeToContain: socResponse.data.mtc || currentSOCMetrics.meanTimeToContain,
+          meanTimeToResolve: socResponse.data.mttr || currentSOCMetrics.meanTimeToResolve,
+          alertsGenerated: socResponse.data.alerts_24h || currentSOCMetrics.alertsGenerated,
+          incidentsCreated: socResponse.data.incidents_created || currentSOCMetrics.incidentsCreated,
+          incidentsResolved: socResponse.data.incidents_resolved || currentSOCMetrics.incidentsResolved,
+          falsePositiveRate: socResponse.data.false_positive_rate || currentSOCMetrics.falsePositiveRate,
+          escalationRate: socResponse.data.escalation_rate || currentSOCMetrics.escalationRate,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch CEO data:', err);
+      setUsingMockData(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSendEmail = () => {
     setEmailSent(true);
@@ -25,6 +79,38 @@ export default function CEORiskSummary() {
 
   return (
     <div className="space-y-2">
+      {/* Data Source Indicator */}
+      <div className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
+        usingMockData 
+          ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200'
+          : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200'
+      }`}>
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <RefreshCw className="w-4 h-4 animate-spin" />
+          ) : usingMockData ? (
+            <AlertTriangle className="w-4 h-4" />
+          ) : (
+            <CheckCircle className="w-4 h-4" />
+          )}
+          <span>
+            {isLoading 
+              ? 'Loading executive data...' 
+              : usingMockData 
+                ? '⚠️ Using demo data (backend unavailable)' 
+                : '✓ Connected to live backend'}
+          </span>
+        </div>
+        <button 
+          onClick={fetchData}
+          disabled={isLoading}
+          className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-xs"
+        >
+          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+      </div>
+
       {/* ULTRA COMPACT EXECUTIVE VIEW - 2 COLUMN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         
@@ -79,15 +165,15 @@ export default function CEORiskSummary() {
                 <div className="space-y-1">
                   <div className="flex justify-between text-[11px]">
                     <span className="text-gray-600">Incidents Resolved</span>
-                    <span className="font-bold">{currentSOCMetrics.incidentsResolved}/{currentSOCMetrics.incidentsCreated}</span>
+                    <span className="font-bold">{socMetrics.incidentsResolved}/{socMetrics.incidentsCreated}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span className="text-gray-600">Avg Response</span>
-                    <span className="font-bold text-green-600">{currentSOCMetrics.meanTimeToRespond}m</span>
+                    <span className="font-bold text-green-600">{socMetrics.meanTimeToRespond}m</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span className="text-gray-600">Resolution Rate</span>
-                    <span className="font-bold text-blue-600">{Math.round((currentSOCMetrics.incidentsResolved / currentSOCMetrics.incidentsCreated) * 100)}%</span>
+                    <span className="font-bold text-blue-600">{Math.round((socMetrics.incidentsResolved / socMetrics.incidentsCreated) * 100)}%</span>
                   </div>
                 </div>
               </div>
@@ -168,14 +254,14 @@ export default function CEORiskSummary() {
                   <CheckCircle className="w-4 h-4 text-green-600" />
                   <span className="text-sm font-bold text-green-700">Excellent</span>
                 </div>
-                <p className="text-[10px] text-green-800">Response in {currentSOCMetrics.meanTimeToRespond}min - {currentSOCMetrics.meanTimeToRespond < 15 ? 'above' : 'below'} industry standards</p>
+                <p className="text-[10px] text-green-800">Response in {socMetrics.meanTimeToRespond}min - {socMetrics.meanTimeToRespond < 15 ? 'above' : 'below'} industry standards</p>
               </div>
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded p-2">
                 <div className="flex items-center gap-1 mb-1">
                   <TrendingUp className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-bold text-blue-700">{Math.round((currentSOCMetrics.incidentsResolved / currentSOCMetrics.incidentsCreated) * 100)}%</span>
+                  <span className="text-sm font-bold text-blue-700">{Math.round((socMetrics.incidentsResolved / socMetrics.incidentsCreated) * 100)}%</span>
                 </div>
-                <p className="text-[10px] text-blue-800">{currentSOCMetrics.incidentsResolved} of {currentSOCMetrics.incidentsCreated} incidents resolved (30d)</p>
+                <p className="text-[10px] text-blue-800">{socMetrics.incidentsResolved} of {socMetrics.incidentsCreated} incidents resolved (30d)</p>
               </div>
             </div>
           </div>

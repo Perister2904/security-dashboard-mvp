@@ -1,0 +1,3 @@
+{"level":"error","message":"❌ Database connection failed. Exiting...","service":"app","timestamp":"2025-11-30 13:29:44"}
+{"error":"column \"enabled\" does not exist","level":"error","message":"Failed to initialize connectors","service":"app","timestamp":"2025-11-30 13:54:34"}
+{"error":"column \"enabled\" does not exist","level":"error","message":"Failed to initialize connectors","service":"app","timestamp":"2025-11-30 13:56:26"}
