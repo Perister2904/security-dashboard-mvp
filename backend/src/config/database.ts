@@ -9,10 +9,10 @@ const poolConfig = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false }, // Always use SSL for Neon
-      // Optimized for serverless (Vercel)
+      // Optimized for serverless (Vercel) + Neon cold starts
       max: 5, // Lower max connections for serverless
       idleTimeoutMillis: 0, // Disable idle timeout to prevent disconnection
-      connectionTimeoutMillis: 10000,
+      connectionTimeoutMillis: 30000, // Increased for Neon cold starts (was 10000)
       keepAlive: true,
       keepAliveInitialDelayMillis: 10000,
     }
@@ -26,7 +26,7 @@ const poolConfig = process.env.DATABASE_URL
       min: parseInt(process.env.DB_POOL_MIN || '2'),
       max: parseInt(process.env.DB_POOL_MAX || '10'),
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 30000, // Increased for cold starts (was 2000)
     };
 
 export const pool = new Pool(poolConfig);

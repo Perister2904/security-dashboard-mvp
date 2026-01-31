@@ -1,0 +1,18 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Log files
+*.log
+
+# Output files
+asset_scan_*.json
+sample_output.json
+
+# Temporary files
+*.tmp
+.DS_Store
+Thumbs.db

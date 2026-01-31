@@ -1,0 +1,206 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║         REAL ACTIVE DIRECTORY DEPLOYMENT - QUICK REF         ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+🎯 CURRENT STATUS: Windows Server installing in VM (~15-20 min)
+
+📋 CREDENTIALS (SAVE THESE!)
+─────────────────────────────────────────────────────────────
+Domain Name:          meezan.local
+NetBIOS Name:         MEEZAN
+Domain Controller IP: 192.168.1.50
+Administrator User:   MEEZAN\Administrator
+Administrator Pass:   P@ssw0rd123!
+Scanner Service User: MEEZAN\svc_scanner
+Scanner Password:     Scanner123!
+
+
+⏰ INSTALLATION TIMELINE
+─────────────────────────────────────────────────────────────
+[✅ DONE] Download Windows Server ISO         (5 seconds)
+[✅ DONE] Create VirtualBox VM                 (1 minute)
+[⏳ NOW ] Install Windows Server in VM         (15-20 min)
+[NEXT  ] Set Administrator password            (30 seconds)
+[NEXT  ] Login to Windows Server              (30 seconds)
+[NEXT  ] Copy Server_Setup.ps1 to VM          (2 minutes)
+[NEXT  ] Run Server_Setup.ps1 (auto-reboots) (15 min)
+[NEXT  ] Join your laptop to domain           (5 min)
+[NEXT  ] Run Asset_Scanner.py - GET REAL DATA (2 min)
+─────────────────────────────────────────────────────────────
+TOTAL TIME: ~45-60 minutes for complete deployment
+
+
+🖥️ WHEN WINDOWS SERVER FINISHES INSTALLING
+─────────────────────────────────────────────────────────────
+1. VM will show password setup screen
+2. Set password: P@ssw0rd123!
+3. Press Ctrl+Alt+Del in VM (or VM menu: Input → Keyboard)
+4. Login with password: P@ssw0rd123!
+5. Wait for Server Manager to appear
+6. Open PowerShell as Administrator
+
+
+📂 COPY SERVER_SETUP.PS1 TO VM
+─────────────────────────────────────────────────────────────
+METHOD 1 - Shared Clipboard (Easiest):
+   a) VM menu: Devices → Shared Clipboard → Bidirectional
+   b) On host PC: Copy Server_Setup.ps1 content
+   c) In VM: Open Notepad, paste, save as C:\Server_Setup.ps1
+
+METHOD 2 - Shared Folder:
+   a) VM menu: Devices → Shared Folders → Settings
+   b) Add folder pointing to:
+      C:\Users\haryp\Desktop\FINAL YEAR PROJECT\
+      security-dashboard-mvp-exec-friendly\asset-population
+   c) Access in VM at \\VBOXSVR\asset-population
+
+
+▶️ RUN SETUP IN VM (PowerShell as Admin)
+─────────────────────────────────────────────────────────────
+Set-ExecutionPolicy Bypass -Scope Process -Force
+cd C:\
+.\Server_Setup.ps1
+
+EXPECTED:
+• Installs AD Domain Services
+• Configures static IP 192.168.1.50
+• Creates meezan.local domain
+• REBOOTS AUTOMATICALLY (2 times!)
+• Creates svc_scanner account
+• Enables WinRM
+
+
+✅ VERIFY DOMAIN IS READY (After VM reboots twice)
+─────────────────────────────────────────────────────────────
+Login: MEEZAN\Administrator
+Pass:  P@ssw0rd123!
+
+Run in VM PowerShell:
+  Get-ADDomain
+  Get-ADUser -Filter * | Select-Object Name
+  Get-Service ADWS, Netlogon, DNS
+
+Expected: Domain shows meezan.local, 2 users, all services Running
+
+
+🌐 JOIN YOUR PHYSICAL LAPTOP (Host Machine)
+─────────────────────────────────────────────────────────────
+1. Open PowerShell as Administrator on your Windows 11 laptop
+
+2. Set DNS to VM:
+   Get-NetAdapter | Where-Object {$_.Status -eq "Up"} | 
+   Set-DnsClientServerAddress -ServerAddresses "192.168.1.50"
+
+3. Test connection:
+   ping 192.168.1.50
+   nslookup meezan.local
+
+4. Join domain:
+   cd "c:\Users\haryp\Desktop\FINAL YEAR PROJECT\
+       security-dashboard-mvp-exec-friendly\asset-population"
+   .\Client_Join.ps1
+
+5. Enter credentials when prompted:
+   Domain:   meezan.local
+   Username: MEEZAN\Administrator
+   Password: P@ssw0rd123!
+
+6. Laptop will REBOOT automatically
+
+7. After reboot, login with MEEZAN\Administrator
+
+
+📊 RUN REAL ASSET SCANNER (After laptop rejoins domain)
+─────────────────────────────────────────────────────────────
+cd "c:\Users\haryp\Desktop\FINAL YEAR PROJECT\
+    security-dashboard-mvp-exec-friendly\asset-population"
+
+python Asset_Scanner.py --domain meezan.local 
+  --dc-ip 192.168.1.50 
+  --username "MEEZAN\svc_scanner" 
+  --password "Scanner123!" 
+  --output real_assets.json
+
+RESULT: real_assets.json will contain:
+✅ Your REAL laptop hostname
+✅ Your REAL IP address
+✅ REAL Windows Defender status
+✅ REAL firewall state
+✅ GENUINE compliance data - NO DUMMY DATA!
+
+
+🌍 ADD MORE DEVICES
+─────────────────────────────────────────────────────────────
+For each additional laptop/device:
+1. Connect to same Wi-Fi network
+2. Set DNS to 192.168.1.50
+3. Run Client_Join.ps1 with domain credentials
+4. Reboot and login with domain account
+5. Run Asset_Scanner.py again to see all devices!
+
+
+🔧 TROUBLESHOOTING
+─────────────────────────────────────────────────────────────
+VM won't start:
+  & "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" 
+  startvm "AD-Server-Production"
+
+Can't ping 192.168.1.50:
+  - Check VM is running
+  - Check network adapter is bridged
+  - Try ipconfig in VM to verify IP
+
+Domain join fails:
+  - Verify DNS: nslookup meezan.local
+  - Should return: 192.168.1.50
+  - Check firewall in VM is off
+  - Ping 192.168.1.50 from laptop
+
+Scanner shows "Access Denied":
+  - Use svc_scanner account (not Administrator)
+  - Verify WinRM: Test-WSMan -ComputerName DC-NAME
+
+
+📁 IMPORTANT FILE LOCATIONS
+─────────────────────────────────────────────────────────────
+VM Folder:
+  C:\Users\haryp\VirtualBox VMs\AD-Server-Production\
+
+Windows Server ISO:
+  C:\Users\haryp\Downloads\WindowsServer2022.iso
+
+Scripts:
+  C:\Users\haryp\Desktop\FINAL YEAR PROJECT\
+  security-dashboard-mvp-exec-friendly\asset-population\
+
+Setup Guide:
+  VM_SETUP_INSTRUCTIONS.md (detailed 200+ line guide)
+
+Logs (when running scripts):
+  %TEMP%\Server_Setup_*.log
+  %TEMP%\Client_Join_*.log
+
+
+🎯 SUCCESS INDICATORS
+─────────────────────────────────────────────────────────────
+✅ VM shows "MEEZAN" domain in Server Manager
+✅ Get-ADDomain returns meezan.local
+✅ Laptop login screen shows "Sign in to: MEEZAN"
+✅ ipconfig shows DNS as 192.168.1.50
+✅ Asset_Scanner.py outputs real_assets.json with actual data
+✅ Dashboard displays REAL compliance data from physical devices
+
+
+═══════════════════════════════════════════════════════════════
+
+THIS IS A REAL PRODUCTION ACTIVE DIRECTORY ENVIRONMENT!
+
+No dummy data. No simulations. Real domain, real scanning, real
+devices, real compliance data for your security dashboard MVP.
+
+═══════════════════════════════════════════════════════════════
+
+Current step: Watch the VM window for Windows installation to complete.
+When you see the password setup screen, come back to this guide!

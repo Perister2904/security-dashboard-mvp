@@ -12,6 +12,7 @@ import socRoutes from './routes/soc.routes';
 import assetRoutes from './routes/asset.routes';
 import riskRoutes from './routes/risk.routes';
 import ceoRoutes from './routes/ceo.routes';
+import adSyncRoutes from './routes/ad-sync.routes';
 import WebSocketManager, { setupDatabaseTriggers } from './websocket/server';
 import { connectorManager } from './connectors';
 
@@ -75,6 +76,7 @@ app.use(`${API_BASE}/soc`, socRoutes);
 app.use(`${API_BASE}/assets`, assetRoutes);
 app.use(`${API_BASE}/risks`, riskRoutes);
 app.use(`${API_BASE}/ceo`, ceoRoutes);
+app.use(`${API_BASE}/ad`, adSyncRoutes); // Active Directory sync routes
 
 // 404 handler
 app.use((req: Request, res: Response) => {

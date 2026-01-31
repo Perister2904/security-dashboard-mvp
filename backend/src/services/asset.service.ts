@@ -40,27 +40,24 @@ export const assetService = {
     const dataResult = await pool.query(
       `SELECT 
         id,
-        name,
-        type,
+        hostname,
+        asset_type,
         department,
         criticality,
         ip_address,
-        hostname,
-        os,
-        owner,
-        last_scan,
-        vulnerabilities,
-        risk_score,
-        edr_installed,
-        av_installed,
-        patch_status,
+        os_version,
+        owner_name,
+        last_seen,
+        vulnerability_count,
+        antivirus_status,
         compliance_status,
-        tags,
+        edr_status,
+        dlp_status,
         created_at,
         updated_at
       FROM assets
       ${whereClause}
-      ORDER BY risk_score DESC, criticality DESC
+      ORDER BY vulnerability_count DESC, criticality DESC
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
       params
     );

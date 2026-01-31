@@ -1,0 +1,120 @@
+============================================
+FRIEND SETUP - LOCAL NETWORK (SIMPLE)
+============================================
+
+⚠️ REQUIREMENT: You MUST be on the same Wi-Fi network!
+Network: 192.168.18.x
+DC IP: 192.168.18.100
+
+NO Tailscale needed - just connect to the same Wi-Fi!
+
+============================================
+STEP 1: CONNECT TO SAME WI-FI
+============================================
+
+1. Connect your laptop to the SAME Wi-Fi as the admin
+2. Verify you're on 192.168.18.x network:
+
+ipconfig | findstr "IPv4"
+
+3. Test DC connectivity:
+
+ping 192.168.18.100
+Test-NetConnection 192.168.18.100 -Port 389
+
+If ping fails, you're on wrong network!
+
+============================================
+STEP 2: SET DNS TO DC
+============================================
+
+Run in PowerShell (Admin):
+
+$DCIP = "192.168.18.100"
+Get-NetAdapter | Where-Object {$_.Status -eq "Up"} | ForEach-Object {
+    Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ServerAddresses $DCIP
+}
+
+Verify:
+Get-DnsClientServerAddress
+
+============================================
+STEP 3: JOIN DOMAIN
+============================================
+
+Run in PowerShell (Admin):
+
+$Domain = "meezan.local"
+$AdminUser = "MEEZAN\Administrator"
+$AdminPassword = "Password123"
+
+$securePassword = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential($AdminUser, $securePassword)
+
+Add-Computer -DomainName $Domain -Credential $credential -Restart
+
+============================================
+STEP 4: AFTER RESTART
+============================================
+
+Login with:
+Username: MEEZAN\Administrator
+Password: Password123
+
+Verify domain join:
+systeminfo | findstr /B /C:"Domain"
+nltest /dsgetdc:meezan.local
+whoami
+
+============================================
+TROUBLESHOOTING
+============================================
+
+Problem: Can't ping DC (192.168.18.100)
+Solution: You're on wrong Wi-Fi network! Connect to admin's Wi-Fi
+
+Problem: LDAP port 389 not accessible
+Solution: 
+  1. Verify you're on 192.168.18.x network: ipconfig
+  2. Ping DC: ping 192.168.18.100
+  3. Check DC is running (ask admin)
+
+Problem: Domain join fails
+Solution: 
+  1. Verify DNS: Get-DnsClientServerAddress (should show 192.168.18.100)
+  2. Test: nltest /dsgetdc:meezan.local
+  3. Verify credentials: MEEZAN\Administrator / Password123
+
+Problem: "Domain controller not found"
+Solution: You're not on the same network or DC is offline
+
+============================================
+VERIFICATION COMMANDS
+============================================
+
+# Check your IP (should be 192.168.18.x)
+ipconfig | findstr "IPv4"
+
+# Check DNS (should be 192.168.18.100)
+Get-DnsClientServerAddress
+
+# Check domain
+systeminfo | findstr /B /C:"Domain"
+nltest /dsgetdc:meezan.local
+whoami
+
+# Test DC connectivity
+ping 192.168.18.100
+Test-NetConnection 192.168.18.100 -Port 389
+Test-NetConnection 192.168.18.100 -Port 88
+
+============================================
+CONTACT ADMIN IF:
+============================================
+
+- Can't connect to DC (192.168.18.100)
+- Not on 192.168.18.x network
+- LDAP port test fails
+- Domain join fails with "controller not found"
+
+============================================

@@ -1,0 +1,3566 @@
+[
+  {
+    "asset_name": "IT-SERVER-WORKSTATION-001",
+    "ip_address": "192.168.1.246",
+    "department": "IT",
+    "compliance_status": "Partial",
+    "risk_score": 13,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-16",
+      "last_scan": "2026-01-27T11:41:08.097913Z",
+      "scan_duration_seconds": 12.27,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Node.js 20.11.0",
+        "Google Chrome 120.0.6099.109",
+        "Microsoft Teams 1.6.00.30767",
+        "Python 3.12.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 60,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "IT-SERVER-WORKSTATION-001",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-DEVOPS-DESKTOP-002",
+    "ip_address": "192.168.1.197",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 14,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.098030Z",
+      "scan_duration_seconds": 8.22,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Zoom Client 5.16.10",
+        "7-Zip 23.01",
+        "Docker Desktop 4.26.1",
+        "VLC Media Player 3.0.20",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 92,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "IT-DEVOPS-DESKTOP-002",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-SERVER-LAPTOP-003",
+    "ip_address": "192.168.1.160",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 14,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.098086Z",
+      "scan_duration_seconds": 9.25,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Google Chrome 120.0.6099.109",
+        "Visual Studio Code 1.85.2",
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "Node.js 20.11.0",
+        "Zoom Client 5.16.10",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 91,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "IT-SERVER-LAPTOP-003",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-BACKUP-DESKTOP-004",
+    "ip_address": "192.168.1.201",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 4,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.098121Z",
+      "scan_duration_seconds": 5.58,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Google Chrome 120.0.6099.109",
+        "Slack 4.36.134",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Teams 1.6.00.30767",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 91,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "IT-BACKUP-DESKTOP-004",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-SERVER-LAPTOP-005",
+    "ip_address": "192.168.1.145",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 16,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.098151Z",
+      "scan_duration_seconds": 10.85,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "Google Chrome 120.0.6099.109",
+        "Microsoft Teams 1.6.00.30767",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 99,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "IT-SERVER-LAPTOP-005",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-NETWORK-WORKSTATION-006",
+    "ip_address": "192.168.1.140",
+    "department": "IT",
+    "compliance_status": "Partial",
+    "risk_score": 100,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-13",
+      "last_scan": "2026-01-27T11:41:08.098198Z",
+      "scan_duration_seconds": 12.47,
+      "vulnerabilities": [
+        "CVE-2024-1234: Critical RCE in Remote Desktop",
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Visual Studio Code 1.85.2",
+        "Python 3.12.1",
+        "Docker Desktop 4.26.1",
+        "Microsoft Office 365",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 72,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "IT-NETWORK-WORKSTATION-006",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-BACKUP-DESKTOP-007",
+    "ip_address": "192.168.1.228",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 10,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-21",
+      "last_scan": "2026-01-27T11:41:08.098232Z",
+      "scan_duration_seconds": 11.06,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Visual Studio Code 1.85.2",
+        "Git 2.43.0",
+        "Mozilla Firefox 121.0",
+        "7-Zip 23.01",
+        "Python 3.12.1",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "IT-BACKUP-DESKTOP-007",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-DEVOPS-WORKSTATION-008",
+    "ip_address": "192.168.1.168",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 30,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-24",
+      "last_scan": "2026-01-27T11:41:08.098261Z",
+      "scan_duration_seconds": 13.85,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "7-Zip 23.01",
+        "Microsoft Office 365",
+        "Slack 4.36.134",
+        "VLC Media Player 3.0.20",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Node.js 20.11.0",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 100,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "IT-DEVOPS-WORKSTATION-008",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-DEVOPS-WORKSTATION-009",
+    "ip_address": "192.168.1.196",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 29,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.098290Z",
+      "scan_duration_seconds": 8.38,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Node.js 20.11.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 98,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "IT-DEVOPS-WORKSTATION-009",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-BACKUP-DESKTOP-010",
+    "ip_address": "192.168.1.101",
+    "department": "IT",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 23,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2025-12-04",
+      "last_scan": "2026-01-27T11:41:08.098331Z",
+      "scan_duration_seconds": 13.37,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Node.js 20.11.0",
+        "Docker Desktop 4.26.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Microsoft Office 365"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 38,
+      "alerts": [
+        "Real-time protection disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 54 days overdue",
+        "2 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "IT-BACKUP-DESKTOP-010",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-BACKUP-LAPTOP-011",
+    "ip_address": "192.168.1.234",
+    "department": "IT",
+    "compliance_status": "Compliant",
+    "risk_score": 21,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-27",
+      "last_scan": "2026-01-27T11:41:08.104229Z",
+      "scan_duration_seconds": 10.12,
+      "vulnerabilities": [],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 90,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "IT-BACKUP-LAPTOP-011",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-DEVOPS-DESKTOP-012",
+    "ip_address": "192.168.1.135",
+    "department": "IT",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 51,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2025-10-16",
+      "last_scan": "2026-01-27T11:41:08.104276Z",
+      "scan_duration_seconds": 5.93,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Docker Desktop 4.26.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 47,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 103 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "IT-DEVOPS-DESKTOP-012",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "IT-SERVER-WORKSTATION-013",
+    "ip_address": "192.168.1.111",
+    "department": "IT",
+    "compliance_status": "Partial",
+    "risk_score": 17,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-08",
+      "last_scan": "2026-01-27T11:41:08.104344Z",
+      "scan_duration_seconds": 8.02,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Git 2.43.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Node.js 20.11.0",
+        "Mozilla Firefox 121.0",
+        "Python 3.12.1"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 64,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "IT-SERVER-WORKSTATION-013",
+      "department": "IT"
+    }
+  },
+  {
+    "asset_name": "FINANCE-FINDESK-DESKTOP-014",
+    "ip_address": "192.168.1.133",
+    "department": "Finance",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 22,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-11-07",
+      "last_scan": "2026-01-27T11:41:08.104377Z",
+      "scan_duration_seconds": 5.22,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Slack 4.36.134",
+        "Docker Desktop 4.26.1",
+        "VLC Media Player 3.0.20",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Python 3.12.1",
+        "Google Chrome 120.0.6099.109",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 39,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 81 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "FINANCE-FINDESK-DESKTOP-014",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-FINDESK-WORKSTATION-015",
+    "ip_address": "192.168.1.242",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 4,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.104434Z",
+      "scan_duration_seconds": 10.22,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "VLC Media Player 3.0.20",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 92,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "FINANCE-FINDESK-WORKSTATION-015",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-FINDESK-WORKSTATION-016",
+    "ip_address": "192.168.1.201",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 14,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.104460Z",
+      "scan_duration_seconds": 8.01,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Slack 4.36.134",
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "Node.js 20.11.0",
+        "Mozilla Firefox 121.0",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 95,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "FINANCE-FINDESK-WORKSTATION-016",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-AUDIT-DESKTOP-017",
+    "ip_address": "192.168.1.148",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 7,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.104484Z",
+      "scan_duration_seconds": 11.53,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "FINANCE-AUDIT-DESKTOP-017",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-AUDIT-LAPTOP-018",
+    "ip_address": "192.168.1.234",
+    "department": "Finance",
+    "compliance_status": "Partial",
+    "risk_score": 84,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2025-12-29",
+      "last_scan": "2026-01-27T11:41:08.104510Z",
+      "scan_duration_seconds": 8.36,
+      "vulnerabilities": [
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Zoom Client 5.16.10",
+        "Microsoft Office 365",
+        "Docker Desktop 4.26.1",
+        "Mozilla Firefox 121.0",
+        "7-Zip 23.01",
+        "Google Chrome 120.0.6099.109",
+        "Visual Studio Code 1.85.2",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 70,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "FINANCE-AUDIT-LAPTOP-018",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-ACCOUNTING-WORKSTATION-019",
+    "ip_address": "192.168.1.216",
+    "department": "Finance",
+    "compliance_status": "Partial",
+    "risk_score": 50,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2025-12-31",
+      "last_scan": "2026-01-27T11:41:08.104538Z",
+      "scan_duration_seconds": 10.72,
+      "vulnerabilities": [
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Python 3.12.1",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Zoom Client 5.16.10",
+        "Node.js 20.11.0",
+        "Google Chrome 120.0.6099.109",
+        "Mozilla Firefox 121.0",
+        "Docker Desktop 4.26.1"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 60,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "FINANCE-ACCOUNTING-WORKSTATION-019",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-ACCOUNTING-DESKTOP-020",
+    "ip_address": "192.168.1.134",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 6,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.104568Z",
+      "scan_duration_seconds": 14.54,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Adobe Acrobat Reader DC 23.006",
+        "Zoom Client 5.16.10",
+        "VLC Media Player 3.0.20",
+        "Mozilla Firefox 121.0",
+        "Node.js 20.11.0",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "FINANCE-ACCOUNTING-DESKTOP-020",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-PAYROLL-LAPTOP-021",
+    "ip_address": "192.168.1.135",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 6,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.104595Z",
+      "scan_duration_seconds": 12.86,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Python 3.12.1",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Office 365"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "FINANCE-PAYROLL-LAPTOP-021",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-AUDIT-LAPTOP-022",
+    "ip_address": "192.168.1.110",
+    "department": "Finance",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 26,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2025-08-22",
+      "last_scan": "2026-01-27T11:41:08.104625Z",
+      "scan_duration_seconds": 12.32,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service"
+      ],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2",
+        "Python 3.12.1",
+        "Slack 4.36.134",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 32,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 158 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "FINANCE-AUDIT-LAPTOP-022",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-FINDESK-WORKSTATION-023",
+    "ip_address": "192.168.1.168",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 30,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.104686Z",
+      "scan_duration_seconds": 10.88,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Python 3.12.1",
+        "Slack 4.36.134",
+        "Visual Studio Code 1.85.2",
+        "Docker Desktop 4.26.1",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 98,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "FINANCE-FINDESK-WORKSTATION-023",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-PAYROLL-DESKTOP-024",
+    "ip_address": "192.168.1.136",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 8,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.104708Z",
+      "scan_duration_seconds": 8.08,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10",
+        "Microsoft Teams 1.6.00.30767",
+        "Visual Studio Code 1.85.2",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 100,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "FINANCE-PAYROLL-DESKTOP-024",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-AUDIT-LAPTOP-025",
+    "ip_address": "192.168.1.114",
+    "department": "Finance",
+    "compliance_status": "Compliant",
+    "risk_score": 30,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-27",
+      "last_scan": "2026-01-27T11:41:08.104730Z",
+      "scan_duration_seconds": 5.38,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006",
+        "Docker Desktop 4.26.1"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "FINANCE-AUDIT-LAPTOP-025",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "FINANCE-PAYROLL-DESKTOP-026",
+    "ip_address": "192.168.1.156",
+    "department": "Finance",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 61,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-11-30",
+      "last_scan": "2026-01-27T11:41:08.104752Z",
+      "scan_duration_seconds": 7.58,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2024-5678: High Privilege Escalation"
+      ],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Google Chrome 120.0.6099.109",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Node.js 20.11.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 50,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 58 days overdue",
+        "3 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "FINANCE-PAYROLL-DESKTOP-026",
+      "department": "Finance"
+    }
+  },
+  {
+    "asset_name": "HR-RECRUIT-WORKSTATION-027",
+    "ip_address": "192.168.1.108",
+    "department": "HR",
+    "compliance_status": "Partial",
+    "risk_score": 47,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-03",
+      "last_scan": "2026-01-27T11:41:08.104800Z",
+      "scan_duration_seconds": 6.59,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit"
+      ],
+      "installed_software": [
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "VLC Media Player 3.0.20",
+        "Mozilla Firefox 121.0",
+        "Google Chrome 120.0.6099.109",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Office 365"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 68,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-RECRUIT-WORKSTATION-027",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-RECRUIT-LAPTOP-028",
+    "ip_address": "192.168.1.149",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 10,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-27",
+      "last_scan": "2026-01-27T11:41:08.104825Z",
+      "scan_duration_seconds": 6.52,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109",
+        "Zoom Client 5.16.10",
+        "Visual Studio Code 1.85.2",
+        "Node.js 20.11.0",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 92,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-RECRUIT-LAPTOP-028",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-HRDESK-DESKTOP-029",
+    "ip_address": "192.168.1.172",
+    "department": "HR",
+    "compliance_status": "Partial",
+    "risk_score": 91,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-08",
+      "last_scan": "2026-01-27T11:41:08.104851Z",
+      "scan_duration_seconds": 12.4,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-7777: High Memory Corruption"
+      ],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Microsoft Office 365",
+        "VLC Media Player 3.0.20",
+        "Google Chrome 120.0.6099.109",
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "Node.js 20.11.0",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 73,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-HRDESK-DESKTOP-029",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-BENEFITS-WORKSTATION-030",
+    "ip_address": "192.168.1.136",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 4,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.104876Z",
+      "scan_duration_seconds": 8.0,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Zoom Client 5.16.10",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 98,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-BENEFITS-WORKSTATION-030",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-BENEFITS-LAPTOP-031",
+    "ip_address": "192.168.1.247",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 19,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.104898Z",
+      "scan_duration_seconds": 11.08,
+      "vulnerabilities": [],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Visual Studio Code 1.85.2",
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "Microsoft Office 365",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "HR-BENEFITS-LAPTOP-031",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-BENEFITS-WORKSTATION-032",
+    "ip_address": "192.168.1.217",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 28,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-21",
+      "last_scan": "2026-01-27T11:41:08.104943Z",
+      "scan_duration_seconds": 7.35,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "7-Zip 23.01",
+        "Python 3.12.1",
+        "Mozilla Firefox 121.0",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 99,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "HR-BENEFITS-WORKSTATION-032",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-HRDESK-DESKTOP-033",
+    "ip_address": "192.168.1.231",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 27,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.104968Z",
+      "scan_duration_seconds": 9.93,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Slack 4.36.134",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10",
+        "Google Chrome 120.0.6099.109",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "HR-HRDESK-DESKTOP-033",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-TRAINING-DESKTOP-034",
+    "ip_address": "192.168.1.237",
+    "department": "HR",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 73,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-10",
+      "last_scan": "2026-01-27T11:41:08.104991Z",
+      "scan_duration_seconds": 12.11,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Slack 4.36.134",
+        "Zoom Client 5.16.10",
+        "Microsoft Teams 1.6.00.30767",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Mozilla Firefox 121.0",
+        "Python 3.12.1"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 26,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 139 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-TRAINING-DESKTOP-034",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-BENEFITS-DESKTOP-035",
+    "ip_address": "192.168.1.236",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 18,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-21",
+      "last_scan": "2026-01-27T11:41:08.105049Z",
+      "scan_duration_seconds": 8.75,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Adobe Acrobat Reader DC 23.006",
+        "Slack 4.36.134",
+        "Git 2.43.0",
+        "Docker Desktop 4.26.1",
+        "Visual Studio Code 1.85.2",
+        "VLC Media Player 3.0.20",
+        "Node.js 20.11.0",
+        "Microsoft Office 365",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 100,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "HR-BENEFITS-DESKTOP-035",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-TRAINING-WORKSTATION-036",
+    "ip_address": "192.168.1.110",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 12,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.105076Z",
+      "scan_duration_seconds": 8.88,
+      "vulnerabilities": [],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Visual Studio Code 1.85.2",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Microsoft Teams 1.6.00.30767",
+        "Zoom Client 5.16.10",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 95,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "HR-TRAINING-WORKSTATION-036",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-RECRUIT-DESKTOP-037",
+    "ip_address": "192.168.1.199",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 12,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.105098Z",
+      "scan_duration_seconds": 5.0,
+      "vulnerabilities": [],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Adobe Acrobat Reader DC 23.006",
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 94,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "HR-RECRUIT-DESKTOP-037",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-RECRUIT-WORKSTATION-038",
+    "ip_address": "192.168.1.137",
+    "department": "HR",
+    "compliance_status": "Compliant",
+    "risk_score": 19,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-20",
+      "last_scan": "2026-01-27T11:41:08.105119Z",
+      "scan_duration_seconds": 5.61,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Slack 4.36.134",
+        "Microsoft Teams 1.6.00.30767",
+        "Git 2.43.0",
+        "Python 3.12.1",
+        "Google Chrome 120.0.6099.109",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 90,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "HR-RECRUIT-WORKSTATION-038",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "HR-TRAINING-WORKSTATION-039",
+    "ip_address": "192.168.1.216",
+    "department": "HR",
+    "compliance_status": "Partial",
+    "risk_score": 4,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-14",
+      "last_scan": "2026-01-27T11:41:08.105141Z",
+      "scan_duration_seconds": 10.8,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0",
+        "VLC Media Player 3.0.20",
+        "Slack 4.36.134",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 73,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "HR-TRAINING-WORKSTATION-039",
+      "department": "HR"
+    }
+  },
+  {
+    "asset_name": "SALES-CLIENT-LAPTOP-040",
+    "ip_address": "192.168.1.120",
+    "department": "Sales",
+    "compliance_status": "Partial",
+    "risk_score": 56,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-13",
+      "last_scan": "2026-01-27T11:41:08.105168Z",
+      "scan_duration_seconds": 11.32,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2024-5678: High Privilege Escalation"
+      ],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Zoom Client 5.16.10",
+        "Node.js 20.11.0",
+        "Visual Studio Code 1.85.2",
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 69,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "SALES-CLIENT-LAPTOP-040",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-SALES-LAPTOP-041",
+    "ip_address": "192.168.1.121",
+    "department": "Sales",
+    "compliance_status": "Partial",
+    "risk_score": 10,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-05",
+      "last_scan": "2026-01-27T11:41:08.105192Z",
+      "scan_duration_seconds": 8.38,
+      "vulnerabilities": [
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2024-5678: High Privilege Escalation"
+      ],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Docker Desktop 4.26.1",
+        "Google Chrome 120.0.6099.109",
+        "Node.js 20.11.0",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 78,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "SALES-SALES-LAPTOP-041",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CRM-DESKTOP-042",
+    "ip_address": "192.168.1.212",
+    "department": "Sales",
+    "compliance_status": "Partial",
+    "risk_score": 89,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-12",
+      "last_scan": "2026-01-27T11:41:08.105222Z",
+      "scan_duration_seconds": 8.52,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Python 3.12.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Node.js 20.11.0",
+        "Visual Studio Code 1.85.2"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 71,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2019",
+      "hostname": "SALES-CRM-DESKTOP-042",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CRM-LAPTOP-043",
+    "ip_address": "192.168.1.231",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 17,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-20",
+      "last_scan": "2026-01-27T11:41:08.105246Z",
+      "scan_duration_seconds": 6.55,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Google Chrome 120.0.6099.109",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 91,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "SALES-CRM-LAPTOP-043",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-DEMO-DESKTOP-044",
+    "ip_address": "192.168.1.117",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 23,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-24",
+      "last_scan": "2026-01-27T11:41:08.105267Z",
+      "scan_duration_seconds": 14.64,
+      "vulnerabilities": [],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Microsoft Office 365",
+        "Slack 4.36.134",
+        "Mozilla Firefox 121.0",
+        "Node.js 20.11.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Visual Studio Code 1.85.2"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "SALES-DEMO-DESKTOP-044",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-DEMO-WORKSTATION-045",
+    "ip_address": "192.168.1.206",
+    "department": "Sales",
+    "compliance_status": "Partial",
+    "risk_score": 77,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-15",
+      "last_scan": "2026-01-27T11:41:08.105289Z",
+      "scan_duration_seconds": 5.33,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Visual Studio Code 1.85.2",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0",
+        "Zoom Client 5.16.10",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 62,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "SALES-DEMO-WORKSTATION-045",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CRM-WORKSTATION-046",
+    "ip_address": "192.168.1.120",
+    "department": "Sales",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 41,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-08-03",
+      "last_scan": "2026-01-27T11:41:08.105316Z",
+      "scan_duration_seconds": 12.58,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Node.js 20.11.0",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 44,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 177 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "SALES-CRM-WORKSTATION-046",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CRM-LAPTOP-047",
+    "ip_address": "192.168.1.160",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 29,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-20",
+      "last_scan": "2026-01-27T11:41:08.105357Z",
+      "scan_duration_seconds": 13.6,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Python 3.12.1",
+        "Microsoft Office 365",
+        "Node.js 20.11.0",
+        "Visual Studio Code 1.85.2"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 100,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "SALES-CRM-LAPTOP-047",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CLIENT-WORKSTATION-048",
+    "ip_address": "192.168.1.218",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 9,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.105380Z",
+      "scan_duration_seconds": 13.51,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Office 365",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10",
+        "Microsoft Teams 1.6.00.30767"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "SALES-CLIENT-WORKSTATION-048",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CLIENT-DESKTOP-049",
+    "ip_address": "192.168.1.209",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 3,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.105405Z",
+      "scan_duration_seconds": 12.94,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2",
+        "Node.js 20.11.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Mozilla Firefox 121.0",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Slack 4.36.134",
+        "Python 3.12.1",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 94,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "SALES-CLIENT-DESKTOP-049",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-SALES-DESKTOP-050",
+    "ip_address": "192.168.1.147",
+    "department": "Sales",
+    "compliance_status": "Partial",
+    "risk_score": 23,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-12",
+      "last_scan": "2026-01-27T11:41:08.105429Z",
+      "scan_duration_seconds": 11.21,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Python 3.12.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "VLC Media Player 3.0.20",
+        "Microsoft Office 365",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Docker Desktop 4.26.1",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 78,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "SALES-SALES-DESKTOP-050",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-CLIENT-LAPTOP-051",
+    "ip_address": "192.168.1.144",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 20,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.105453Z",
+      "scan_duration_seconds": 10.13,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Google Chrome 120.0.6099.109",
+        "VLC Media Player 3.0.20",
+        "Visual Studio Code 1.85.2",
+        "Slack 4.36.134",
+        "Zoom Client 5.16.10",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "SALES-CLIENT-LAPTOP-051",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "SALES-DEMO-DESKTOP-052",
+    "ip_address": "192.168.1.129",
+    "department": "Sales",
+    "compliance_status": "Compliant",
+    "risk_score": 9,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-20",
+      "last_scan": "2026-01-27T11:41:08.105477Z",
+      "scan_duration_seconds": 8.91,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Zoom Client 5.16.10",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "SALES-DEMO-DESKTOP-052",
+      "department": "Sales"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-BOARD-DESKTOP-053",
+    "ip_address": "192.168.1.228",
+    "department": "Executive",
+    "compliance_status": "Critical",
+    "risk_score": 92,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-03-26",
+      "last_scan": "2026-01-27T11:41:08.105501Z",
+      "scan_duration_seconds": 13.68,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2024-1234: Critical RCE in Remote Desktop",
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2024-6666: Medium Denial of Service"
+      ],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Visual Studio Code 1.85.2",
+        "Git 2.43.0",
+        "Node.js 20.11.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Google Chrome 120.0.6099.109",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Severely outdated",
+      "compliance_score": 28,
+      "alerts": [
+        "CRITICAL: No antivirus protection",
+        "CRITICAL: Firewall disabled",
+        "CRITICAL: Windows updates over 180 days overdue",
+        "CRITICAL: Multiple high-severity vulnerabilities",
+        "WARNING: No disk encryption",
+        "WARNING: System at high risk of compromise"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "EXECUTIVE-BOARD-DESKTOP-053",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CEO-WORKSTATION-054",
+    "ip_address": "192.168.1.131",
+    "department": "Executive",
+    "compliance_status": "Partial",
+    "risk_score": 82,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-05",
+      "last_scan": "2026-01-27T11:41:08.105528Z",
+      "scan_duration_seconds": 10.46,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Adobe Acrobat Reader DC 23.006",
+        "Mozilla Firefox 121.0",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Teams 1.6.00.30767",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 68,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "EXECUTIVE-CEO-WORKSTATION-054",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-BOARD-DESKTOP-055",
+    "ip_address": "192.168.1.197",
+    "department": "Executive",
+    "compliance_status": "Compliant",
+    "risk_score": 23,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.105551Z",
+      "scan_duration_seconds": 7.19,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Teams 1.6.00.30767",
+        "Mozilla Firefox 121.0",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 92,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "EXECUTIVE-BOARD-DESKTOP-055",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-EXEC-LAPTOP-056",
+    "ip_address": "192.168.1.250",
+    "department": "Executive",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 96,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-12-24",
+      "last_scan": "2026-01-27T11:41:08.105574Z",
+      "scan_duration_seconds": 6.42,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2024-7777: High Memory Corruption"
+      ],
+      "installed_software": [
+        "Google Chrome 120.0.6099.109",
+        "Slack 4.36.134",
+        "7-Zip 23.01",
+        "Node.js 20.11.0",
+        "Docker Desktop 4.26.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 25,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 34 days overdue",
+        "2 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows Server 2019",
+      "hostname": "EXECUTIVE-EXEC-LAPTOP-056",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-BOARD-LAPTOP-057",
+    "ip_address": "192.168.1.190",
+    "department": "Executive",
+    "compliance_status": "Partial",
+    "risk_score": 48,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-12",
+      "last_scan": "2026-01-27T11:41:08.105620Z",
+      "scan_duration_seconds": 8.0,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Mozilla Firefox 121.0",
+        "Git 2.43.0",
+        "Visual Studio Code 1.85.2",
+        "Adobe Acrobat Reader DC 23.006"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 70,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "EXECUTIVE-BOARD-LAPTOP-057",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CFO-DESKTOP-058",
+    "ip_address": "192.168.1.146",
+    "department": "Executive",
+    "compliance_status": "Critical",
+    "risk_score": 65,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-07-06",
+      "last_scan": "2026-01-27T11:41:08.105647Z",
+      "scan_duration_seconds": 7.36,
+      "vulnerabilities": [
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2024-1234: Critical RCE in Remote Desktop",
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Python 3.12.1",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01",
+        "Adobe Acrobat Reader DC 23.006",
+        "Slack 4.36.134"
+      ],
+      "patch_level": "Severely outdated",
+      "compliance_score": 5,
+      "alerts": [
+        "CRITICAL: No antivirus protection",
+        "CRITICAL: Firewall disabled",
+        "CRITICAL: Windows updates over 180 days overdue",
+        "CRITICAL: Multiple high-severity vulnerabilities",
+        "WARNING: No disk encryption",
+        "WARNING: System at high risk of compromise"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "EXECUTIVE-CFO-DESKTOP-058",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CEO-WORKSTATION-059",
+    "ip_address": "192.168.1.126",
+    "department": "Executive",
+    "compliance_status": "Partial",
+    "risk_score": 39,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-02",
+      "last_scan": "2026-01-27T11:41:08.105677Z",
+      "scan_duration_seconds": 14.47,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "Git 2.43.0",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10",
+        "Python 3.12.1",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 76,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "EXECUTIVE-CEO-WORKSTATION-059",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CEO-WORKSTATION-060",
+    "ip_address": "192.168.1.170",
+    "department": "Executive",
+    "compliance_status": "Compliant",
+    "risk_score": 25,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.105700Z",
+      "scan_duration_seconds": 13.85,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Node.js 20.11.0",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10",
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 95,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "EXECUTIVE-CEO-WORKSTATION-060",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-BOARD-WORKSTATION-061",
+    "ip_address": "192.168.1.202",
+    "department": "Executive",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 81,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-08-13",
+      "last_scan": "2026-01-27T11:41:08.105722Z",
+      "scan_duration_seconds": 10.28,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Python 3.12.1",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 30,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 167 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "EXECUTIVE-BOARD-WORKSTATION-061",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CFO-LAPTOP-062",
+    "ip_address": "192.168.1.155",
+    "department": "Executive",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 38,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-06",
+      "last_scan": "2026-01-27T11:41:08.105769Z",
+      "scan_duration_seconds": 7.26,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2024-1234: Critical RCE in Remote Desktop",
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2024-6666: Medium Denial of Service"
+      ],
+      "installed_software": [
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Node.js 20.11.0",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 22,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 143 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "EXECUTIVE-CFO-LAPTOP-062",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-EXEC-LAPTOP-063",
+    "ip_address": "192.168.1.119",
+    "department": "Executive",
+    "compliance_status": "Partial",
+    "risk_score": 87,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-16",
+      "last_scan": "2026-01-27T11:41:08.105811Z",
+      "scan_duration_seconds": 11.02,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "VLC Media Player 3.0.20",
+        "7-Zip 23.01",
+        "Mozilla Firefox 121.0",
+        "Adobe Acrobat Reader DC 23.006"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 75,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "EXECUTIVE-EXEC-LAPTOP-063",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "EXECUTIVE-CFO-DESKTOP-064",
+    "ip_address": "192.168.1.147",
+    "department": "Executive",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 16,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-23",
+      "last_scan": "2026-01-27T11:41:08.105860Z",
+      "scan_duration_seconds": 13.96,
+      "vulnerabilities": [
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2023-8888: Critical Zero-Day Exploit"
+      ],
+      "installed_software": [
+        "Google Chrome 120.0.6099.109",
+        "Zoom Client 5.16.10",
+        "VLC Media Player 3.0.20",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 43,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 126 days overdue",
+        "2 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "EXECUTIVE-CFO-DESKTOP-064",
+      "department": "Executive"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-SHIPPING-LAPTOP-065",
+    "ip_address": "192.168.1.200",
+    "department": "Operations",
+    "compliance_status": "Compliant",
+    "risk_score": 0,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.105907Z",
+      "scan_duration_seconds": 8.13,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Google Chrome 120.0.6099.109",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Visual Studio Code 1.85.2",
+        "Node.js 20.11.0",
+        "Python 3.12.1",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 94,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "OPERATIONS-SHIPPING-LAPTOP-065",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-SHIPPING-LAPTOP-066",
+    "ip_address": "192.168.1.146",
+    "department": "Operations",
+    "compliance_status": "Partial",
+    "risk_score": 99,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-13",
+      "last_scan": "2026-01-27T11:41:08.105935Z",
+      "scan_duration_seconds": 11.16,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Microsoft Teams 1.6.00.30767",
+        "7-Zip 23.01",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Node.js 20.11.0",
+        "Mozilla Firefox 121.0",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 70,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "OPERATIONS-SHIPPING-LAPTOP-066",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-OPS-DESKTOP-067",
+    "ip_address": "192.168.1.222",
+    "department": "Operations",
+    "compliance_status": "Compliant",
+    "risk_score": 19,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.105963Z",
+      "scan_duration_seconds": 12.57,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Office 365",
+        "VLC Media Player 3.0.20",
+        "Mozilla Firefox 121.0",
+        "Docker Desktop 4.26.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Slack 4.36.134",
+        "7-Zip 23.01",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "OPERATIONS-OPS-DESKTOP-067",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-SHIPPING-WORKSTATION-068",
+    "ip_address": "192.168.1.236",
+    "department": "Operations",
+    "compliance_status": "Compliant",
+    "risk_score": 30,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.106000Z",
+      "scan_duration_seconds": 11.77,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Python 3.12.1",
+        "Google Chrome 120.0.6099.109",
+        "Git 2.43.0",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10",
+        "Slack 4.36.134",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "OPERATIONS-SHIPPING-WORKSTATION-068",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-LOGISTICS-LAPTOP-069",
+    "ip_address": "192.168.1.203",
+    "department": "Operations",
+    "compliance_status": "Partial",
+    "risk_score": 88,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-14",
+      "last_scan": "2026-01-27T11:41:08.106044Z",
+      "scan_duration_seconds": 9.0,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Adobe Acrobat Reader DC 23.006",
+        "VLC Media Player 3.0.20",
+        "Microsoft Office 365",
+        "Zoom Client 5.16.10",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Git 2.43.0",
+        "Python 3.12.1"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 72,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "OPERATIONS-LOGISTICS-LAPTOP-069",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-LOGISTICS-LAPTOP-070",
+    "ip_address": "192.168.1.100",
+    "department": "Operations",
+    "compliance_status": "Compliant",
+    "risk_score": 28,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-27",
+      "last_scan": "2026-01-27T11:41:08.106084Z",
+      "scan_duration_seconds": 5.57,
+      "vulnerabilities": [],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109",
+        "Slack 4.36.134"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 94,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "OPERATIONS-LOGISTICS-LAPTOP-070",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-LOGISTICS-WORKSTATION-071",
+    "ip_address": "192.168.1.209",
+    "department": "Operations",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 76,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-20",
+      "last_scan": "2026-01-27T11:41:08.106106Z",
+      "scan_duration_seconds": 11.07,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service"
+      ],
+      "installed_software": [
+        "Zoom Client 5.16.10",
+        "Slack 4.36.134",
+        "Python 3.12.1",
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "7-Zip 23.01",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "Visual Studio Code 1.85.2",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 41,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 129 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "OPERATIONS-LOGISTICS-WORKSTATION-071",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-SHIPPING-LAPTOP-072",
+    "ip_address": "192.168.1.116",
+    "department": "Operations",
+    "compliance_status": "Partial",
+    "risk_score": 21,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2025-12-31",
+      "last_scan": "2026-01-27T11:41:08.106160Z",
+      "scan_duration_seconds": 5.93,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2023-8888: Critical Zero-Day Exploit"
+      ],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Node.js 20.11.0",
+        "Zoom Client 5.16.10",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 71,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "OPERATIONS-SHIPPING-LAPTOP-072",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-SHIPPING-DESKTOP-073",
+    "ip_address": "192.168.1.237",
+    "department": "Operations",
+    "compliance_status": "Compliant",
+    "risk_score": 21,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-21",
+      "last_scan": "2026-01-27T11:41:08.106184Z",
+      "scan_duration_seconds": 7.36,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Visual Studio Code 1.85.2",
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "Node.js 20.11.0",
+        "Zoom Client 5.16.10",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "OPERATIONS-SHIPPING-DESKTOP-073",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-WAREHOUSE-LAPTOP-074",
+    "ip_address": "192.168.1.138",
+    "department": "Operations",
+    "compliance_status": "Partial",
+    "risk_score": 92,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-10",
+      "last_scan": "2026-01-27T11:41:08.106207Z",
+      "scan_duration_seconds": 11.52,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Microsoft Teams 1.6.00.30767",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Python 3.12.1",
+        "Google Chrome 120.0.6099.109",
+        "Node.js 20.11.0",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 61,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "OPERATIONS-WAREHOUSE-LAPTOP-074",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-WAREHOUSE-DESKTOP-075",
+    "ip_address": "192.168.1.123",
+    "department": "Operations",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 10,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-11-07",
+      "last_scan": "2026-01-27T11:41:08.106232Z",
+      "scan_duration_seconds": 10.76,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2024-6666: Medium Denial of Service"
+      ],
+      "installed_software": [
+        "Python 3.12.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Google Chrome 120.0.6099.109",
+        "Mozilla Firefox 121.0",
+        "Slack 4.36.134",
+        "7-Zip 23.01",
+        "Adobe Acrobat Reader DC 23.006",
+        "Microsoft Office 365",
+        "Zoom Client 5.16.10",
+        "Docker Desktop 4.26.1"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 28,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 81 days overdue",
+        "3 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "OPERATIONS-WAREHOUSE-DESKTOP-075",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "OPERATIONS-OPS-LAPTOP-076",
+    "ip_address": "192.168.1.177",
+    "department": "Operations",
+    "compliance_status": "Partial",
+    "risk_score": 48,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2025-12-29",
+      "last_scan": "2026-01-27T11:41:08.106275Z",
+      "scan_duration_seconds": 8.15,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "7-Zip 23.01",
+        "Microsoft Teams 1.6.00.30767",
+        "Slack 4.36.134",
+        "VLC Media Player 3.0.20",
+        "Zoom Client 5.16.10",
+        "Docker Desktop 4.26.1",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 66,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "OPERATIONS-OPS-LAPTOP-076",
+      "department": "Operations"
+    }
+  },
+  {
+    "asset_name": "LEGAL-COMPLIANCE-LAPTOP-077",
+    "ip_address": "192.168.1.108",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 21,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-24",
+      "last_scan": "2026-01-27T11:41:08.106300Z",
+      "scan_duration_seconds": 11.51,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0",
+        "Python 3.12.1",
+        "Slack 4.36.134",
+        "Mozilla Firefox 121.0",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 93,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "LEGAL-COMPLIANCE-LAPTOP-077",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-COMPLIANCE-LAPTOP-078",
+    "ip_address": "192.168.1.139",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 16,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-27",
+      "last_scan": "2026-01-27T11:41:08.106329Z",
+      "scan_duration_seconds": 11.15,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Microsoft Office 365",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "LEGAL-COMPLIANCE-LAPTOP-078",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-LEGAL-DESKTOP-079",
+    "ip_address": "192.168.1.174",
+    "department": "Legal",
+    "compliance_status": "Partial",
+    "risk_score": 81,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-10",
+      "last_scan": "2026-01-27T11:41:08.106354Z",
+      "scan_duration_seconds": 5.14,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Microsoft Teams 1.6.00.30767",
+        "7-Zip 23.01",
+        "Google Chrome 120.0.6099.109",
+        "Docker Desktop 4.26.1",
+        "Node.js 20.11.0",
+        "Visual Studio Code 1.85.2",
+        "Zoom Client 5.16.10",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 61,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2022",
+      "hostname": "LEGAL-LEGAL-DESKTOP-079",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-PATENT-WORKSTATION-080",
+    "ip_address": "192.168.1.105",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 24,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.106378Z",
+      "scan_duration_seconds": 14.99,
+      "vulnerabilities": [],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Office 365",
+        "Zoom Client 5.16.10",
+        "VLC Media Player 3.0.20",
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 97,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "LEGAL-PATENT-WORKSTATION-080",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-LEGAL-LAPTOP-081",
+    "ip_address": "192.168.1.194",
+    "department": "Legal",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 76,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-10-18",
+      "last_scan": "2026-01-27T11:41:08.106402Z",
+      "scan_duration_seconds": 6.98,
+      "vulnerabilities": [
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2024-5678: High Privilege Escalation",
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Visual Studio Code 1.85.2",
+        "VLC Media Player 3.0.20",
+        "Node.js 20.11.0",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 48,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 101 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "LEGAL-LEGAL-LAPTOP-081",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-LEGAL-LAPTOP-082",
+    "ip_address": "192.168.1.130",
+    "department": "Legal",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 11,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-30",
+      "last_scan": "2026-01-27T11:41:08.106447Z",
+      "scan_duration_seconds": 6.02,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit"
+      ],
+      "installed_software": [
+        "Slack 4.36.134",
+        "VLC Media Player 3.0.20",
+        "Python 3.12.1",
+        "Docker Desktop 4.26.1",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 26,
+      "alerts": [
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 119 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "LEGAL-LEGAL-LAPTOP-082",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-CONTRACT-WORKSTATION-083",
+    "ip_address": "192.168.1.183",
+    "department": "Legal",
+    "compliance_status": "Partial",
+    "risk_score": 36,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-12",
+      "last_scan": "2026-01-27T11:41:08.106490Z",
+      "scan_duration_seconds": 8.98,
+      "vulnerabilities": [
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-7777: High Memory Corruption"
+      ],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Microsoft Teams 1.6.00.30767",
+        "Visual Studio Code 1.85.2",
+        "Zoom Client 5.16.10",
+        "Git 2.43.0",
+        "Slack 4.36.134"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 80,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "LEGAL-CONTRACT-WORKSTATION-083",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-LEGAL-LAPTOP-084",
+    "ip_address": "192.168.1.246",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 13,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-24",
+      "last_scan": "2026-01-27T11:41:08.106518Z",
+      "scan_duration_seconds": 13.35,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Microsoft Teams 1.6.00.30767",
+        "Git 2.43.0",
+        "Python 3.12.1",
+        "Microsoft Office 365",
+        "7-Zip 23.01",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 99,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "LEGAL-LEGAL-LAPTOP-084",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-COMPLIANCE-WORKSTATION-085",
+    "ip_address": "192.168.1.186",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 23,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-22",
+      "last_scan": "2026-01-27T11:41:08.106539Z",
+      "scan_duration_seconds": 14.39,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01",
+        "Adobe Acrobat Reader DC 23.006",
+        "Microsoft Teams 1.6.00.30767",
+        "Git 2.43.0",
+        "Mozilla Firefox 121.0",
+        "Microsoft Office 365",
+        "VLC Media Player 3.0.20"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "LEGAL-COMPLIANCE-WORKSTATION-085",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-CONTRACT-LAPTOP-086",
+    "ip_address": "192.168.1.219",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 11,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.106564Z",
+      "scan_duration_seconds": 12.12,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Python 3.12.1",
+        "7-Zip 23.01",
+        "Microsoft Teams 1.6.00.30767",
+        "Visual Studio Code 1.85.2",
+        "Adobe Acrobat Reader DC 23.006",
+        "Slack 4.36.134"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 90,
+      "alerts": [],
+      "operating_system": "Windows Server 2019",
+      "hostname": "LEGAL-CONTRACT-LAPTOP-086",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-PATENT-DESKTOP-087",
+    "ip_address": "192.168.1.247",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 25,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.106585Z",
+      "scan_duration_seconds": 11.38,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Visual Studio Code 1.85.2",
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01",
+        "Google Chrome 120.0.6099.109",
+        "Mozilla Firefox 121.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows Server 2022",
+      "hostname": "LEGAL-PATENT-DESKTOP-087",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "LEGAL-COMPLIANCE-LAPTOP-088",
+    "ip_address": "192.168.1.183",
+    "department": "Legal",
+    "compliance_status": "Compliant",
+    "risk_score": 9,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-23",
+      "last_scan": "2026-01-27T11:41:08.106605Z",
+      "scan_duration_seconds": 7.14,
+      "vulnerabilities": [],
+      "installed_software": [
+        "VLC Media Player 3.0.20",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767",
+        "Slack 4.36.134",
+        "Node.js 20.11.0",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "LEGAL-COMPLIANCE-LAPTOP-088",
+      "department": "Legal"
+    }
+  },
+  {
+    "asset_name": "MARKETING-DESIGN-WORKSTATION-089",
+    "ip_address": "192.168.1.143",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 1,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-24",
+      "last_scan": "2026-01-27T11:41:08.106626Z",
+      "scan_duration_seconds": 8.45,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "Python 3.12.1",
+        "7-Zip 23.01",
+        "Node.js 20.11.0",
+        "VLC Media Player 3.0.20",
+        "Microsoft Teams 1.6.00.30767",
+        "Microsoft Office 365",
+        "Adobe Acrobat Reader DC 23.006",
+        "Docker Desktop 4.26.1"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 91,
+      "alerts": [],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "MARKETING-DESIGN-WORKSTATION-089",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-CONTENT-LAPTOP-090",
+    "ip_address": "192.168.1.138",
+    "department": "Marketing",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 53,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-12-26",
+      "last_scan": "2026-01-27T11:41:08.106649Z",
+      "scan_duration_seconds": 13.23,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit"
+      ],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "Mozilla Firefox 121.0",
+        "Python 3.12.1",
+        "Adobe Acrobat Reader DC 23.006",
+        "Slack 4.36.134",
+        "Git 2.43.0",
+        "VLC Media Player 3.0.20",
+        "Microsoft Teams 1.6.00.30767",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 47,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 32 days overdue",
+        "1 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-CONTENT-LAPTOP-090",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-SOCIAL-LAPTOP-091",
+    "ip_address": "192.168.1.203",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 30,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-21",
+      "last_scan": "2026-01-27T11:41:08.106690Z",
+      "scan_duration_seconds": 8.18,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Visual Studio Code 1.85.2",
+        "Microsoft Office 365",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 98,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-SOCIAL-LAPTOP-091",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-MARKETING-WORKSTATION-092",
+    "ip_address": "192.168.1.214",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 6,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-20",
+      "last_scan": "2026-01-27T11:41:08.106714Z",
+      "scan_duration_seconds": 8.11,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Mozilla Firefox 121.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Visual Studio Code 1.85.2",
+        "VLC Media Player 3.0.20",
+        "Docker Desktop 4.26.1",
+        "Microsoft Office 365",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 96,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-MARKETING-WORKSTATION-092",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-CONTENT-WORKSTATION-093",
+    "ip_address": "192.168.1.151",
+    "department": "Marketing",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 99,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-09-29",
+      "last_scan": "2026-01-27T11:41:08.106741Z",
+      "scan_duration_seconds": 8.28,
+      "vulnerabilities": [
+        "CVE-2024-1234: Critical RCE in Remote Desktop",
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-7777: High Memory Corruption",
+        "CVE-2023-9999: Medium Information Disclosure"
+      ],
+      "installed_software": [
+        "Visual Studio Code 1.85.2",
+        "VLC Media Player 3.0.20",
+        "Microsoft Teams 1.6.00.30767",
+        "Docker Desktop 4.26.1",
+        "Slack 4.36.134",
+        "Mozilla Firefox 121.0",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 33,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 120 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-CONTENT-WORKSTATION-093",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-DESIGN-DESKTOP-094",
+    "ip_address": "192.168.1.131",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 7,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.106784Z",
+      "scan_duration_seconds": 14.49,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Python 3.12.1",
+        "Visual Studio Code 1.85.2",
+        "Node.js 20.11.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "VLC Media Player 3.0.20",
+        "Microsoft Office 365",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 100,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-DESIGN-DESKTOP-094",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-CONTENT-DESKTOP-095",
+    "ip_address": "192.168.1.130",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 10,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-26",
+      "last_scan": "2026-01-27T11:41:08.106806Z",
+      "scan_duration_seconds": 14.17,
+      "vulnerabilities": [],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Git 2.43.0",
+        "Google Chrome 120.0.6099.109",
+        "Python 3.12.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006",
+        "Zoom Client 5.16.10",
+        "Mozilla Firefox 121.0",
+        "Microsoft Office 365",
+        "Visual Studio Code 1.85.2"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 98,
+      "alerts": [],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "MARKETING-CONTENT-DESKTOP-095",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-CONTENT-WORKSTATION-096",
+    "ip_address": "192.168.1.245",
+    "department": "Marketing",
+    "compliance_status": "Partial",
+    "risk_score": 87,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-01",
+      "last_scan": "2026-01-27T11:41:08.106829Z",
+      "scan_duration_seconds": 13.96,
+      "vulnerabilities": [],
+      "installed_software": [
+        "7-Zip 23.01",
+        "Microsoft Teams 1.6.00.30767",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Zoom Client 5.16.10"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 60,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows Server 2019",
+      "hostname": "MARKETING-CONTENT-WORKSTATION-096",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-DESIGN-DESKTOP-097",
+    "ip_address": "192.168.1.212",
+    "department": "Marketing",
+    "compliance_status": "Partial",
+    "risk_score": 84,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": false,
+      "firewall_enabled": true,
+      "encryption_enabled": false,
+      "last_update": "2026-01-07",
+      "last_scan": "2026-01-27T11:41:08.106852Z",
+      "scan_duration_seconds": 12.48,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Docker Desktop 4.26.1",
+        "7-Zip 23.01",
+        "VLC Media Player 3.0.20",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Git 2.43.0",
+        "Mozilla Firefox 121.0",
+        "Node.js 20.11.0"
+      ],
+      "patch_level": "Partially updated",
+      "compliance_score": 78,
+      "alerts": [
+        "Real-time protection may be disabled",
+        "Some Windows updates pending"
+      ],
+      "operating_system": "Windows 10 Enterprise",
+      "hostname": "MARKETING-DESIGN-DESKTOP-097",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-DESIGN-WORKSTATION-098",
+    "ip_address": "192.168.1.188",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 17,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.106879Z",
+      "scan_duration_seconds": 13.51,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Docker Desktop 4.26.1",
+        "Python 3.12.1",
+        "Node.js 20.11.0",
+        "Adobe Acrobat Reader DC 23.006",
+        "Zoom Client 5.16.10",
+        "7-Zip 23.01",
+        "Slack 4.36.134",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 94,
+      "alerts": [],
+      "operating_system": "Windows 11 Pro",
+      "hostname": "MARKETING-DESIGN-WORKSTATION-098",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-CONTENT-DESKTOP-099",
+    "ip_address": "192.168.1.118",
+    "department": "Marketing",
+    "compliance_status": "Non-Compliant",
+    "risk_score": 83,
+    "details": {
+      "antivirus": false,
+      "real_time_protection": false,
+      "firewall_enabled": false,
+      "encryption_enabled": false,
+      "last_update": "2025-12-24",
+      "last_scan": "2026-01-27T11:41:08.106902Z",
+      "scan_duration_seconds": 6.65,
+      "vulnerabilities": [
+        "CVE-2023-8888: Critical Zero-Day Exploit",
+        "CVE-2023-9999: Medium Information Disclosure",
+        "CVE-2024-6666: Medium Denial of Service",
+        "CVE-2024-1234: Critical RCE in Remote Desktop"
+      ],
+      "installed_software": [
+        "Node.js 20.11.0",
+        "Git 2.43.0",
+        "Slack 4.36.134",
+        "Adobe Acrobat Reader DC 23.006",
+        "Python 3.12.1",
+        "Microsoft Teams 1.6.00.30767",
+        "Visual Studio Code 1.85.2",
+        "Google Chrome 120.0.6099.109"
+      ],
+      "patch_level": "Outdated",
+      "compliance_score": 48,
+      "alerts": [
+        "Antivirus not installed or disabled",
+        "Real-time protection disabled",
+        "Windows Firewall is disabled",
+        "BitLocker encryption not enabled",
+        "Windows updates 34 days overdue",
+        "4 critical vulnerabilities detected"
+      ],
+      "operating_system": "Windows 10 Pro",
+      "hostname": "MARKETING-CONTENT-DESKTOP-099",
+      "department": "Marketing"
+    }
+  },
+  {
+    "asset_name": "MARKETING-SOCIAL-WORKSTATION-100",
+    "ip_address": "192.168.1.146",
+    "department": "Marketing",
+    "compliance_status": "Compliant",
+    "risk_score": 4,
+    "details": {
+      "antivirus": true,
+      "real_time_protection": true,
+      "firewall_enabled": true,
+      "encryption_enabled": true,
+      "last_update": "2026-01-25",
+      "last_scan": "2026-01-27T11:41:08.106966Z",
+      "scan_duration_seconds": 9.67,
+      "vulnerabilities": [],
+      "installed_software": [
+        "Git 2.43.0",
+        "Microsoft Teams 1.6.00.30767",
+        "Mozilla Firefox 121.0",
+        "Zoom Client 5.16.10",
+        "Docker Desktop 4.26.1",
+        "Google Chrome 120.0.6099.109",
+        "Slack 4.36.134",
+        "7-Zip 23.01"
+      ],
+      "patch_level": "Up to date",
+      "compliance_score": 90,
+      "alerts": [],
+      "operating_system": "Windows 11 Enterprise",
+      "hostname": "MARKETING-SOCIAL-WORKSTATION-100",
+      "department": "Marketing"
+    }
+  }
+]

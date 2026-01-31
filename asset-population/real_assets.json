@@ -1,0 +1,13 @@
+[
+  {
+    "asset_name": "LAPPY",
+    "ip_address": "192.168.56.1",
+    "compliance_status": "Unknown",
+    "details": {
+      "antivirus": null,
+      "real_time_protection": null,
+      "operating_system": "Windows 11 Pro",
+      "error": "Host unreachable"
+    }
+  }
+]

@@ -1,72 +1,108 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Server, Laptop, Network, X, Calendar, RefreshCw } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Server, Laptop, Network, X, Calendar, RefreshCw, Database } from 'lucide-react';
 import { assetsAPI, risksAPI } from '@/lib/api';
 import { sampleAssets, currentRiskPosture, Asset } from '@/lib/soc-data';
+import { fetchRealAssets, syncFromActiveDirectory } from '@/lib/real-api';
 
 export default function AssetRiskPostureDashboard() {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [selectedRisk, setSelectedRisk] = useState<typeof currentRiskPosture.criticalRisks[0] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [usingMockData, setUsingMockData] = useState(false);
+  const [lastSyncMessage, setLastSyncMessage] = useState<string>('');
   
   // State for data
   const [assets, setAssets] = useState<Asset[]>(sampleAssets);
   const [riskPosture, setRiskPosture] = useState(currentRiskPosture);
+
+  // Sync from Active Directory
+  const handleADSync = async () => {
+    setIsSyncing(true);
+    setLastSyncMessage('Syncing from Active Directory...');
+    
+    try {
+      const result = await syncFromActiveDirectory();
+      
+      if (result.success) {
+        setLastSyncMessage(`✅ Synced ${result.data.assetsImported} assets from AD`);
+        // Refresh the asset list
+        await fetchData();
+      } else {
+        setLastSyncMessage(`❌ Sync failed: ${result.data.errors.join(', ')}`);
+      }
+    } catch (error) {
+      setLastSyncMessage(`❌ Sync error: ${error}`);
+    } finally {
+      setIsSyncing(false);
+      // Clear message after 5 seconds
+      setTimeout(() => setLastSyncMessage(''), 5000);
+    }
+  };
 
   // Fetch data from backend
   const fetchData = async () => {
     setIsLoading(true);
     
     try {
-      const [assetsResponse, risksResponse, coverageResponse] = await Promise.all([
-        assetsAPI.getAssets({ limit: 50 }).catch(() => null),
-        risksAPI.getRisks({ limit: 20 }).catch(() => null),
-        assetsAPI.getCoverage().catch(() => null),
-      ]);
-
-      if (assetsResponse?.data && Array.isArray(assetsResponse.data)) {
-        const mappedAssets: Asset[] = assetsResponse.data.map((asset: any) => ({
+      // Try to fetch real assets from public endpoint first
+      const realAssets = await fetchRealAssets();
+      
+      if (realAssets && realAssets.length > 0) {
+        console.log('✅ Loaded REAL assets from Active Directory:', realAssets);
+        const mappedAssets: Asset[] = realAssets.map((asset: any) => ({
           id: asset.id,
-          name: asset.name || asset.hostname || 'Unknown Asset',
-          type: asset.type || 'Server',
+          name: asset.hostname || 'Unknown Asset',
+          type: asset.asset_type === 'workstation' ? 'Workstation' : 'Server',
           department: asset.department || 'IT',
-          ipAddress: asset.ip_address || asset.ipAddress || '0.0.0.0',
+          ipAddress: asset.ip_address || '0.0.0.0',
           criticality: asset.criticality || 'Medium',
-          complianceStatus: asset.compliance_status || 'Partially Compliant',
-          edr: { installed: asset.edr_installed || false, status: asset.edr_status || 'Not Installed', version: asset.edr_version },
-          dlp: { installed: asset.dlp_installed || false, status: asset.dlp_status || 'Not Installed', version: asset.dlp_version },
-          antivirus: { installed: asset.av_installed || false, status: asset.av_status || 'Not Installed', version: asset.av_version },
+          complianceStatus: asset.compliance_status === 'compliant' ? 'Compliant' : 
+                          asset.compliance_status === 'partially_compliant' ? 'Partially Compliant' : 'Non-Compliant',
+          edr: { 
+            installed: asset.edr_status === 'protected', 
+            status: asset.edr_status === 'protected' ? 'Protected' : 'Not Installed', 
+            version: 'N/A' 
+          },
+          dlp: { 
+            installed: asset.dlp_status === 'protected', 
+            status: asset.dlp_status === 'protected' ? 'Protected' : 'Not Installed', 
+            version: 'N/A' 
+          },
+          antivirus: { 
+            installed: asset.antivirus_status === 'protected', 
+            status: asset.antivirus_status === 'protected' ? 'Protected' : 'Not Installed', 
+            version: 'N/A' 
+          },
         }));
-        if (mappedAssets.length > 0) {
-          setAssets(mappedAssets);
-          setUsingMockData(false);
-        }
+        setAssets(mappedAssets);
+        setUsingMockData(false);
       } else {
+        console.error('❌ No assets found - backend may be unavailable');
+        setAssets([]);
         setUsingMockData(true);
       }
 
-      if (risksResponse?.data) {
-        // Map risks to our format if available
-        const mappedRisks = risksResponse.data.map((risk: any) => ({
-          title: risk.title || risk.name,
-          description: risk.description,
-          riskScore: risk.risk_score || risk.score || 50,
-          likelihood: risk.likelihood || 5,
-          impact: risk.impact || 5,
-          businessImpact: risk.business_impact || 'Impact assessment pending',
-        }));
-        if (mappedRisks.length > 0) {
-          setRiskPosture(prev => ({ ...prev, criticalRisks: mappedRisks.slice(0, 4) }));
+      // Try to fetch risks (optional)
+      try {
+        const risksResponse = await risksAPI.getRisks({ limit: 20 });
+        if (risksResponse?.data) {
+          const mappedRisks = risksResponse.data.map((risk: any) => ({
+            title: risk.title || risk.name,
+            description: risk.description,
+            riskScore: risk.risk_score || risk.score || 50,
+            likelihood: risk.likelihood || 5,
+            impact: risk.impact || 5,
+            businessImpact: risk.business_impact || 'Impact assessment pending',
+          }));
+          if (mappedRisks.length > 0) {
+            setRiskPosture(prev => ({ ...prev, criticalRisks: mappedRisks.slice(0, 4) }));
+          }
         }
-      }
-
-      if (coverageResponse?.data) {
-        setRiskPosture(prev => ({
-          ...prev,
-          overallScore: coverageResponse.data.overall_score || prev.overallScore,
-        }));
+      } catch (err) {
+        console.log('No risks available, using defaults');
       }
     } catch (err) {
       console.error('Failed to fetch asset/risk data:', err);
@@ -87,6 +123,30 @@ export default function AssetRiskPostureDashboard() {
   const assetsWithEDR = assets.filter(a => a.edr.installed).length;
   const assetsWithDLP = assets.filter(a => a.dlp.installed).length;
   const assetsWithAV = assets.filter(a => a.antivirus.installed).length;
+
+  // Calculate REAL posture score based on actual asset data
+  const calculatePostureScore = () => {
+    if (totalAssets === 0) return 0;
+    
+    // Weighted scoring:
+    // - 40% compliance rate
+    // - 30% EDR coverage
+    // - 20% DLP coverage  
+    // - 10% Antivirus coverage
+    const complianceScore = (compliantAssets / totalAssets) * 40;
+    const edrScore = (assetsWithEDR / totalAssets) * 30;
+    const dlpScore = (assetsWithDLP / totalAssets) * 20;
+    const avScore = (assetsWithAV / totalAssets) * 10;
+    
+    return Math.round(complianceScore + edrScore + dlpScore + avScore);
+  };
+
+  const realPostureScore = calculatePostureScore();
+  const displayPosture = usingMockData ? riskPosture : {
+    ...riskPosture,
+    overallScore: realPostureScore,
+    trend: realPostureScore >= 70 ? 'improving' : 'declining'
+  };
 
   const getAssetIcon = (type: string) => {
     switch (type) {
@@ -112,24 +172,31 @@ export default function AssetRiskPostureDashboard() {
       {/* Data Source Indicator */}
       <div className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
         usingMockData 
-          ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200'
+          ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-2 border-red-400'
           : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200'
       }`}>
-        <div className="flex items-center gap-2">
-          {isLoading ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : usingMockData ? (
-            <AlertTriangle className="w-4 h-4" />
-          ) : (
-            <CheckCircle className="w-4 h-4" />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            {isLoading ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : usingMockData ? (
+              <AlertTriangle className="w-4 h-4" />
+            ) : (
+              <CheckCircle className="w-4 h-4" />
+            )}
+            <span className="font-medium">
+              {isLoading 
+                ? 'Loading asset data...' 
+                : usingMockData 
+                  ? '❌ BACKEND UNAVAILABLE - No data to display' 
+                  : '✓ Connected to live backend'}
+            </span>
+          </div>
+          {!usingMockData && !isLoading && (
+            <span className="text-xs opacity-75 pl-6">
+              📡 Active Directory: meezan.local (192.168.18.100) • {assets.length} assets synced from real domain
+            </span>
           )}
-          <span>
-            {isLoading 
-              ? 'Loading asset data...' 
-              : usingMockData 
-                ? '⚠️ Using demo data (backend unavailable)' 
-                : '✓ Connected to live backend'}
-          </span>
         </div>
         <button 
           onClick={fetchData}
@@ -155,18 +222,18 @@ export default function AssetRiskPostureDashboard() {
                     <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="none" className="text-gray-200 dark:text-gray-700" />
                     <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="none"
                       strokeDasharray={`${2 * Math.PI * 42}`}
-                      strokeDashoffset={`${2 * Math.PI * 42 * (1 - riskPosture.overallScore / 100)}`}
-                      className={`${riskPosture.overallScore >= 80 ? 'text-green-500' : riskPosture.overallScore >= 60 ? 'text-yellow-500' : 'text-red-500'}`}
+                      strokeDashoffset={`${2 * Math.PI * 42 * (1 - displayPosture.overallScore / 100)}`}
+                      className={`${displayPosture.overallScore >= 80 ? 'text-green-500' : displayPosture.overallScore >= 60 ? 'text-yellow-500' : 'text-red-500'}`}
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold">{riskPosture.overallScore}</span>
+                    <span className="text-2xl font-bold">{displayPosture.overallScore}</span>
                     <span className="text-[10px] text-gray-500">/100</span>
                   </div>
                 </div>
                 <div className="text-[11px] font-medium mt-1">Posture Score</div>
-                <div className={`text-[10px] ${riskPosture.trend === 'improving' ? 'text-green-600' : 'text-gray-600'}`}>
-                  {riskPosture.trend === 'improving' ? '↑ Improving' : '→ Stable'}
+                <div className={`text-[10px] ${displayPosture.trend === 'improving' ? 'text-green-600' : displayPosture.trend === 'declining' ? 'text-red-600' : 'text-gray-600'}`}>
+                  {displayPosture.trend === 'improving' ? '↑ Improving' : displayPosture.trend === 'declining' ? '↓ Declining' : '→ Stable'}
                 </div>
               </div>
             </div>
@@ -319,8 +386,27 @@ export default function AssetRiskPostureDashboard() {
         <div>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-sm font-bold">Asset Inventory</h3>
-            <span className="text-[10px] text-gray-500">Click row for details</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleADSync}
+                disabled={isSyncing}
+                className="flex items-center gap-1 px-2 py-1 text-[10px] bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
+                title="Sync from Active Directory"
+              >
+                <Database className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                {isSyncing ? 'Syncing...' : 'Sync from AD'}
+              </button>
+              <span className="text-[10px] text-gray-500">Click row for details</span>
+            </div>
           </div>
+          {lastSyncMessage && (
+            <div className={`text-[10px] px-2 py-1 mb-2 rounded ${
+              lastSyncMessage.includes('✅') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+              'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }`}>
+              {lastSyncMessage}
+            </div>
+          )}
           <div className="card p-0 overflow-hidden">
             <table className="w-full text-[11px]">
               <thead className="bg-gray-50 dark:bg-gray-800">

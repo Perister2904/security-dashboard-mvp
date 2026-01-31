@@ -53,54 +53,8 @@ function mapBackendUser(backendUser: any): User {
   };
 }
 
-// Mock users for demo
-export const users: User[] = [
-  {
-    id: "user-001",
-    name: "Ahmad Hassan",
-    email: "ahmad.hassan@meezanbank.com",
-    role: "CEO",
-    department: "Executive",
-    accessLevel: "Executive",
-    permissions: ["view_all_reports", "executive_dashboard", "approve_critical", "full_access"]
-  },
-  {
-    id: "user-002", 
-    name: "Sarah Khan",
-    email: "sarah.khan@meezanbank.com",
-    role: "CISO",
-    department: "Information Security",
-    accessLevel: "Executive",
-    permissions: ["view_all_reports", "executive_dashboard", "security_oversight", "approve_all", "full_access"]
-  },
-  {
-    id: "user-003",
-    name: "Ali Raza",
-    email: "ali.raza@meezanbank.com", 
-    role: "SOC Analyst",
-    department: "SOC",
-    accessLevel: "Departmental",
-    permissions: ["view_own_reports", "submit_incidents", "view_soc_reports"]
-  },
-  {
-    id: "user-004",
-    name: "Omar Sheikh",
-    email: "omar.sheikh@meezanbank.com",
-    role: "Penetration Tester", 
-    department: "Security Testing",
-    accessLevel: "Departmental",
-    permissions: ["view_own_reports", "submit_vulnerabilities", "verify_fixes", "view_pentest_reports"]
-  },
-  {
-    id: "user-005",
-    name: "Fatima Ahmed",
-    email: "fatima.ahmed@meezanbank.com",
-    role: "Security Architect",
-    department: "Security Architecture", 
-    accessLevel: "Departmental",
-    permissions: ["view_architecture_reports", "submit_fixes", "review_vulnerabilities"]
-  }
-];
+// NO MOCK USERS - Real backend authentication required
+export const users: User[] = [];
 
 // Session management with real backend API
 export class SessionManager {
@@ -158,13 +112,8 @@ export class SessionManager {
       }
     }
     
-    // Fallback to mock users for demo compatibility
-    const user = users.find(u => u.email === email);
-    if (user && password === "demo123") {
-      this.currentUser = user;
-      this.lastActivity = Date.now();
-      return user;
-    }
+    // NO MOCK FALLBACK - Real backend authentication required
+    console.error('Synchronous login removed. Use SessionManager.loginAsync() for real backend authentication.');
     return null;
   }
 

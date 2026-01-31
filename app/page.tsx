@@ -550,15 +550,14 @@ export default function Page() {
             </button>
 
             <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Demo Accounts:</h3>
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Backend Login Credentials:</h3>
               <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                <div className="font-semibold text-green-700 dark:text-green-300">✅ Real Backend (Recommended):</div>
-                <div>• SOC Analyst: analyst / SecurePass@123</div>
-                <div>• Admin: admin / Admin@123</div>
-                <div className="mt-2 font-semibold text-orange-600 dark:text-orange-300">📋 Demo Mode (Fallback):</div>
-                <div>• CEO/CISO: sarah.khan@meezanbank.com</div>
-                <div>• SOC Analyst: ali.raza@meezanbank.com</div>
-                <div className="mt-1 font-medium">Demo Password: demo123</div>
+                <div className="font-semibold text-green-700 dark:text-green-300">✅ Real Backend Authentication Required:</div>
+                <div>• SOC Analyst: <span className="font-mono">analyst</span> / <span className="font-mono">SecurePass@123</span></div>
+                <div>• Admin: <span className="font-mono">admin</span> / <span className="font-mono">Admin@123</span></div>
+                <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                  ℹ️ Uses real backend with Active Directory integration at 192.168.18.100
+                </div>
               </div>
             </div>
           </div>

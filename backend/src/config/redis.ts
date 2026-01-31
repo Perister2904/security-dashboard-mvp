@@ -1,40 +1,15 @@
-import Redis from 'ioredis';
-import dotenv from 'dotenv';
+// Redis completely disabled - using no-op mock client
+console.log('⚠️  Redis caching disabled - using no-op client');
 
-dotenv.config();
-
-// Support both REDIS_URL (for cloud providers like Upstash)
-// and individual connection params (for local development)
-const redisConfig = process.env.REDIS_URL
-  ? process.env.REDIS_URL // Upstash and other cloud providers use connection URL
-  : {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: parseInt(process.env.REDIS_DB || '0'),
-      retryStrategy: (times: number) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-      maxRetriesPerRequest: 3,
-    };
-
-// Redis accepts both URL string and config object
-export const redis = typeof redisConfig === 'string' 
-  ? new Redis(redisConfig)
-  : new Redis(redisConfig);
-
-redis.on('connect', () => {
-  console.log('✅ Redis connection established');
-});
-
-redis.on('error', (err: Error) => {
-  console.error('❌ Redis connection error:', err);
-});
-
-redis.on('ready', () => {
-  console.log('✅ Redis is ready to accept commands');
-});
+export const redis = {
+  on: () => {},
+  setex: async () => 'OK',
+  set: async () => 'OK',
+  get: async () => null,
+  del: async () => 1,
+  keys: async () => [],
+  ping: async () => 'PONG',
+};
 
 // Cache helper functions
 export async function cacheSet(

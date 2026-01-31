@@ -1,0 +1,15 @@
+# Asset Scanner Dependencies
+# Install with: pip install -r requirements.txt
+
+# LDAP library for Active Directory queries
+ldap3>=2.9.1
+
+# WinRM library for remote Windows management
+pywinrm>=0.4.3
+
+# Optional: For enhanced NTLM authentication
+requests-ntlm>=1.2.0
+
+# Optional: For Kerberos authentication (if needed)
+# pykerberos>=1.2.4  # Linux
+# winkerberos>=0.9.1  # Windows
