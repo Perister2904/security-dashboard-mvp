@@ -1,3 +1,5 @@
+import { getAuthToken } from './api';
+
 // Simple API helper to fetch real assets from backend
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -32,10 +34,12 @@ export interface ADSyncResult {
  */
 export async function syncFromActiveDirectory(): Promise<ADSyncResult> {
   try {
+    const token = getAuthToken();
     const response = await fetch(`${API_URL}/ad/sync`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
     });
 
@@ -62,10 +66,12 @@ export async function syncFromActiveDirectory(): Promise<ADSyncResult> {
 
 export async function fetchRealAssets(): Promise<RealAsset[]> {
   try {
-    const response = await fetch(`${API_URL}/assets/public`, {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/assets?limit=200`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       cache: 'no-store'
     });
@@ -76,7 +82,7 @@ export async function fetchRealAssets(): Promise<RealAsset[]> {
     }
 
     const data = await response.json();
-    return data.data?.assets || [];
+    return data.data?.assets || data.data?.items || data.data || [];
   } catch (error) {
     console.error('Error fetching real assets:', error);
     return [];

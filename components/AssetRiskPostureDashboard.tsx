@@ -1,450 +1,484 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Server, Laptop, Network, X, Calendar, RefreshCw, Database } from 'lucide-react';
-import { assetsAPI, risksAPI } from '@/lib/api';
-import { sampleAssets, currentRiskPosture, Asset } from '@/lib/soc-data';
-import { fetchRealAssets, syncFromActiveDirectory } from '@/lib/real-api';
+import { useCallback, useEffect, useState } from "react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Database,
+  Laptop,
+  Network,
+  RefreshCw,
+  Server,
+  Shield,
+  XCircle,
+} from "lucide-react";
+import { assetsAPI } from "@/lib/api";
+import { fetchRealAssets, syncFromActiveDirectory, type RealAsset } from "@/lib/real-api";
+import { type Asset } from "@/lib/soc-data";
+
+type CoverageStats = {
+  total_assets: number;
+  edr_coverage_pct: number;
+  dlp_coverage_pct: number;
+  av_coverage_pct: number;
+  compliance_pct: number;
+};
+
+type AuthenticatedDiscoveryAsset = {
+  id: string;
+  hostname: string;
+  ip_address: string | null;
+  asset_type: string;
+  criticality: string;
+  department: string;
+  seen_on_network: boolean;
+};
+
+type UnauthorizedDiscoveryAsset = {
+  ip_address: string;
+  hostname: string | null;
+  mac_address: string | null;
+  vendor: string | null;
+  reason: string;
+};
+
+type NetworkDiscoveryResponse = {
+  scan_range: string;
+  scanner: "nmap";
+  nmap_available: boolean;
+  scan_status: "completed" | "unavailable" | "failed";
+  scanned_at: string;
+  authenticated_assets: AuthenticatedDiscoveryAsset[];
+  unauthorized_assets: UnauthorizedDiscoveryAsset[];
+  summary: {
+    authenticated_total: number;
+    authenticated_seen_on_network: number;
+    unauthorized_total: number;
+  };
+  error?: string;
+};
+
+type DisplayAsset = Asset & {
+  seenOnNetwork: boolean;
+};
+
+const EMPTY_COVERAGE: CoverageStats = {
+  total_assets: 0,
+  edr_coverage_pct: 0,
+  dlp_coverage_pct: 0,
+  av_coverage_pct: 0,
+  compliance_pct: 0,
+};
+
+const EMPTY_DISCOVERY: NetworkDiscoveryResponse = {
+  scan_range: "Not configured",
+  scanner: "nmap",
+  nmap_available: false,
+  scan_status: "unavailable",
+  scanned_at: "",
+  authenticated_assets: [],
+  unauthorized_assets: [],
+  summary: {
+    authenticated_total: 0,
+    authenticated_seen_on_network: 0,
+    unauthorized_total: 0,
+  },
+};
+
+function mapAssetType(assetType?: string): Asset["type"] {
+  if (assetType === "server") return "Server";
+  if (assetType === "workstation") return "Workstation";
+  return "Network Device";
+}
+
+function mapCriticality(criticality?: string): Asset["criticality"] {
+  if (criticality === "critical") return "Critical";
+  if (criticality === "high") return "High";
+  if (criticality === "low") return "Low";
+  return "Medium";
+}
+
+function mapComplianceStatus(status?: string): Asset["complianceStatus"] {
+  if (status === "compliant") return "Compliant";
+  if (status === "partially_compliant") return "Partially Compliant";
+  if (status === "non_compliant") return "Non-Compliant";
+  return "Unknown";
+}
+
+function mapToolStatus(status?: string): Asset["edr"]["status"] {
+  if (status === "protected") return "Active";
+  if (status === "offline" || status === "outdated") return "Inactive";
+  if (status === "not_installed") return "Not Installed";
+  return "Unknown";
+}
+
+function mapRealAsset(asset: RealAsset, seenOnNetwork: boolean): DisplayAsset {
+  return {
+    id: asset.id,
+    name: asset.hostname || "Unknown Asset",
+    type: mapAssetType(asset.asset_type),
+    department: asset.department || "Unknown",
+    ipAddress: asset.ip_address || "Unknown",
+    criticality: mapCriticality(asset.criticality),
+    complianceStatus: mapComplianceStatus(asset.compliance_status),
+    edr: {
+      installed: asset.edr_status === "protected",
+      status: mapToolStatus(asset.edr_status),
+      version: "N/A",
+    },
+    dlp: {
+      installed: asset.dlp_status === "protected",
+      status: mapToolStatus(asset.dlp_status),
+      version: "N/A",
+    },
+    antivirus: {
+      installed: asset.antivirus_status === "protected",
+      status: mapToolStatus(asset.antivirus_status),
+      version: "N/A",
+    },
+    lastScan: asset.last_seen || new Date().toISOString(),
+    seenOnNetwork,
+  };
+}
+
+function mapDiscoveryAsset(asset: AuthenticatedDiscoveryAsset): DisplayAsset {
+  return {
+    id: asset.id,
+    name: asset.hostname || "Unknown Asset",
+    type: mapAssetType(asset.asset_type),
+    department: asset.department || "Unknown",
+    ipAddress: asset.ip_address || "Unknown",
+    criticality: mapCriticality(asset.criticality),
+    complianceStatus: "Unknown",
+    edr: { installed: false, status: "Unknown", version: "N/A" },
+    dlp: { installed: false, status: "Unknown", version: "N/A" },
+    antivirus: { installed: false, status: "Unknown", version: "N/A" },
+    lastScan: new Date().toISOString(),
+    seenOnNetwork: asset.seen_on_network,
+  };
+}
+
+function getAssetIcon(type: Asset["type"]) {
+  if (type === "Server") return <Server className="h-4 w-4" />;
+  if (type === "Network Device") return <Network className="h-4 w-4" />;
+  return <Laptop className="h-4 w-4" />;
+}
+
+function getToolStatusBadge(status: Asset["edr"]["status"]) {
+  if (status === "Active") return <CheckCircle className="h-3.5 w-3.5 text-green-500" />;
+  if (status === "Inactive") return <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />;
+  if (status === "Not Installed") return <XCircle className="h-3.5 w-3.5 text-red-500" />;
+  return <span className="text-xs font-semibold text-gray-400">?</span>;
+}
+
+function getDiscoveryStatusText(discovery: NetworkDiscoveryResponse) {
+  if (discovery.scan_status === "completed") {
+    return `nmap scanned ${discovery.scan_range} and matched the results against the AD-authenticated inventory using hostname, MAC, and IP evidence.`;
+  }
+
+  if (discovery.scan_status === "failed") {
+    return `The nmap scan failed for ${discovery.scan_range}.`;
+  }
+
+  return "nmap is not available on this server yet, so unauthorized host detection is waiting on scanner installation.";
+}
 
 export default function AssetRiskPostureDashboard() {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [selectedRisk, setSelectedRisk] = useState<typeof currentRiskPosture.criticalRisks[0] | null>(null);
+  const [assets, setAssets] = useState<DisplayAsset[]>([]);
+  const [coverageStats, setCoverageStats] = useState<CoverageStats>(EMPTY_COVERAGE);
+  const [networkDiscovery, setNetworkDiscovery] = useState<NetworkDiscoveryResponse>(EMPTY_DISCOVERY);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [usingMockData, setUsingMockData] = useState(false);
-  const [lastSyncMessage, setLastSyncMessage] = useState<string>('');
-  
-  // State for data
-  const [assets, setAssets] = useState<Asset[]>(sampleAssets);
-  const [riskPosture, setRiskPosture] = useState(currentRiskPosture);
+  const [isScanning, setIsScanning] = useState(false);
+  const [lastSyncMessage, setLastSyncMessage] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Sync from Active Directory
-  const handleADSync = async () => {
-    setIsSyncing(true);
-    setLastSyncMessage('Syncing from Active Directory...');
-    
-    try {
-      const result = await syncFromActiveDirectory();
-      
-      if (result.success) {
-        setLastSyncMessage(`✅ Synced ${result.data.assetsImported} assets from AD`);
-        // Refresh the asset list
-        await fetchData();
-      } else {
-        setLastSyncMessage(`❌ Sync failed: ${result.data.errors.join(', ')}`);
-      }
-    } catch (error) {
-      setLastSyncMessage(`❌ Sync error: ${error}`);
-    } finally {
-      setIsSyncing(false);
-      // Clear message after 5 seconds
-      setTimeout(() => setLastSyncMessage(''), 5000);
-    }
-  };
-
-  // Fetch data from backend
-  const fetchData = async () => {
+  const fetchInventoryData = useCallback(async () => {
     setIsLoading(true);
-    
-    try {
-      // Try to fetch real assets from public endpoint first
-      const realAssets = await fetchRealAssets();
-      
-      if (realAssets && realAssets.length > 0) {
-        console.log('✅ Loaded REAL assets from Active Directory:', realAssets);
-        const mappedAssets: Asset[] = realAssets.map((asset: any) => ({
-          id: asset.id,
-          name: asset.hostname || 'Unknown Asset',
-          type: asset.asset_type === 'workstation' ? 'Workstation' : 'Server',
-          department: asset.department || 'IT',
-          ipAddress: asset.ip_address || '0.0.0.0',
-          criticality: asset.criticality || 'Medium',
-          complianceStatus: asset.compliance_status === 'compliant' ? 'Compliant' : 
-                          asset.compliance_status === 'partially_compliant' ? 'Partially Compliant' : 'Non-Compliant',
-          edr: { 
-            installed: asset.edr_status === 'protected', 
-            status: asset.edr_status === 'protected' ? 'Protected' : 'Not Installed', 
-            version: 'N/A' 
-          },
-          dlp: { 
-            installed: asset.dlp_status === 'protected', 
-            status: asset.dlp_status === 'protected' ? 'Protected' : 'Not Installed', 
-            version: 'N/A' 
-          },
-          antivirus: { 
-            installed: asset.antivirus_status === 'protected', 
-            status: asset.antivirus_status === 'protected' ? 'Protected' : 'Not Installed', 
-            version: 'N/A' 
-          },
-        }));
-        setAssets(mappedAssets);
-        setUsingMockData(false);
-      } else {
-        console.error('❌ No assets found - backend may be unavailable');
-        setAssets([]);
-        setUsingMockData(true);
-      }
+    setLoadError(null);
 
-      // Try to fetch risks (optional)
-      try {
-        const risksResponse = await risksAPI.getRisks({ limit: 20 });
-        if (risksResponse?.data) {
-          const mappedRisks = risksResponse.data.map((risk: any) => ({
-            title: risk.title || risk.name,
-            description: risk.description,
-            riskScore: risk.risk_score || risk.score || 50,
-            likelihood: risk.likelihood || 5,
-            impact: risk.impact || 5,
-            businessImpact: risk.business_impact || 'Impact assessment pending',
-          }));
-          if (mappedRisks.length > 0) {
-            setRiskPosture(prev => ({ ...prev, criticalRisks: mappedRisks.slice(0, 4) }));
-          }
-        }
-      } catch (err) {
-        console.log('No risks available, using defaults');
-      }
-    } catch (err) {
-      console.error('Failed to fetch asset/risk data:', err);
-      setUsingMockData(true);
-    } finally {
-      setIsLoading(false);
+    const [realAssetsResult, coverageResult] = await Promise.allSettled([
+      fetchRealAssets(),
+      assetsAPI.getCoverage(),
+    ]);
+
+    const realAssets = realAssetsResult.status === "fulfilled" ? realAssetsResult.value : [];
+    const nextCoverage =
+      coverageResult.status === "fulfilled" ? (coverageResult.value?.data as CoverageStats | undefined) ?? EMPTY_COVERAGE : EMPTY_COVERAGE;
+
+    const mappedAssets =
+      realAssets.length > 0
+        ? realAssets.map((asset) => mapRealAsset(asset, false))
+        : [];
+
+    setAssets(mappedAssets);
+    setCoverageStats(nextCoverage);
+
+    if (realAssetsResult.status === "rejected" && coverageResult.status === "rejected") {
+      setLoadError("Backend data could not be loaded.");
     }
-  };
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 60000); // Refresh every minute
-    return () => clearInterval(interval);
+    setIsLoading(false);
   }, []);
 
-  const totalAssets = assets.length;
-  const compliantAssets = assets.filter(a => a.complianceStatus === 'Compliant').length;
-  const assetsWithEDR = assets.filter(a => a.edr.installed).length;
-  const assetsWithDLP = assets.filter(a => a.dlp.installed).length;
-  const assetsWithAV = assets.filter(a => a.antivirus.installed).length;
+  const scanNetwork = useCallback(async () => {
+    setIsScanning(true);
+    setLoadError(null);
 
-  // Calculate REAL posture score based on actual asset data
-  const calculatePostureScore = () => {
-    if (totalAssets === 0) return 0;
-    
-    // Weighted scoring:
-    // - 40% compliance rate
-    // - 30% EDR coverage
-    // - 20% DLP coverage  
-    // - 10% Antivirus coverage
-    const complianceScore = (compliantAssets / totalAssets) * 40;
-    const edrScore = (assetsWithEDR / totalAssets) * 30;
-    const dlpScore = (assetsWithDLP / totalAssets) * 20;
-    const avScore = (assetsWithAV / totalAssets) * 10;
-    
-    return Math.round(complianceScore + edrScore + dlpScore + avScore);
-  };
+    try {
+      const discoveryResponse = await assetsAPI.getNetworkDiscovery();
+      const nextDiscovery = (discoveryResponse?.data as NetworkDiscoveryResponse | undefined) ?? EMPTY_DISCOVERY;
+      const seenById = new Map(nextDiscovery.authenticated_assets.map((asset) => [asset.id, asset.seen_on_network]));
 
-  const realPostureScore = calculatePostureScore();
-  const displayPosture = usingMockData ? riskPosture : {
-    ...riskPosture,
-    overallScore: realPostureScore,
-    trend: realPostureScore >= 70 ? 'improving' : 'declining'
-  };
-
-  const getAssetIcon = (type: string) => {
-    switch (type) {
-      case 'Server': return <Server className="w-4 h-4" />;
-      case 'Workstation':
-      case 'Mobile': return <Laptop className="w-4 h-4" />;
-      case 'Network Device': return <Network className="w-4 h-4" />;
-      default: return <Shield className="w-4 h-4" />;
+      setNetworkDiscovery(nextDiscovery);
+      setAssets((currentAssets) =>
+        currentAssets.length > 0
+          ? currentAssets.map((asset) => ({
+              ...asset,
+              seenOnNetwork: seenById.get(asset.id) ?? false,
+            }))
+          : nextDiscovery.authenticated_assets.map(mapDiscoveryAsset)
+      );
+    } catch (error) {
+      setLoadError("Network discovery could not be refreshed.");
+    } finally {
+      setIsScanning(false);
     }
-  };
+  }, []);
 
-  const getToolStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Active': return <CheckCircle className="w-3 h-3 text-green-500" />;
-      case 'Inactive': return <AlertTriangle className="w-3 h-3 text-yellow-500" />;
-      case 'Not Installed': return <XCircle className="w-3 h-3 text-red-500" />;
-      default: return null;
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDashboard = async () => {
+      await fetchInventoryData();
+      if (isMounted) {
+        await scanNetwork();
+      }
+    };
+
+    void loadDashboard();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchInventoryData, scanNetwork]);
+
+  const handleADSync = useCallback(async () => {
+    setIsSyncing(true);
+    setLastSyncMessage("Syncing Active Directory inventory...");
+
+    try {
+      const result = await syncFromActiveDirectory();
+      if (result.success) {
+        setLastSyncMessage(`AD sync imported ${result.data.assetsImported} assets.`);
+      } else {
+        setLastSyncMessage(`AD sync failed: ${result.data.errors.join(", ") || result.message}`);
+      }
+      await fetchInventoryData();
+    } catch (error) {
+      setLastSyncMessage(`AD sync failed: ${String(error)}`);
+    } finally {
+      setIsSyncing(false);
+      window.setTimeout(() => setLastSyncMessage(""), 5000);
     }
-  };
+  }, [fetchInventoryData]);
+
+  const authenticatedTotal = networkDiscovery.summary.authenticated_total || assets.length;
+  const authenticatedSeen = networkDiscovery.summary.authenticated_seen_on_network;
+  const unauthorizedTotal = networkDiscovery.summary.unauthorized_total;
+  const compliantAssets = assets.filter((asset) => asset.complianceStatus === "Compliant").length;
+  const assetsWithEDR = assets.filter((asset) => asset.edr.installed).length;
+  const assetsWithDLP = assets.filter((asset) => asset.dlp.installed).length;
+  const assetsWithAV = assets.filter((asset) => asset.antivirus.installed).length;
+  const denominator = coverageStats.total_assets || assets.length;
+  const postureScore =
+    denominator > 0
+      ? Math.round(
+          ((coverageStats.compliance_pct || Math.round((compliantAssets / denominator) * 100)) * 0.4) +
+            ((coverageStats.edr_coverage_pct || Math.round((assetsWithEDR / denominator) * 100)) * 0.3) +
+            ((coverageStats.dlp_coverage_pct || Math.round((assetsWithDLP / denominator) * 100)) * 0.2) +
+            ((coverageStats.av_coverage_pct || Math.round((assetsWithAV / denominator) * 100)) * 0.1)
+        )
+      : 0;
+
+  const criticalityDistribution = ["Critical", "High", "Medium", "Low"].map((level) => ({
+    level,
+    count: assets.filter((asset) => asset.criticality === level).length,
+  }));
 
   return (
-    <div className="space-y-3">
-      {/* Data Source Indicator */}
-      <div className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
-        usingMockData 
-          ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border-2 border-red-400'
-          : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200'
-      }`}>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            {isLoading ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : usingMockData ? (
-              <AlertTriangle className="w-4 h-4" />
-            ) : (
-              <CheckCircle className="w-4 h-4" />
-            )}
-            <span className="font-medium">
-              {isLoading 
-                ? 'Loading asset data...' 
-                : usingMockData 
-                  ? '❌ BACKEND UNAVAILABLE - No data to display' 
-                  : '✓ Connected to live backend'}
-            </span>
+    <div className="space-y-4">
+      <div className="card overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-gray-200 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 px-4 py-4 text-white dark:border-gray-800">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm font-semibold text-blue-100">
+                {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+                <span>Authenticated AD inventory vs live subnet discovery</span>
+              </div>
+              <p className="max-w-3xl text-sm text-slate-200">
+                Active Directory defines authenticated assets. Use Sync AD to refresh inventory, then Scan Now when you want a live subnet comparison against nmap.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button onClick={handleADSync} disabled={isSyncing} className="btn border-white/20 bg-white/10 text-white hover:bg-white/20">
+                <Database className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                {isSyncing ? "Syncing AD..." : "Sync AD"}
+              </button>
+            </div>
           </div>
-          {!usingMockData && !isLoading && (
-            <span className="text-xs opacity-75 pl-6">
-              📡 Active Directory: meezan.local (192.168.18.100) • {assets.length} assets synced from real domain
-            </span>
+          {(lastSyncMessage || loadError) && (
+            <div
+              className={`rounded-xl px-3 py-2 text-xs ${
+                loadError ? "bg-red-500/15 text-red-100" : lastSyncMessage.startsWith("AD sync imported") ? "bg-emerald-500/15 text-emerald-100" : "bg-amber-500/15 text-amber-100"
+              }`}
+            >
+              {loadError || lastSyncMessage}
+            </div>
           )}
         </div>
-        <button 
-          onClick={fetchData}
-          disabled={isLoading}
-          className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-xs"
-        >
-          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+
+        <div className="grid gap-3 px-4 py-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Authenticated</div>
+            <div className="mt-2 text-3xl font-bold text-emerald-900 dark:text-emerald-100">{authenticatedTotal}</div>
+            <div className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-200/80">Assets known to Active Directory</div>
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">Seen On Network</div>
+            <div className="mt-2 text-3xl font-bold text-blue-900 dark:text-blue-100">{authenticatedSeen}</div>
+            <div className="mt-1 text-xs text-blue-800/80 dark:text-blue-200/80">Authenticated assets observed by nmap</div>
+          </div>
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-red-700 dark:text-red-300">Unauthorized</div>
+            <div className="mt-2 text-3xl font-bold text-red-900 dark:text-red-100">{unauthorizedTotal}</div>
+            <div className="mt-1 text-xs text-red-800/80 dark:text-red-200/80">Present on the scanned network but not in AD</div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">Posture Score</div>
+            <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">{postureScore}</div>
+            <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">Coverage score from compliance and endpoint controls</div>
+          </div>
+        </div>
       </div>
 
-      {/* COMPACT 2-COLUMN GRID WITH CHARTS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        
-        {/* LEFT: Risk Posture + Charts */}
-        <div className="space-y-2">
-          {/* Posture Score & Stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="card p-3">
-              <div className="flex flex-col items-center">
-                <div className="relative w-24 h-24">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="none" className="text-gray-200 dark:text-gray-700" />
-                    <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="none"
-                      strokeDasharray={`${2 * Math.PI * 42}`}
-                      strokeDashoffset={`${2 * Math.PI * 42 * (1 - displayPosture.overallScore / 100)}`}
-                      className={`${displayPosture.overallScore >= 80 ? 'text-green-500' : displayPosture.overallScore >= 60 ? 'text-yellow-500' : 'text-red-500'}`}
+      <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="card p-4">
+          <h3 className="text-sm font-bold">Coverage Snapshot</h3>
+          <div className="mt-4 space-y-3">
+            {[
+              { label: "Compliance", value: coverageStats.compliance_pct },
+              { label: "EDR", value: coverageStats.edr_coverage_pct },
+              { label: "DLP", value: coverageStats.dlp_coverage_pct },
+              { label: "Antivirus", value: coverageStats.av_coverage_pct },
+            ].map((metric) => (
+              <div key={metric.label}>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span>{metric.label}</span>
+                  <span>{metric.value}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" style={{ width: `${metric.value}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Criticality Distribution</h4>
+            <div className="mt-3 space-y-2">
+              {criticalityDistribution.map((item) => (
+                <div key={item.level}>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span>{item.level}</span>
+                    <span>{item.count}</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                    <div
+                      className={`h-full rounded-full ${
+                        item.level === "Critical"
+                          ? "bg-red-500"
+                          : item.level === "High"
+                            ? "bg-orange-500"
+                            : item.level === "Medium"
+                              ? "bg-blue-500"
+                              : "bg-gray-400"
+                      }`}
+                      style={{ width: `${assets.length > 0 ? (item.count / assets.length) * 100 : 0}%` }}
                     />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold">{displayPosture.overallScore}</span>
-                    <span className="text-[10px] text-gray-500">/100</span>
-                  </div>
-                </div>
-                <div className="text-[11px] font-medium mt-1">Posture Score</div>
-                <div className={`text-[10px] ${displayPosture.trend === 'improving' ? 'text-green-600' : displayPosture.trend === 'declining' ? 'text-red-600' : 'text-gray-600'}`}>
-                  {displayPosture.trend === 'improving' ? '↑ Improving' : displayPosture.trend === 'declining' ? '↓ Declining' : '→ Stable'}
-                </div>
-              </div>
-            </div>
-
-            {/* Coverage Stats - 2x2 Grid */}
-            <div className="col-span-2 grid grid-cols-2 gap-2">
-              <div className="card p-2">
-                <div className="text-xl font-bold text-green-600">{Math.round((compliantAssets / totalAssets) * 100)}%</div>
-                <div className="text-[10px] text-gray-600">Compliant</div>
-                <div className="text-[9px] text-gray-500">{compliantAssets}/{totalAssets}</div>
-              </div>
-              <div className="card p-2">
-                <div className="text-xl font-bold text-blue-600">{Math.round((assetsWithEDR / totalAssets) * 100)}%</div>
-                <div className="text-[10px] text-gray-600">EDR</div>
-                <div className="text-[9px] text-gray-500">{assetsWithEDR}/{totalAssets}</div>
-              </div>
-              <div className="card p-2">
-                <div className="text-xl font-bold text-purple-600">{Math.round((assetsWithDLP / totalAssets) * 100)}%</div>
-                <div className="text-[10px] text-gray-600">DLP</div>
-                <div className="text-[9px] text-gray-500">{assetsWithDLP}/{totalAssets}</div>
-              </div>
-              <div className="card p-2">
-                <div className="text-xl font-bold text-orange-600">{Math.round((assetsWithAV / totalAssets) * 100)}%</div>
-                <div className="text-[10px] text-gray-600">Antivirus</div>
-                <div className="text-[9px] text-gray-500">{assetsWithAV}/{totalAssets}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Coverage Trend Chart */}
-          <div className="card p-3">
-            <h4 className="text-xs font-bold mb-2">7-Day Coverage Trend</h4>
-            <div className="flex items-end justify-between gap-1" style={{ height: '80px' }}>
-              {[
-                { edr: 55, dlp: 35, av: 75 },
-                { edr: 57, dlp: 37, av: 77 },
-                { edr: 58, dlp: 38, av: 78 },
-                { edr: 59, dlp: 39, av: 79 },
-                { edr: 60, dlp: 39, av: 79 },
-                { edr: 60, dlp: 40, av: 80 },
-                { edr: 60, dlp: 40, av: 80 }
-              ].map((day, i) => {
-                const edrHeight = (day.edr / 100) * 80;
-                const dlpHeight = (day.dlp / 100) * 80;
-                const avHeight = (day.av / 100) * 80;
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full flex items-end gap-0.5">
-                      <div className="flex-1 bg-blue-500 rounded-t" style={{ height: `${edrHeight}px` }} title={`EDR: ${day.edr}%`} />
-                      <div className="flex-1 bg-purple-500 rounded-t" style={{ height: `${dlpHeight}px` }} title={`DLP: ${day.dlp}%`} />
-                      <div className="flex-1 bg-orange-500 rounded-t" style={{ height: `${avHeight}px` }} title={`AV: ${day.av}%`} />
-                    </div>
-                    <span className="text-[9px] text-gray-500">{['M','T','W','T','F','S','S'][i]}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="flex gap-3 mt-2 text-[9px] justify-center">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-blue-500 rounded"></span>EDR</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-purple-500 rounded"></span>DLP</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded"></span>AV</span>
-            </div>
-          </div>
-
-          {/* Asset Type Distribution Pie */}
-          <div className="card p-3">
-            <h4 className="text-xs font-bold mb-2">Asset Criticality Distribution</h4>
-            <div className="flex items-center gap-3">
-              <div className="relative w-20 h-20">
-                <svg viewBox="0 0 100 100" className="transform -rotate-90">
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#ef4444" strokeWidth="20" strokeDasharray="40 60" strokeDashoffset="0" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#f97316" strokeWidth="20" strokeDasharray="35 65" strokeDashoffset="-40" />
-                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eab308" strokeWidth="20" strokeDasharray="25 75" strokeDashoffset="-75" />
-                </svg>
-              </div>
-              <div className="flex-1 space-y-1">
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span>Critical</span>
-                  <span className="font-bold">40%</span>
-                </div>
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span>High</span>
-                  <span className="font-bold">35%</span>
-                </div>
-                <div className="flex justify-between items-center text-[10px]">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 bg-yellow-500 rounded-full"></span>Medium</span>
-                  <span className="font-bold">25%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Critical Risks */}
-          <div className="card p-3">
-            <h4 className="text-xs font-bold mb-2">Top Critical Risks <span className="text-[10px] text-gray-500">(Click for details)</span></h4>
-            <div className="space-y-1.5">
-              {riskPosture.criticalRisks.map((risk, i) => (
-                <div key={i} className="border border-gray-200 dark:border-gray-700 rounded p-2 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer" onClick={() => setSelectedRisk(risk)}>
-                  <div className="flex justify-between items-start mb-1">
-                    <h5 className="font-medium text-[11px] line-clamp-1 flex-1">{risk.title}</h5>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ml-1 ${risk.riskScore >= 70 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
-                      {risk.riskScore}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-gray-600 line-clamp-1">{risk.description}</p>
-                  <div className="flex gap-2 mt-1 text-[9px] text-gray-500">
-                    <span>L:{risk.likelihood}/10</span>
-                    <span>I:{risk.impact}/10</span>
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Coverage Gaps */}
-          <div className="card p-3">
-            <h4 className="text-xs font-bold mb-2">Coverage Gaps</h4>
-            <div className="grid grid-cols-3 gap-1.5">
-              {riskPosture.coverageGaps.map((gap, i) => (
-                <div key={i} className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded p-2">
-                  <div className="text-base font-bold text-yellow-800">{gap.assetCount}</div>
-                  <div className="text-[9px] text-yellow-700">{gap.department}</div>
-                  <div className="text-[8px] text-yellow-600">{gap.missingTools.join(', ')}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Asset Distribution */}
-          <div className="card p-3">
-            <h4 className="text-xs font-bold mb-2">Asset Distribution</h4>
-            <div className="space-y-1">
-              <div className="flex justify-between text-[10px]">
-                <span className="flex items-center gap-1"><Server className="w-3 h-3" />Servers</span>
-                <span className="font-bold">{assets.filter(a => a.type === 'Server').length}</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="flex items-center gap-1"><Laptop className="w-3 h-3" />Workstations</span>
-                <span className="font-bold">{assets.filter(a => a.type === 'Workstation').length}</span>
-              </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="flex items-center gap-1"><Network className="w-3 h-3" />Network Devices</span>
-                <span className="font-bold">{assets.filter(a => a.type === 'Network Device').length}</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT: Asset Inventory Table */}
-        <div>
-          <div className="flex justify-between items-center mb-1.5">
-            <h3 className="text-sm font-bold">Asset Inventory</h3>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleADSync}
-                disabled={isSyncing}
-                className="flex items-center gap-1 px-2 py-1 text-[10px] bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
-                title="Sync from Active Directory"
-              >
-                <Database className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'Syncing...' : 'Sync from AD'}
-              </button>
-              <span className="text-[10px] text-gray-500">Click row for details</span>
+        <div className="card p-0 overflow-hidden">
+          <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+            <div>
+              <h3 className="text-sm font-bold">Authenticated AD Assets</h3>
+              <p className="text-xs text-gray-500">Known assets with network visibility status</p>
             </div>
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+              {authenticatedTotal} assets
+            </span>
           </div>
-          {lastSyncMessage && (
-            <div className={`text-[10px] px-2 py-1 mb-2 rounded ${
-              lastSyncMessage.includes('✅') ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-              'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-            }`}>
-              {lastSyncMessage}
-            </div>
-          )}
-          <div className="card p-0 overflow-hidden">
-            <table className="w-full text-[11px]">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-2 px-2 font-medium">Asset</th>
-                  <th className="text-left py-2 px-2 font-medium">Dept</th>
-                  <th className="text-center py-2 px-1 font-medium">EDR</th>
-                  <th className="text-center py-2 px-1 font-medium">DLP</th>
-                  <th className="text-center py-2 px-1 font-medium">AV</th>
-                  <th className="text-left py-2 px-2 font-medium">Status</th>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs">
+              <thead className="bg-gray-50 dark:bg-gray-950">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">Asset</th>
+                  <th className="px-4 py-3 text-left font-semibold">IP</th>
+                  <th className="px-4 py-3 text-center font-semibold">EDR</th>
+                  <th className="px-4 py-3 text-center font-semibold">DLP</th>
+                  <th className="px-4 py-3 text-center font-semibold">AV</th>
+                  <th className="px-4 py-3 text-left font-semibold">Network</th>
                 </tr>
               </thead>
               <tbody>
+                {assets.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                      No authenticated assets are available yet. Run an AD sync to populate the inventory.
+                    </td>
+                  </tr>
+                )}
                 {assets.map((asset) => (
-                  <tr key={asset.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer" onClick={() => setSelectedAsset(asset)}>
-                    <td className="py-2 px-2">
-                      <div className="flex items-center gap-1">
-                        <div className={`${asset.criticality === 'Critical' ? 'text-red-600' : asset.criticality === 'High' ? 'text-orange-600' : 'text-blue-600'}`}>
+                  <tr key={asset.id} className="border-t border-gray-100 dark:border-gray-800">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-xl ${
+                            asset.criticality === "Critical"
+                              ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                              : asset.criticality === "High"
+                                ? "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
+                                : "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                          }`}
+                        >
                           {getAssetIcon(asset.type)}
                         </div>
                         <div>
-                          <div className="font-medium line-clamp-1">{asset.name}</div>
-                          <div className="text-[9px] text-gray-500">{asset.type}</div>
+                          <div className="font-semibold">{asset.name}</div>
+                          <div className="text-[11px] text-gray-500">
+                            {asset.type} · {asset.department}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2 px-2 text-gray-600">{asset.department.split(' ')[0]}</td>
-                    <td className="py-2 px-1 text-center">{getToolStatusBadge(asset.edr.status)}</td>
-                    <td className="py-2 px-1 text-center">{getToolStatusBadge(asset.dlp.status)}</td>
-                    <td className="py-2 px-1 text-center">{getToolStatusBadge(asset.antivirus.status)}</td>
-                    <td className="py-2 px-2">
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
-                        asset.complianceStatus === 'Compliant' ? 'bg-green-100 text-green-800' :
-                        asset.complianceStatus === 'Partially Compliant' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {asset.complianceStatus === 'Compliant' ? '✓ OK' :
-                         asset.complianceStatus === 'Partially Compliant' ? '⚠ Partial' : '✗ Non'}
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{asset.ipAddress || "Unknown"}</td>
+                    <td className="px-4 py-3 text-center">{getToolStatusBadge(asset.edr.status)}</td>
+                    <td className="px-4 py-3 text-center">{getToolStatusBadge(asset.dlp.status)}</td>
+                    <td className="px-4 py-3 text-center">{getToolStatusBadge(asset.antivirus.status)}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                          asset.seenOnNetwork
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                            : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                        }`}
+                      >
+                        {asset.seenOnNetwork ? "Seen by nmap" : "Not seen in latest scan"}
                       </span>
                     </td>
                   </tr>
@@ -455,129 +489,95 @@ export default function AssetRiskPostureDashboard() {
         </div>
       </div>
 
-      <div className="card p-2 bg-blue-50 dark:bg-blue-900/20 border-l-2 border-blue-500">
-        <div className="flex items-center gap-2">
-          <Shield className="w-3 h-3 text-blue-600" />
-          <p className="text-[9px] text-blue-800 dark:text-blue-200">🔍 Auto asset discovery active • Gaps trigger alerts to IT & Security</p>
+      <div className="grid gap-4 lg:grid-cols-[0.38fr_0.62fr]">
+        <div className="card p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-sm font-bold">Discovery Status</h3>
+            <div className="flex items-center gap-2">
+              <button onClick={() => void scanNetwork()} disabled={isScanning} className="btn px-3 py-1.5 text-xs">
+                <RefreshCw className={`h-3.5 w-3.5 ${isScanning ? "animate-spin" : ""}`} />
+                {isScanning ? "Refreshing..." : "Refresh"}
+              </button>
+              <span
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  networkDiscovery.scan_status === "completed"
+                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    : networkDiscovery.scan_status === "failed"
+                      ? "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300"
+                      : "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+                }`}
+              >
+                {networkDiscovery.scan_status.toUpperCase()}
+              </span>
+            </div>
+          </div>
+          <div className="grid gap-3 text-sm sm:grid-cols-3 lg:grid-cols-1">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Scanner</div>
+              <div className="mt-1 font-medium">{networkDiscovery.scanner}</div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Scan Range</div>
+              <div className="mt-1 font-medium">{networkDiscovery.scan_range}</div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Last Attempt</div>
+              <div className="mt-1 font-medium">{networkDiscovery.scanned_at ? new Date(networkDiscovery.scanned_at).toLocaleString() : "No scan yet"}</div>
+            </div>
+          </div>
+          <div className="mt-3 rounded-2xl bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+            {getDiscoveryStatusText(networkDiscovery)}
+          </div>
+          {networkDiscovery.error && <div className="mt-2 text-xs text-red-600 dark:text-red-300">{networkDiscovery.error}</div>}
+        </div>
+
+        <div className="card p-0 overflow-hidden">
+          <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+            <div>
+              <h3 className="text-sm font-bold">Unauthorized Devices</h3>
+              <p className="text-xs text-gray-500">Hosts seen by the network scan that could not be matched to AD-authenticated assets</p>
+            </div>
+            <span className="rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-300">
+              {unauthorizedTotal} flagged
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-xs">
+              <thead className="bg-gray-50 dark:bg-gray-950">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">Host</th>
+                  <th className="px-4 py-3 text-left font-semibold">IP</th>
+                  <th className="px-4 py-3 text-left font-semibold">MAC</th>
+                  <th className="px-4 py-3 text-left font-semibold">Vendor</th>
+                  <th className="px-4 py-3 text-left font-semibold">Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {networkDiscovery.unauthorized_assets.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
+                      {networkDiscovery.scan_status === "completed"
+                        ? "No unauthorized devices were found in the latest subnet scan."
+                        : "Unauthorized hosts will appear here once nmap scanning is available and a scan completes."}
+                    </td>
+                  </tr>
+                )}
+                {networkDiscovery.unauthorized_assets.map((host) => (
+                  <tr key={`${host.ip_address}-${host.mac_address ?? "no-mac"}`} className="border-t border-gray-100 dark:border-gray-800">
+                    <td className="px-4 py-3">
+                      <div className="font-semibold">{host.hostname || "Unknown host"}</div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{host.ip_address}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{host.mac_address || "Unknown"}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{host.vendor || "Unknown"}</td>
+                    <td className="px-4 py-3 text-red-700 dark:text-red-300">{host.reason}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
-      {/* Asset Modal */}
-      {selectedAsset && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedAsset(null)}>
-          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b p-4 flex justify-between">
-              <div className="flex gap-3">
-                <div className={`w-10 h-10 rounded flex items-center justify-center ${selectedAsset.criticality === 'Critical' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
-                  {getAssetIcon(selectedAsset.type)}
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold">{selectedAsset.name}</h3>
-                  <p className="text-xs text-gray-600">{selectedAsset.type} • {selectedAsset.ipAddress}</p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedAsset(null)} className="p-2 hover:bg-gray-100 rounded"><X className="w-5 h-5" /></button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                  <div className="text-[10px] text-gray-500">Department</div>
-                  <div className="text-xs font-medium">{selectedAsset.department}</div>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                  <div className="text-[10px] text-gray-500">Criticality</div>
-                  <div className="text-xs"><span className={`px-2 py-0.5 rounded ${selectedAsset.criticality === 'Critical' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>{selectedAsset.criticality}</span></div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-sm mb-2 flex items-center gap-1"><Shield className="w-4 h-4" />Security Tools</h4>
-                <div className="space-y-2">
-                  {/* EDR */}
-                  <div className="border rounded p-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium">EDR</span>
-                        {getToolStatusBadge(selectedAsset.edr.status)}
-                      </div>
-                      {selectedAsset.edr.version && <span className="text-[10px] text-gray-500">v{selectedAsset.edr.version}</span>}
-                    </div>
-                    {selectedAsset.edr.lastUpdate && (
-                      <div className="flex items-center gap-1 text-[10px] text-gray-600">
-                        <Calendar className="w-3 h-3" />Updated: {new Date(selectedAsset.edr.lastUpdate).toLocaleDateString()}
-                      </div>
-                    )}
-                  </div>
-                  {/* DLP */}
-                  <div className="border rounded p-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium">DLP</span>
-                        {getToolStatusBadge(selectedAsset.dlp.status)}
-                      </div>
-                      {selectedAsset.dlp.version && <span className="text-[10px] text-gray-500">v{selectedAsset.dlp.version}</span>}
-                    </div>
-                    {selectedAsset.dlp.status === 'Not Installed' && <div className="text-[9px] text-orange-600 bg-orange-50 p-1 rounded mt-1">⚠️ Recommended: Install DLP</div>}
-                  </div>
-                  {/* AV */}
-                  <div className="border rounded p-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium">Antivirus</span>
-                        {getToolStatusBadge(selectedAsset.antivirus.status)}
-                      </div>
-                      {selectedAsset.antivirus.version && <span className="text-[10px] text-gray-500">v{selectedAsset.antivirus.version}</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t p-3 flex justify-end">
-              <button onClick={() => setSelectedAsset(null)} className="btn btn-primary text-sm px-4 py-1">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Risk Modal */}
-      {selectedRisk && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRisk(null)}>
-          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b p-4 flex justify-between">
-              <div>
-                <h3 className="text-lg font-bold mb-1">{selectedRisk.title}</h3>
-                <span className={`px-2 py-1 rounded text-xs font-bold ${selectedRisk.riskScore >= 70 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}`}>
-                  Risk Score: {selectedRisk.riskScore}/100
-                </span>
-              </div>
-              <button onClick={() => setSelectedRisk(null)} className="p-2 hover:bg-gray-100 rounded"><X className="w-5 h-5" /></button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <h4 className="font-semibold text-sm mb-1">Description</h4>
-                <p className="text-sm">{selectedRisk.description}</p>
-              </div>
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 p-3 rounded">
-                <h4 className="font-semibold text-sm text-red-900 mb-1">Business Impact</h4>
-                <p className="text-sm text-red-800">{selectedRisk.businessImpact}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border rounded p-2">
-                  <div className="text-xs text-gray-500">Likelihood</div>
-                  <div className="text-2xl font-bold text-orange-600">{selectedRisk.likelihood}/10</div>
-                </div>
-                <div className="border rounded p-2">
-                  <div className="text-xs text-gray-500">Impact</div>
-                  <div className="text-2xl font-bold text-red-600">{selectedRisk.impact}/10</div>
-                </div>
-              </div>
-            </div>
-            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-800 border-t p-3 flex justify-end">
-              <button onClick={() => setSelectedRisk(null)} className="btn btn-primary text-sm px-4 py-1">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

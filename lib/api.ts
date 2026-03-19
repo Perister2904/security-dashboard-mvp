@@ -3,6 +3,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
 
 // Auth Token Management
 let authToken: string | null = null;
+let authFailureHandler: (() => void) | null = null;
 
 export function setAuthToken(token: string) {
   authToken = token;
@@ -26,6 +27,10 @@ export function clearAuthToken() {
   }
 }
 
+export function setAuthFailureHandler(handler: (() => void) | null) {
+  authFailureHandler = handler;
+}
+
 // API Request Helper
 async function apiRequest<T>(
   endpoint: string,
@@ -33,13 +38,17 @@ async function apiRequest<T>(
 ): Promise<T> {
   const token = getAuthToken();
   
-  const headers: HeadersInit = {
+  const headers = new Headers({
     'Content-Type': 'application/json',
-    ...options.headers,
-  };
+  });
+
+  if (options.headers) {
+    const extra = new Headers(options.headers);
+    extra.forEach((value, key) => headers.set(key, value));
+  }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -49,6 +58,10 @@ async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
+    if (response.status === 401) {
+      clearAuthToken();
+      authFailureHandler?.();
+    }
     throw new Error(error.message || error.error || 'Request failed');
   }
 
@@ -167,13 +180,31 @@ export const assetsAPI = {
   },
 
   async getCoverage() {
-    return apiRequest<any>('/assets/coverage', {
+    return apiRequest<any>('/assets/stats/coverage', {
       method: 'GET',
     });
   },
 
   async getComplianceStatus() {
     return apiRequest<any>('/assets/compliance', {
+      method: 'GET',
+    });
+  },
+
+  async getRiskPosture() {
+    return apiRequest<any>('/assets/stats/risk-posture', {
+      method: 'GET',
+    });
+  },
+
+  async getCoverageGaps() {
+    return apiRequest<any>('/assets/stats/gaps', {
+      method: 'GET',
+    });
+  },
+
+  async getNetworkDiscovery() {
+    return apiRequest<any>('/assets/discovery/network', {
       method: 'GET',
     });
   },
@@ -214,19 +245,25 @@ export const risksAPI = {
 // CEO Dashboard API
 export const ceoAPI = {
   async getOverview() {
-    return apiRequest<any>('/ceo/overview', {
+    return apiRequest<any>('/ceo/summary', {
       method: 'GET',
     });
   },
 
   async getExecutiveSummary() {
-    return apiRequest<any>('/ceo/executive-summary', {
+    return apiRequest<any>('/ceo/summary', {
       method: 'GET',
     });
   },
 
   async getTrends(days: number = 30) {
     return apiRequest<any>(`/ceo/trends?days=${days}`, {
+      method: 'GET',
+    });
+  },
+
+  async getTopRisks(limit: number = 10) {
+    return apiRequest<any>(`/ceo/top-risks?limit=${limit}`, {
       method: 'GET',
     });
   },
@@ -243,7 +280,7 @@ export async function healthCheck() {
   }
 }
 
-export default {
+const api = {
   auth: authAPI,
   soc: socAPI,
   assets: assetsAPI,
@@ -251,3 +288,5 @@ export default {
   ceo: ceoAPI,
   healthCheck,
 };
+
+export default api;
