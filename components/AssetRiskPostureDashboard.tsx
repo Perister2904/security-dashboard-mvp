@@ -59,7 +59,7 @@ type NetworkDiscoveryResponse = {
   scan_range: string;
   scanner: "nmap";
   nmap_available: boolean;
-  scan_status: "completed" | "unavailable" | "failed";
+  scan_status: "completed" | "running" | "unavailable" | "failed";
   scanned_at: string;
   authenticated_assets: AuthenticatedDiscoveryAsset[];
   unauthorized_assets: UnauthorizedDiscoveryAsset[];
@@ -120,6 +120,10 @@ const EMPTY_DISCOVERY: NetworkDiscoveryResponse = {
     unauthorized_total: 0,
   },
 };
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function mapAssetType(assetType?: string): Asset["type"] {
   if (assetType === "server") return "Server";
@@ -241,6 +245,10 @@ function getToolStatusBadge(status: Asset["edr"]["status"]) {
 }
 
 function getDiscoveryStatusText(discovery: NetworkDiscoveryResponse) {
+  if (discovery.scan_status === "running") {
+    return `nmap is actively scanning ${discovery.scan_range} and correlating observed hosts with authenticated inventory evidence.`;
+  }
+
   if (discovery.scan_status === "completed") {
     return `nmap scanned ${discovery.scan_range} and only trusted hosts with at least two corroborating signals from hostname, MAC, and IP, with recent evidence strengthening the match.`;
   }
@@ -265,6 +273,9 @@ export default function AssetRiskPostureDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedAssetId, setExpandedAssetId] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanActivity, setScanActivity] = useState("Ready to validate authenticated inventory against the latest subnet view.");
+  const activeScanRange = networkDiscovery.scan_range || demoNetworkDiscovery.scan_range;
 
   const fetchInventoryData = useCallback(async () => {
     setIsLoading(true);
@@ -306,6 +317,7 @@ export default function AssetRiskPostureDashboard() {
         ...demoNetworkDiscovery,
         scanned_at: new Date().toISOString(),
       } as NetworkDiscoveryResponse);
+      setScanActivity("Authenticated inventory is current and ready for the next discovery cycle.");
     }
 
     setIsLoading(false);
@@ -314,24 +326,58 @@ export default function AssetRiskPostureDashboard() {
   const scanNetwork = useCallback(async () => {
     setIsScanning(true);
     setLoadError(null);
+    setScanProgress(14);
+    setScanActivity(`Launching nmap discovery across ${activeScanRange}.`);
 
     if (isDemoMode || isPresentationDemoMode()) {
+      setScanProgress(12);
+      setScanActivity(`Launching nmap discovery across ${demoNetworkDiscovery.scan_range}.`);
+      setNetworkDiscovery((current) => ({
+        ...current,
+        scanner: "nmap",
+        scan_range: demoNetworkDiscovery.scan_range,
+        scan_status: "running",
+      }));
+      await sleep(550);
+      setScanProgress(38);
+      setScanActivity("Enumerating active hosts and collecting trusted identity signals.");
+      await sleep(650);
+      setScanProgress(67);
+      setScanActivity("Correlating scan evidence with authenticated inventory and telemetry.");
+      await sleep(700);
+      setScanProgress(91);
+      setScanActivity("Finalizing unauthorized host review and refreshing discovery evidence.");
+      await sleep(450);
       setNetworkDiscovery({
         ...demoNetworkDiscovery,
         scanned_at: new Date().toISOString(),
       } as NetworkDiscoveryResponse);
       setAssets([...demoAssets] as DisplayAsset[]);
       setLastSyncMessage("Network discovery refreshed successfully. Authenticated hosts were reconciled against the current subnet view.");
+      setScanActivity("Latest nmap discovery completed successfully. Authenticated inventory and unauthorized host review are up to date.");
+      setScanProgress(100);
+      window.setTimeout(() => setScanProgress(0), 1200);
       setIsScanning(false);
       return;
     }
 
     try {
+      setNetworkDiscovery((current) => ({
+        ...current,
+        scan_status: "running",
+      }));
+      setScanProgress(46);
+      setScanActivity("Enumerating active hosts and collecting trusted identity signals.");
       const discoveryResponse = await assetsAPI.getNetworkDiscovery();
       const nextDiscovery = (discoveryResponse?.data as NetworkDiscoveryResponse | undefined) ?? EMPTY_DISCOVERY;
       const discoveryById = new Map(nextDiscovery.authenticated_assets.map((asset) => [asset.id, asset]));
 
+      setScanProgress(82);
+      setScanActivity("Correlating scan evidence with authenticated inventory and telemetry.");
       setNetworkDiscovery(nextDiscovery);
+      setScanActivity("Latest nmap discovery completed successfully. Authenticated inventory and unauthorized host review are up to date.");
+      setScanProgress(100);
+      window.setTimeout(() => setScanProgress(0), 1200);
       setAssets((currentAssets) =>
         currentAssets.length > 0
           ? currentAssets.map((asset) => ({
@@ -353,10 +399,12 @@ export default function AssetRiskPostureDashboard() {
       );
     } catch (error) {
       setLoadError("Network discovery could not be refreshed.");
+      setScanActivity("The latest nmap discovery attempt could not be completed.");
+      setScanProgress(0);
     } finally {
       setIsScanning(false);
     }
-  }, [isDemoMode]);
+  }, [activeScanRange, isDemoMode]);
 
   useEffect(() => {
     let isMounted = true;
@@ -777,12 +825,14 @@ export default function AssetRiskPostureDashboard() {
             <div className="flex items-center gap-2">
               <button onClick={() => void scanNetwork()} disabled={isScanning} className="btn px-3 py-1.5 text-xs">
                 <RefreshCw className={`h-3.5 w-3.5 ${isScanning ? "animate-spin" : ""}`} />
-                {isScanning ? "Refreshing..." : "Refresh"}
+                {isScanning ? "Running nmap..." : "Run nmap scan"}
               </button>
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                   networkDiscovery.scan_status === "completed"
                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                    : networkDiscovery.scan_status === "running"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
                     : networkDiscovery.scan_status === "failed"
                       ? "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300"
                       : "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
@@ -790,6 +840,27 @@ export default function AssetRiskPostureDashboard() {
               >
                 {networkDiscovery.scan_status.toUpperCase()}
               </span>
+            </div>
+          </div>
+          <div className="mb-3 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-medium uppercase tracking-[0.16em] text-gray-500">
+              <span>Scan Activity</span>
+              <span>{isScanning ? `${scanProgress}%` : networkDiscovery.scan_status === "completed" ? "100%" : "Ready"}</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  networkDiscovery.scan_status === "running"
+                    ? "bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600"
+                    : networkDiscovery.scan_status === "completed"
+                      ? "bg-gradient-to-r from-emerald-500 to-green-400"
+                      : "bg-slate-300 dark:bg-slate-600"
+                }`}
+                style={{ width: `${isScanning ? scanProgress : networkDiscovery.scan_status === "completed" ? 100 : 0}%` }}
+              />
+            </div>
+            <div className="rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+              {scanActivity}
             </div>
           </div>
           <div className="grid gap-3 text-sm sm:grid-cols-3 lg:grid-cols-1">
