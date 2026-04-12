@@ -117,15 +117,15 @@ CREATE TABLE assets (
   business_unit VARCHAR(100),
   
   -- Security tool coverage
-  edr_status VARCHAR(20) DEFAULT 'not_installed' CHECK (edr_status IN ('protected', 'not_installed', 'offline', 'outdated')),
+  edr_status VARCHAR(20) DEFAULT 'not_installed' CHECK (edr_status IN ('protected', 'not_installed', 'offline', 'outdated', 'unknown')),
   edr_agent_version VARCHAR(50),
   edr_last_seen TIMESTAMP,
   
-  dlp_status VARCHAR(20) DEFAULT 'not_installed' CHECK (dlp_status IN ('protected', 'not_installed', 'offline', 'outdated')),
+  dlp_status VARCHAR(20) DEFAULT 'not_installed' CHECK (dlp_status IN ('protected', 'not_installed', 'offline', 'outdated', 'unknown')),
   dlp_agent_version VARCHAR(50),
   dlp_last_seen TIMESTAMP,
   
-  antivirus_status VARCHAR(20) DEFAULT 'not_installed' CHECK (antivirus_status IN ('protected', 'not_installed', 'offline', 'outdated')),
+  antivirus_status VARCHAR(20) DEFAULT 'not_installed' CHECK (antivirus_status IN ('protected', 'not_installed', 'offline', 'outdated', 'unknown')),
   antivirus_version VARCHAR(50),
   antivirus_last_scan TIMESTAMP,
   antivirus_last_update TIMESTAMP,
@@ -466,4 +466,12 @@ VALUES (
   'siem',
   false,
   '{"url": "https://splunk.company.local:8089", "verify_ssl": false, "index": "security"}'::jsonb
+);
+
+INSERT INTO connector_configs (connector_name, connector_type, is_enabled, config)
+VALUES (
+  'wazuh_local_sample',
+  'siem',
+  false,
+  '{"url": "http://localhost:55000", "sample_file_path": "sample-data/wazuh/alerts.ndjson", "sample_mode": true}'::jsonb
 );

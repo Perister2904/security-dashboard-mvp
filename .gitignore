@@ -9,13 +9,26 @@ node_modules/
 # Next.js
 /.next/
 /out/
+/.next.stale.*
 
 # Production
 /build
+/backend/dist/
+/backend/logs/
 
 # Miscellaneous
 .DS_Store
 *.pem
+AD_ACCESS_CREDENTIALS.md
+.tmp-start-test.txt
+/frontend-dev.log
+/frontend-live*.log
+/backend/backend-dev.log
+/backend/backend-live*.log
+/backend/backend-runtime*.log
+/backend/backend-error.log
+/asset-population/ad_sync_output.json
+/.tmp/
 
 # Debug
 npm-debug.log*
@@ -39,3 +52,7 @@ next-env.d.ts
 
 # OS generated files
 Thumbs.db
+
+# Local Blender tooling
+/tools/blender-portable/
+/tools/*.zip

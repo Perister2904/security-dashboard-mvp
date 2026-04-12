@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import http from 'http';
 import { testConnection as testDB } from './config/database';
-import { testRedisConnection } from './config/redis';
 import { ldapService } from './services/ldap.service';
 import logger from './utils/logger';
 import authRoutes from './routes/auth.routes';
@@ -24,8 +23,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(helmet());
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: corsOrigins,
   credentials: process.env.CORS_CREDENTIALS === 'true',
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -52,15 +56,13 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Health check
 app.get('/health', async (req: Request, res: Response) => {
   const dbHealthy = await testDB();
-  const redisHealthy = await testRedisConnection();
   const ldapHealthy = await ldapService.testConnection();
 
   const health = {
-    status: dbHealthy && redisHealthy ? 'healthy' : 'unhealthy',
+    status: dbHealthy ? 'healthy' : 'unhealthy',
     timestamp: new Date().toISOString(),
     services: {
       database: dbHealthy ? 'up' : 'down',
-      redis: redisHealthy ? 'up' : 'down',
       ldap: ldapHealthy ? 'up' : 'down',
     },
   };
@@ -109,11 +111,6 @@ async function startServer() {
     if (!dbConnected) {
       logger.error('❌ Database connection failed. Exiting...');
       process.exit(1);
-    }
-
-    const redisConnected = await testRedisConnection();
-    if (!redisConnected) {
-      logger.warn('⚠️  Redis connection failed. Caching will be disabled.');
     }
 
     const ldapConnected = await ldapService.testConnection();

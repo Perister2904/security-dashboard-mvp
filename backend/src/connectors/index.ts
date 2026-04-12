@@ -3,6 +3,7 @@ import { BaseConnector } from './base.connector';
 import { SplunkConnector } from './splunk.connector';
 import { CrowdStrikeConnector } from './crowdstrike.connector';
 import { ServiceNowConnector } from './servicenow.connector';
+import { WazuhConnector } from './wazuh.connector';
 import logger from '../utils/logger';
 
 /**
@@ -25,10 +26,10 @@ export class ConnectorManager {
           const connector = this.createConnector(config);
           if (connector) {
             this.connectors.set(config.id, connector);
-            logger.info(`Initialized connector: ${config.name}`);
+            logger.info(`Initialized connector: ${config.connector_name}`);
           }
         } catch (error: any) {
-          logger.error(`Failed to initialize connector ${config.name}`, { error: error.message });
+          logger.error(`Failed to initialize connector ${config.connector_name}`, { error: error.message });
         }
       }
 
@@ -43,42 +44,46 @@ export class ConnectorManager {
    * Create a connector instance based on type
    */
   private createConnector(config: any): BaseConnector | null {
+    const rawConfig = config.config || {};
     const connectorConfig = {
       id: config.id,
-      name: config.name,
-      type: config.type,
-      baseUrl: config.base_url,
-      apiKey: config.api_key,
-      username: config.username,
-      password: config.password,
-      enabled: config.enabled,
-      syncInterval: config.sync_interval,
-      lastSync: config.last_sync,
-      config: config.config
+      name: config.connector_name,
+      type: config.connector_type,
+      baseUrl: rawConfig.base_url || rawConfig.url || '',
+      apiKey: rawConfig.api_key,
+      username: rawConfig.username,
+      password: rawConfig.password,
+      enabled: config.is_enabled,
+      syncInterval: Math.round((config.sync_interval_ms || 300000) / 60000),
+      lastSync: config.last_sync_at,
+      config: rawConfig
     };
 
-    switch (config.type) {
+    switch (config.connector_type) {
       case 'siem':
-        if (config.name.toLowerCase().includes('splunk')) {
+        if (config.connector_name.toLowerCase().includes('wazuh')) {
+          return new WazuhConnector(connectorConfig);
+        }
+        if (config.connector_name.toLowerCase().includes('splunk')) {
           return new SplunkConnector(connectorConfig);
         }
         break;
       
       case 'edr':
-        if (config.name.toLowerCase().includes('crowdstrike')) {
+        if (config.connector_name.toLowerCase().includes('crowdstrike')) {
           return new CrowdStrikeConnector(connectorConfig);
         }
         break;
       
       case 'cmdb':
       case 'ticketing':
-        if (config.name.toLowerCase().includes('servicenow')) {
+        if (config.connector_name.toLowerCase().includes('servicenow')) {
           return new ServiceNowConnector(connectorConfig);
         }
         break;
     }
 
-    logger.warn(`Unknown connector type or name: ${config.type} - ${config.name}`);
+    logger.warn(`Unknown connector type or name: ${config.connector_type} - ${config.connector_name}`);
     return null;
   }
 
@@ -133,23 +138,27 @@ export class ConnectorManager {
         await pool.query(
           `INSERT INTO sync_logs (
             connector_id,
-            sync_type,
+            connector_name,
             status,
-            items_processed,
-            items_created,
-            items_updated,
-            error_count,
-            duration_ms
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            records_processed,
+            records_created,
+            records_updated,
+            records_failed,
+            duration_ms,
+            error_message,
+            completed_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             id,
-            'incidents',
+            (connector as any).config?.name || id,
             result.success ? 'success' : 'failed',
             result.itemsProcessed,
             result.itemsCreated,
             result.itemsUpdated,
             result.errors.length,
-            result.duration
+            result.duration,
+            result.errors.join('; ') || null,
+            new Date()
           ]
         );
       } catch (error: any) {
@@ -180,23 +189,27 @@ export class ConnectorManager {
         await pool.query(
           `INSERT INTO sync_logs (
             connector_id,
-            sync_type,
+            connector_name,
             status,
-            items_processed,
-            items_created,
-            items_updated,
-            error_count,
-            duration_ms
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            records_processed,
+            records_created,
+            records_updated,
+            records_failed,
+            duration_ms,
+            error_message,
+            completed_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             id,
-            'assets',
+            (connector as any).config?.name || id,
             result.success ? 'success' : 'failed',
             result.itemsProcessed,
             result.itemsCreated,
             result.itemsUpdated,
             result.errors.length,
-            result.duration
+            result.duration,
+            result.errors.join('; ') || null,
+            new Date()
           ]
         );
       } catch (error: any) {

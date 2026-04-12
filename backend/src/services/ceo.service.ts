@@ -11,27 +11,36 @@ export const ceoService = {
     // Get SOC metrics
     const socMetrics = await pool.query(`
       SELECT 
-        active_incidents,
-        critical_incidents,
-        mttr,
-        alert_volume
-      FROM current_soc_metrics
+        COUNT(*) FILTER (WHERE status IN ('open', 'in_progress')) as active_incidents,
+        COUNT(*) FILTER (WHERE severity = 'critical' AND status IN ('open', 'in_progress')) as critical_incidents,
+        ROUND(AVG(time_to_resolve_hours) FILTER (WHERE time_to_resolve_hours IS NOT NULL), 2) as mttr,
+        COUNT(*) FILTER (WHERE detected_at >= NOW() - INTERVAL '24 hours') as alert_volume
+      FROM incidents
+      WHERE detected_at >= NOW() - INTERVAL '30 days'
     `);
 
     // Get asset stats
     const assetStats = await pool.query(`
       SELECT 
-        total_assets,
-        avg_coverage
-      FROM asset_coverage_summary
+        COUNT(*) as total_assets,
+        ROUND(
+          (
+            COUNT(*) FILTER (WHERE edr_status = 'protected') +
+            COUNT(*) FILTER (WHERE dlp_status = 'protected') +
+            COUNT(*) FILTER (WHERE antivirus_status = 'protected')
+          )::numeric / NULLIF(COUNT(*) * 3, 0) * 100,
+          2
+        ) as avg_coverage
+      FROM assets
+      WHERE is_active = true
     `);
 
     // Get risk summary
     const riskSummary = await pool.query(`
       SELECT 
-        COUNT(*) FILTER (WHERE priority = 'critical') as critical_risks,
-        COUNT(*) FILTER (WHERE priority = 'high') as high_risks,
-        COUNT(*) FILTER (WHERE status = 'open') as open_risks,
+        COUNT(*) FILTER (WHERE priority = 'critical' AND status != 'closed') as critical_risks,
+        COUNT(*) FILTER (WHERE priority = 'high' AND status != 'closed') as high_risks,
+        COUNT(*) FILTER (WHERE status != 'closed') as open_risks,
         ROUND(AVG(risk_score), 2) as avg_risk_score
       FROM risks
     `);
@@ -39,12 +48,12 @@ export const ceoService = {
     // Get trend data (30 days)
     const trendData = await pool.query(`
       SELECT 
-        DATE(metric_date) as date,
+        DATE(timestamp) as date,
         AVG(CASE WHEN metric_name = 'mttr' THEN metric_value END) as avg_mttr,
-        SUM(CASE WHEN metric_name = 'alert_volume' THEN metric_value END) as total_alerts
+        SUM(CASE WHEN metric_name = 'alerts_24h' THEN metric_value END) as total_alerts
       FROM metrics_history
-      WHERE metric_date >= NOW() - INTERVAL '30 days'
-      GROUP BY DATE(metric_date)
+      WHERE timestamp >= NOW() - INTERVAL '30 days'
+      GROUP BY DATE(timestamp)
       ORDER BY date DESC
       LIMIT 30
     `);
@@ -114,12 +123,12 @@ export const ceoService = {
     const vulnCosts = await pool.query(
       `SELECT 
         SUM(
-          (vulnerabilities->>'critical')::int * 500 +
-          (vulnerabilities->>'high')::int * 200 +
-          (vulnerabilities->>'medium')::int * 50
+          (critical_vuln_count * 500) +
+          (high_vuln_count * 200) +
+          (GREATEST(vulnerability_count - critical_vuln_count - high_vuln_count, 0) * 50)
         ) as estimated_remediation_cost
       FROM assets
-      WHERE last_scan >= NOW() - INTERVAL '1 day' * $1`,
+      WHERE last_vulnerability_scan >= NOW() - INTERVAL '1 day' * $1`,
       [days]
     );
 
@@ -156,9 +165,9 @@ export const ceoService = {
         status,
         mitigation_plan,
         owner,
-        review_date
+        next_review_date
       FROM risks
-      WHERE status IN ('open', 'in-progress')
+      WHERE status != 'closed'
       ORDER BY risk_score DESC, priority DESC
       LIMIT $1`,
       [limit]
@@ -204,8 +213,8 @@ export const ceoService = {
     const nonCompliantCritical = await pool.query(`
       SELECT 
         id,
-        name,
-        type,
+        hostname,
+        asset_type,
         department,
         criticality,
         compliance_status
@@ -213,7 +222,7 @@ export const ceoService = {
       WHERE 
         compliance_status != 'compliant'
         AND criticality IN ('critical', 'high')
-      ORDER BY criticality DESC, risk_score DESC
+      ORDER BY criticality DESC, vulnerability_count DESC
       LIMIT 20
     `);
 

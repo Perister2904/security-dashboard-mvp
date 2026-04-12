@@ -1,5 +1,5 @@
 // Authentication and Role-based Access Control
-import { authAPI, setAuthToken, clearAuthToken, getAuthToken } from './api';
+import { authAPI, setAuthToken, clearAuthToken, getAuthToken, setAuthFailureHandler } from './api';
 
 export interface User {
   id: string;
@@ -53,8 +53,11 @@ function mapBackendUser(backendUser: any): User {
   };
 }
 
-// NO MOCK USERS - Real backend authentication required
-export const users: User[] = [];
+function notifyAuthStateChanged() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('auth-state-changed'));
+  }
+}
 
 // Session management with real backend API
 export class SessionManager {
@@ -62,6 +65,12 @@ export class SessionManager {
   private static sessionTimeout = 30 * 60 * 1000; // 30 minutes
   private static lastActivity = Date.now();
   private static refreshToken: string | null = null;
+
+  static {
+    setAuthFailureHandler(() => {
+      SessionManager.logout();
+    });
+  }
 
   // Login with real backend API
   static async loginAsync(emailOrUsername: string, password: string): Promise<User | null> {
@@ -77,6 +86,10 @@ export class SessionManager {
         this.currentUser = mapBackendUser(response.user);
         this.lastActivity = Date.now();
         
+        if (response.tokens?.accessToken) {
+          setAuthToken(response.tokens.accessToken);
+        }
+
         if (response.tokens?.refreshToken) {
           this.refreshToken = response.tokens.refreshToken;
           if (typeof window !== 'undefined') {
@@ -84,6 +97,8 @@ export class SessionManager {
             localStorage.setItem('current_user', JSON.stringify(this.currentUser));
           }
         }
+
+        notifyAuthStateChanged();
         
         return this.currentUser;
       }
@@ -94,34 +109,12 @@ export class SessionManager {
     }
   }
 
-  // Synchronous login - falls back to mock for demo
-  static login(email: string, password: string): User | null {
-    // Try to restore session from localStorage first
-    if (typeof window !== 'undefined') {
-      const cachedUser = localStorage.getItem('current_user');
-      const token = getAuthToken();
-      
-      if (cachedUser && token) {
-        try {
-          this.currentUser = JSON.parse(cachedUser);
-          this.lastActivity = Date.now();
-          return this.currentUser;
-        } catch (e) {
-          console.error('Failed to parse cached user');
-        }
-      }
-    }
-    
-    // NO MOCK FALLBACK - Real backend authentication required
-    console.error('Synchronous login removed. Use SessionManager.loginAsync() for real backend authentication.');
-    return null;
-  }
-
   // Restore session from localStorage
   static restoreSession(): User | null {
     if (typeof window !== 'undefined') {
       const token = getAuthToken();
       const cachedUser = localStorage.getItem('current_user');
+      this.refreshToken = localStorage.getItem('refresh_token');
       
       if (token && cachedUser) {
         try {
@@ -132,7 +125,83 @@ export class SessionManager {
           console.error('Failed to restore session');
         }
       }
+      
+      if (!token && cachedUser) {
+        localStorage.removeItem('current_user');
+        localStorage.removeItem('refresh_token');
+      }
     }
+    return null;
+  }
+
+  private static async attemptTokenRefresh(): Promise<boolean> {
+    const storedRefreshToken =
+      this.refreshToken || (typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null);
+
+    if (!storedRefreshToken) {
+      return false;
+    }
+
+    try {
+      const response = await authAPI.refreshToken(storedRefreshToken);
+      if (!response?.success || !response.tokens?.accessToken) {
+        return false;
+      }
+
+      setAuthToken(response.tokens.accessToken);
+      this.refreshToken = storedRefreshToken;
+      this.lastActivity = Date.now();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  static async validateSession(): Promise<User | null> {
+    const restoredUser = this.restoreSession();
+    const token = getAuthToken();
+
+    if (!restoredUser || !token) {
+      this.logout();
+      return null;
+    }
+
+    try {
+      const response = await authAPI.getCurrentUser();
+      if (response.success && response.user) {
+        this.currentUser = mapBackendUser(response.user);
+        this.lastActivity = Date.now();
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+        }
+
+        notifyAuthStateChanged();
+        return this.currentUser;
+      }
+    } catch {
+      const refreshed = await this.attemptTokenRefresh();
+      if (refreshed) {
+        try {
+          const retryResponse = await authAPI.getCurrentUser();
+          if (retryResponse.success && retryResponse.user) {
+            this.currentUser = mapBackendUser(retryResponse.user);
+            this.lastActivity = Date.now();
+
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+            }
+
+            notifyAuthStateChanged();
+            return this.currentUser;
+          }
+        } catch {
+          // Fall through to logout below.
+        }
+      }
+    }
+
+    this.logout();
     return null;
   }
 
@@ -161,26 +230,12 @@ export class SessionManager {
       localStorage.removeItem('current_user');
       localStorage.removeItem('refresh_token');
     }
+
+    notifyAuthStateChanged();
   }
 
   static hasPermission(permission: string): boolean {
     const user = this.getCurrentUser();
     return user ? user.permissions.includes(permission) || user.permissions.includes('full_access') : false;
-  }
-
-  static canAccessReport(report: any): boolean {
-    const user = this.getCurrentUser();
-    if (!user) return false;
-    
-    // Executive access - can see everything
-    if (user.accessLevel === 'Executive') return true;
-    
-    // Full access permission
-    if (user.permissions.includes('full_access')) return true;
-    
-    // Departmental access - only own department's reports
-    return report.department === user.department || 
-           report.submittedByRole === user.role ||
-           report.assignedTo === user.role;
   }
 }

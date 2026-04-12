@@ -10,14 +10,7 @@ export interface DataSource {
   recordsProcessed: number;
 }
 
-export const dataSources: DataSource[] = [
-  { name: 'IBM QRadar SIEM', type: 'SIEM', status: 'Connected', lastUpdate: 'Just now', recordsProcessed: 45231 },
-  { name: 'Splunk Enterprise', type: 'SIEM', status: 'Connected', lastUpdate: '2 min ago', recordsProcessed: 128904 },
-  { name: 'CrowdStrike Falcon', type: 'EDR', status: 'Connected', lastUpdate: 'Just now', recordsProcessed: 8765 },
-  { name: 'Core Banking API', type: 'API', status: 'Connected', lastUpdate: '1 min ago', recordsProcessed: 234156 },
-  { name: 'ATM Network Monitor', type: 'Network', status: 'Connected', lastUpdate: 'Just now', recordsProcessed: 15432 },
-  { name: 'Mobile Banking Logs', type: 'Database', status: 'Degraded', lastUpdate: '5 min ago', recordsProcessed: 67890 }
-];
+export const dataSources: DataSource[] = [];
 
 // Enhanced real-time activity generator
 function generateRealtimeActivities(org: string): any[] {
@@ -158,27 +151,11 @@ function generateThreatIntel() {
 }
 
 export function demoData(org: string) {
-  // Use a more stable seed that doesn't cause hydration issues
-  const seed = org.length * 7;
-  const rng = (n: number) => Math.abs(Math.sin(seed + n));
-  
-  // Real-time risk trend with more realistic banking data
-  const riskTrend = Array.from({ length: 24 }, (_, i) => ({
-    time: `${23 - i}:00`,
-    risk: Math.round(25 + rng(i) * 35 + (i > 18 || i < 6 ? -10 : 0)), // Lower risk during off-hours
-    incidents: Math.round(rng(i + 10) * 5),
-    transactions: Math.round(1000 + rng(i + 20) * 5000)
-  }));
-
-  const kpis = calculateKPIs(org);
-  const activities = generateRealtimeActivities(org);
-  const threatIntel = generateThreatIntel();
-
-  return { 
-    riskTrend, 
-    kpis, 
-    activities,
-    threatIntel,
+  return {
+    riskTrend: [],
+    kpis: {},
+    activities: [],
+    threatIntel: [],
     dataSources,
     lastUpdated: typeof window !== 'undefined' ? new Date().toLocaleTimeString() : '00:00:00'
   };

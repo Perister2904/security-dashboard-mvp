@@ -2,26 +2,28 @@ import pool from '../config/database';
 import logger from '../utils/logger';
 import ldap from 'ldapjs';
 import dotenv from 'dotenv';
-import { exec, execFile } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
-import * as path from 'path';
 import { promises as dns } from 'dns';
-import fs from 'fs';
+import net from 'net';
+import { assetBusinessLogicService } from './asset-business-logic.service';
 
 dotenv.config();
 
-const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
 
 interface ADComputer {
   Name: string;
   DNSHostName: string;
   IPv4Address: string | null;
-  ReportedIPAddresses?: string[];
+  ReportedIPAddresses: string[];
   OperatingSystem: string;
   DistinguishedName: string;
   Enabled: boolean;
   LastLogonDate: string;
+  LastLogonTimestamp?: string | null;
+  LastLogon?: string | null;
+  WhenChanged?: string | null;
 }
 
 interface PreferredSubnet {
@@ -34,20 +36,12 @@ export class ADSyncService {
   private domain: string;
   private username: string;
   private password: string;
-  private vmName: string;
-  private vmUsername: string;
-  private vmPassword: string;
-  private vboxManagePath: string;
 
   constructor() {
     this.dcIp = process.env.AD_DC_IP || '';
     this.domain = process.env.AD_DOMAIN || '';
     this.username = process.env.AD_USERNAME || '';
     this.password = process.env.AD_PASSWORD || '';
-    this.vmName = process.env.AD_VM_NAME || 'AD-Server-Production';
-    this.vmUsername = process.env.AD_VM_USERNAME || 'Administrator';
-    this.vmPassword = process.env.AD_VM_PASSWORD || 'Password123';
-    this.vboxManagePath = process.env.VBOXMANAGE_PATH || 'C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe';
   }
 
   /**
@@ -87,6 +81,7 @@ export class ADSyncService {
       }
 
       await this.deactivateMissingAssets(computers.map((computer) => computer.Name));
+      await assetBusinessLogicService.recalculateAssets();
 
       logger.info(`AD Sync complete. Imported ${assetsImported} assets`);
       return { success: true, assetsImported, errors };
@@ -99,241 +94,133 @@ export class ADSyncService {
   }
 
   private async getComputersFromAD(): Promise<ADComputer[]> {
-    try {
-      return await this.getComputersFromADViaLDAP();
-    } catch (ldapError: any) {
-      logger.warn(`LDAP AD sync failed, falling back to direct VM query: ${ldapError.message}`);
-    }
-
-    try {
-      return await this.getComputersFromADViaVirtualBox();
-    } catch (vmError: any) {
-      logger.warn(`VirtualBox AD sync failed, falling back to Python scanner: ${vmError.message}`);
-    }
-
-    return this.getComputersFromADViaPython();
+    return this.getComputersFromADViaLDAP();
   }
 
   private async getComputersFromADViaLDAP(): Promise<ADComputer[]> {
-    const ldapUrl = this.getADSyncLdapUrl();
     const bindDN = process.env.LDAP_BIND_DN || this.buildBindIdentity();
     const bindPassword = process.env.LDAP_BIND_PASSWORD || this.password;
     const baseDN = process.env.LDAP_BASE_DN || this.buildBaseDN();
+    const ldapUrls = this.getADSyncLdapUrls();
 
-    if (!ldapUrl || !bindDN || !bindPassword || !baseDN) {
+    if (ldapUrls.length === 0 || !bindDN || !bindPassword || !baseDN) {
       throw new Error('Direct LDAP sync requires LDAP_URL, bind credentials, and base DN.');
     }
 
-    logger.info(`Querying Active Directory over LDAP: ${ldapUrl}`);
+    let lastError: Error | null = null;
 
-    const client = ldap.createClient({
-      url: ldapUrl,
-      timeout: 10000,
-      connectTimeout: 10000,
-      tlsOptions: { rejectUnauthorized: false }
-    });
-    client.on('error', (err) => {
-      logger.warn(`LDAP client error during AD sync: ${err.message}`);
-    });
+    for (const ldapUrl of ldapUrls) {
+      const reachable = await this.canReachLdapEndpoint(ldapUrl);
+      if (!reachable) {
+        lastError = new Error(`Cannot reach Active Directory LDAP endpoint: ${ldapUrl}`);
+        logger.warn(lastError.message);
+        continue;
+      }
 
-    const bindAsync = () =>
-      new Promise<void>((resolve, reject) => {
-        client.bind(bindDN, bindPassword, (err) => (err ? reject(err) : resolve()));
+      logger.info(`Querying Active Directory over LDAP: ${ldapUrl}`);
+
+      const client = ldap.createClient({
+        url: ldapUrl,
+        timeout: 15000,
+        connectTimeout: 15000,
+        tlsOptions: { rejectUnauthorized: false }
       });
+      client.on('error', (err) => {
+        logger.warn(`LDAP client error during AD sync via ${ldapUrl}: ${err.message}`);
+      });
+
+      const bindAsync = () =>
+        new Promise<void>((resolve, reject) => {
+          client.bind(bindDN, bindPassword, (err) => (err ? reject(err) : resolve()));
+        });
 
     const searchAsync = () =>
-      new Promise<any[]>((resolve, reject) => {
-        const rows: any[] = [];
-        client.search(
-          baseDN,
-          {
-            filter: '(objectClass=computer)',
-            scope: 'sub',
-            paged: true,
-            attributes: [
-              'cn',
-              'dNSHostName',
-              'operatingSystem',
-              'distinguishedName',
-              'lastLogonTimestamp',
-              'userAccountControl'
-            ]
-          },
-          (err, res) => {
-            if (err) {
-              reject(err);
-              return;
+        new Promise<any[]>((resolve, reject) => {
+          const rows: any[] = [];
+          client.search(
+            baseDN,
+              {
+              filter: '(&(objectCategory=computer)(objectClass=computer))',
+                scope: 'sub',
+                paged: true,
+                attributes: [
+                  'cn',
+                  'dNSHostName',
+                  'operatingSystem',
+                  'distinguishedName',
+                  'lastLogon',
+                  'lastLogonTimestamp',
+                  'whenChanged',
+                  'userAccountControl'
+                ]
+              },
+            (err, res) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+
+              res.on('searchEntry', (entry) => {
+                rows.push(this.normalizeLdapEntry(entry as any));
+              });
+              res.on('error', reject);
+              res.on('end', () => resolve(rows));
             }
+          );
+        });
 
-            res.on('searchEntry', (entry) => {
-              rows.push((entry as any).object || {});
-            });
-            res.on('error', reject);
-            res.on('end', () => resolve(rows));
-          }
-        );
-      });
+      const unbindAsync = () =>
+        new Promise<void>((resolve) => {
+          client.unbind(() => resolve());
+        });
 
-    const unbindAsync = () =>
-      new Promise<void>((resolve) => {
-        client.unbind(() => resolve());
-      });
-
-    try {
-      await bindAsync();
-      const rows = await searchAsync();
-
-      const computers = (
-        await Promise.all(
-          rows
-            .filter((row) => row?.cn)
-            .map(async (row) => {
-              const hostname = row.cn as string;
-              const dnsHostName = (row.dNSHostName as string) || `${hostname}.${this.domain}`;
-              const adIdentity = await this.resolveAdIpIdentity(dnsHostName, hostname);
-
-              return {
-                Name: hostname,
-                DNSHostName: dnsHostName,
-                IPv4Address: adIdentity.primaryIp,
-                ReportedIPAddresses: adIdentity.allIps,
-                OperatingSystem: (row.operatingSystem as string) || 'Unknown',
-                DistinguishedName:
-                  (row.distinguishedName as string) || `CN=${hostname},CN=Computers,${baseDN}`,
-                Enabled: this.isAccountEnabled(row.userAccountControl),
-                LastLogonDate: this.fileTimeToISOString(row.lastLogonTimestamp)
-              };
-            })
-        )
-      ).filter((computer) => computer.Name);
-
-      logger.info(`Direct LDAP query found ${computers.length} computers`);
-      return computers;
-    } finally {
-      await unbindAsync();
-    }
-  }
-
-  private async getComputersFromADViaVirtualBox(): Promise<ADComputer[]> {
-    const powershellPath = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
-    const script =
-      'Import-Module ActiveDirectory; ' +
-      'Get-ADComputer -Filter * -Properties DNSHostName,IPv4Address,OperatingSystem,Enabled,LastLogonDate ' +
-      '| Select-Object Name,DNSHostName,IPv4Address,OperatingSystem,Enabled,LastLogonDate ' +
-      '| ConvertTo-Json -Compress';
-
-    logger.info(`Querying Active Directory directly inside VM: ${this.vmName}`);
-
-    const { stdout, stderr } = await execFileAsync(
-      this.vboxManagePath,
-      [
-        'guestcontrol',
-        this.vmName,
-        'run',
-        '--exe',
-        powershellPath,
-        '--username',
-        this.vmUsername,
-        '--password',
-        this.vmPassword,
-        '--',
-        'powershell.exe',
-        '-NoProfile',
-        '-Command',
-        script
-      ],
-      {
-        timeout: 60000,
-        maxBuffer: 10 * 1024 * 1024
-      }
-    );
-
-    if (stderr && stderr.trim()) {
-      logger.warn(`VirtualBox AD query stderr: ${stderr.trim()}`);
-    }
-
-    const parsed = JSON.parse(stdout.trim());
-    const rows = Array.isArray(parsed) ? parsed : [parsed];
-
-    const computers = await Promise.all(
-      rows
-        .filter((row: any) => row?.Name)
-        .map(async (row: any) => {
-          const dnsHostName = row.DNSHostName || `${row.Name}.${this.domain}`;
-          const adIdentity = await this.resolveAdIpIdentity(dnsHostName, row.Name, row.IPv4Address || null);
-
-          return {
-            Name: row.Name,
-            DNSHostName: dnsHostName,
-            IPv4Address: adIdentity.primaryIp,
-            ReportedIPAddresses: adIdentity.allIps,
-            OperatingSystem: row.OperatingSystem || 'Unknown',
-            DistinguishedName: `CN=${row.Name},CN=Computers,DC=meezan,DC=local`,
-            Enabled: row.Enabled !== false,
-            LastLogonDate: row.LastLogonDate || new Date().toISOString()
-          };
-        })
-    );
-
-    logger.info(`VirtualBox AD query found ${computers.length} computers`);
-    return computers;
-  }
-
-  private async getComputersFromADViaPython(): Promise<ADComputer[]> {
-    const assetPopulationDir = path.resolve(__dirname, '../../../asset-population');
-    const pythonScript = path.join(assetPopulationDir, 'Asset_Scanner.py');
-    const outputFile = path.join(assetPopulationDir, 'ad_sync_output.json');
-    
-    const command = `python "${pythonScript}" --domain ${this.domain} --dc-ip ${this.dcIp} --username "${this.username}" --password "${this.password}" --output "${outputFile}"`;
-
-    try {
-      logger.info(`Running Python AD scanner from: ${pythonScript}`);
-      const { stdout, stderr } = await execAsync(command, { 
-        timeout: 60000,
-        maxBuffer: 10 * 1024 * 1024,
-        cwd: assetPopulationDir
-      });
-
-      logger.info('Python scanner completed');
-      if (stdout) logger.debug('Scanner stdout:', stdout);
-      if (stderr && !stderr.includes('INFO')) {
-        logger.warn('Scanner stderr:', stderr);
-      }
-
-      // Read the output file
-      const fs = await import('fs/promises');
-      
       try {
-        const outputData = await fs.readFile(outputFile, 'utf8');
-        const scanResults = JSON.parse(outputData);
-        
-        // Handle both array and single object
-        const resultsArray = Array.isArray(scanResults) ? scanResults : [scanResults];
-        
-        // Convert scan results to ADComputer format
-        const computers: ADComputer[] = resultsArray.map((asset: any) => ({
-          Name: asset.asset_name,
-          DNSHostName: asset.asset_name + '.meezan.local',
-          IPv4Address: asset.ip_address,
-          ReportedIPAddresses: asset.ip_address ? [asset.ip_address] : [],
-          OperatingSystem: asset.details?.operating_system || 'Unknown',
-          DistinguishedName: `CN=${asset.asset_name},CN=Computers,DC=meezan,DC=local`,
-          Enabled: true,
-          LastLogonDate: new Date().toISOString()
-        }));
+        await bindAsync();
+        const rows = await searchAsync();
 
-        logger.info(`Python scanner found ${computers.length} computers`);
+        const computers: ADComputer[] = [];
+        for (const row of rows.filter((entry) => entry?.cn)) {
+          const hostname = this.getLdapAttribute(row, 'cn') || this.getLdapAttribute(row, 'name');
+          if (!hostname || !this.isComputerAccountRow(row)) {
+            continue;
+          }
+
+          const dnsHostName =
+            this.getLdapAttribute(row, 'dnshostname') ||
+            this.getLdapAttribute(row, 'dnshostname'.toLowerCase()) ||
+            `${hostname}.${this.domain}`;
+          const adDnsIdentity = await this.resolveAdIpIdentityWithTimeout(dnsHostName, hostname, 1500);
+          const lastLogonTimestamp = this.fileTimeToISOString(this.getLdapAttribute(row, 'lastlogontimestamp'));
+          const lastLogon = this.fileTimeToISOString(this.getLdapAttribute(row, 'lastlogon'));
+          const whenChanged = this.generalizedTimeToISOString(this.getLdapAttribute(row, 'whenchanged'));
+
+          computers.push({
+            Name: hostname,
+            DNSHostName: dnsHostName,
+            IPv4Address: adDnsIdentity.primaryIp,
+            ReportedIPAddresses: adDnsIdentity.allIps,
+            OperatingSystem: this.getLdapAttribute(row, 'operatingsystem') || 'Unknown',
+            DistinguishedName:
+              this.getLdapAttribute(row, 'distinguishedname') || `CN=${hostname},CN=Computers,${baseDN}`,
+            Enabled: this.isAccountEnabled(this.getLdapAttribute(row, 'useraccountcontrol')),
+            LastLogonTimestamp: lastLogonTimestamp || null,
+            LastLogon: lastLogon || null,
+            WhenChanged: whenChanged || null,
+            LastLogonDate: lastLogonTimestamp || lastLogon || whenChanged || ''
+          });
+        }
+
+        logger.info(`Direct LDAP query found ${computers.length} computers`);
         return computers;
-      } catch (readError: any) {
-        logger.error('Failed to read scanner output file:', readError.message);
-        throw new Error(`Failed to read scanner output: ${readError.message}`);
+      } catch (error: any) {
+        lastError = error;
+        logger.warn(`LDAP sync attempt failed via ${ldapUrl}: ${error.message}`);
+      } finally {
+        await unbindAsync();
       }
-    } catch (error: any) {
-      logger.error('Failed to run Python AD scanner:', error.message);
-      if (error.stdout) logger.info('Scanner stdout:', error.stdout);
-      if (error.stderr) logger.error('Scanner stderr:', error.stderr);
-      throw new Error(`AD Scanner failed: ${error.message}`);
     }
+
+    throw lastError || new Error('All LDAP sync attempts failed.');
   }
 
   private async deactivateMissingAssets(activeHostnames: string[]): Promise<void> {
@@ -365,9 +252,7 @@ export class ADSyncService {
     const lastSeen = this.normalizeADTimestamp(computer.LastLogonDate);
     const reportedIpAddresses = this.normalizeIpList(computer.ReportedIPAddresses || [], ipAddress);
 
-    const complianceStatus = this.deriveComplianceStatus(isEnabled, ipAddress, lastSeen);
     const assetType = /server/i.test(osVersion) ? 'server' : 'workstation';
-    const criticality = /server/i.test(osVersion) ? 'critical' : 'medium';
 
     // Check if asset already exists
     const existingAsset = await pool.query(
@@ -380,17 +265,15 @@ export class ADSyncService {
       // Update existing asset
       await pool.query(
         `UPDATE assets 
-         SET ip_address = $1,
+         SET ip_address = COALESCE($1::inet, ip_address),
              os_version = $2,
-             compliance_status = $3,
-             asset_type = $4,
-             criticality = $5,
-             last_seen = COALESCE($6::timestamp, last_seen),
-             is_active = $7,
-             raw_data = $8::jsonb,
+             asset_type = $3,
+             last_seen = COALESCE($4::timestamp, last_seen),
+             is_active = $5,
+             raw_data = $6::jsonb,
              updated_at = NOW()
-         WHERE hostname = $9`,
-        [ipAddress, osVersion, complianceStatus, assetType, criticality, lastSeen, isEnabled, JSON.stringify(mergedRawData), hostname]
+         WHERE hostname = $7`,
+        [ipAddress, osVersion, assetType, lastSeen, isEnabled, JSON.stringify(mergedRawData), hostname]
       );
       logger.debug(`Updated existing asset: ${hostname}`);
     } else {
@@ -418,10 +301,10 @@ export class ADSyncService {
           ipAddress,
           assetType,
           'IT',
-          criticality,
+          'medium',
           osVersion,
           'AD Imported',
-          complianceStatus,
+          'unknown',
           'not_installed',
           'not_installed',
           'not_installed',
@@ -480,19 +363,50 @@ export class ADSyncService {
     return this.domain ? `${this.username}@${this.domain}` : this.username;
   }
 
-  private getADSyncLdapUrl(): string {
+  private getADSyncLdapUrls(): string[] {
     const syncSpecificUrl = process.env.AD_SYNC_LDAP_URL || '';
     const configuredUrl = process.env.LDAP_URL || '';
+    const directDcUrl = this.dcIp ? `ldap://${this.dcIp}:389` : '';
+    const candidates = [syncSpecificUrl, configuredUrl, directDcUrl].filter(Boolean);
+    const ordered = candidates.sort((left, right) => {
+      const leftLoopback = this.isLoopbackLdapUrl(left);
+      const rightLoopback = this.isLoopbackLdapUrl(right);
+      if (leftLoopback === rightLoopback) {
+        return 0;
+      }
+      return leftLoopback ? 1 : -1;
+    });
 
-    if (syncSpecificUrl) {
-      return syncSpecificUrl;
+    return Array.from(new Set(ordered));
+  }
+
+  private async canReachLdapEndpoint(ldapUrl: string): Promise<boolean> {
+    try {
+      const parsed = new URL(ldapUrl);
+      const port = parsed.port ? Number(parsed.port) : parsed.protocol === 'ldaps:' ? 636 : 389;
+
+      return await new Promise<boolean>((resolve) => {
+        const socket = new net.Socket();
+        let settled = false;
+
+        const finish = (result: boolean) => {
+          if (settled) {
+            return;
+          }
+          settled = true;
+          socket.destroy();
+          resolve(result);
+        };
+
+        socket.setTimeout(3000);
+        socket.once('connect', () => finish(true));
+        socket.once('timeout', () => finish(false));
+        socket.once('error', () => finish(false));
+        socket.connect(port, parsed.hostname);
+      });
+    } catch {
+      return false;
     }
-
-    if (this.dcIp && this.isLoopbackLdapUrl(configuredUrl)) {
-      return `ldap://${this.dcIp}:389`;
-    }
-
-    return configuredUrl || (this.dcIp ? `ldap://${this.dcIp}:389` : '');
   }
 
   private isLoopbackLdapUrl(url: string): boolean {
@@ -508,11 +422,15 @@ export class ADSyncService {
     hostname: string,
     explicitIp?: string | null
   ): Promise<{ primaryIp: string | null; allIps: string[] }> {
-    const candidates = [dnsHostName, `${hostname}.${this.domain}`, hostname].filter(Boolean);
+    const candidates = Array.from(new Set([dnsHostName, `${hostname}.${this.domain}`, hostname].filter(Boolean)));
     const preferredSubnet = await this.getPreferredSubnet();
     const discovered = new Set<string>(this.normalizeIpList([], explicitIp || null));
 
     for (const candidate of candidates) {
+      if (discovered.size > 0) {
+        break;
+      }
+
       try {
         const results = await this.resolveAdServerIpv4Addresses(candidate);
         this.normalizeIpList(results).forEach((address) => discovered.add(address));
@@ -531,6 +449,24 @@ export class ADSyncService {
     };
   }
 
+  private async resolveAdIpIdentityWithTimeout(
+    dnsHostName: string,
+    hostname: string,
+    timeoutMs: number,
+    explicitIp?: string | null
+  ): Promise<{ primaryIp: string | null; allIps: string[] }> {
+    try {
+      return await Promise.race([
+        this.resolveAdIpIdentity(dnsHostName, hostname, explicitIp),
+        new Promise<{ primaryIp: string | null; allIps: string[] }>((resolve) =>
+          setTimeout(() => resolve({ primaryIp: explicitIp || null, allIps: this.normalizeIpList([], explicitIp || null) }), timeoutMs)
+        )
+      ]);
+    } catch {
+      return { primaryIp: explicitIp || null, allIps: this.normalizeIpList([], explicitIp || null) };
+    }
+  }
+
   private async resolveAdServerIpv4Addresses(name: string): Promise<string[]> {
     if (process.platform === 'win32' && this.dcIp) {
       try {
@@ -538,16 +474,16 @@ export class ADSyncService {
         const { stdout } = await execFileAsync(
           'powershell',
           [
-            '-NoProfile',
-            '-Command',
-            `Resolve-DnsName -Name '${escapedName}' -Type A -Server ${this.dcIp} -ErrorAction Stop | Select-Object -ExpandProperty IPAddress`
-          ],
-          { timeout: 6000, maxBuffer: 256 * 1024 }
-        );
+              '-NoProfile',
+              '-Command',
+              `Resolve-DnsName -Name '${escapedName}' -Type A -Server ${this.dcIp} -ErrorAction Stop | Select-Object -ExpandProperty IPAddress`
+            ],
+            { timeout: 2000, maxBuffer: 256 * 1024 }
+          );
 
-        const records = this.normalizeIpList(
-          stdout
-            .split(/\r?\n/)
+          const records = this.normalizeIpList(
+            stdout
+              .split(/\r?\n/)
             .map((line) => line.trim())
             .filter(Boolean)
         );
@@ -555,17 +491,22 @@ export class ADSyncService {
         if (records.length > 0) {
           return records;
         }
+        } catch {
+          // Fall back to system DNS when direct AD DNS lookup is unavailable.
+        }
+      }
+
+      try {
+      return this.normalizeIpList(
+        await Promise.race([
+          dns.resolve4(name),
+          new Promise<string[]>((_, reject) => setTimeout(() => reject(new Error('dns timeout')), 1500))
+        ])
+      );
       } catch {
-        // Fall back to system DNS when direct AD DNS lookup is unavailable.
+        return [];
       }
     }
-
-    try {
-      return this.normalizeIpList(await dns.resolve4(name));
-    } catch {
-      return [];
-    }
-  }
 
   private normalizeIpList(addresses: string[], extraAddress?: string | null): string[] {
     const allAddresses = [...addresses, ...(extraAddress ? [extraAddress] : [])];
@@ -578,19 +519,98 @@ export class ADSyncService {
     );
   }
 
-  private buildAssetRawData(existingRawData: any, computer: ADComputer, reportedIpAddresses: string[]) {
-    const baseRawData = existingRawData && typeof existingRawData === 'object' ? existingRawData : {};
+  private normalizeLdapEntry(entry: any): Record<string, any> {
+    const normalized: Record<string, any> = {};
+    const attributes = Array.isArray(entry?.attributes)
+      ? entry.attributes
+      : Array.isArray(entry?.pojo?.attributes)
+        ? entry.pojo.attributes
+        : [];
 
-    return {
-      ...baseRawData,
-      ad: {
-        ...(baseRawData.ad || {}),
-        dns_host_name: computer.DNSHostName || null,
-        reported_ip_address: computer.IPv4Address || null,
-        reported_ip_addresses: reportedIpAddresses,
-        last_synced_at: new Date().toISOString()
+    for (const attribute of attributes) {
+      const key = String(attribute?.type || attribute?.name || '').toLowerCase();
+      if (!key) {
+        continue;
       }
-    };
+
+      const rawValues = Array.isArray(attribute?.values)
+        ? attribute.values
+        : Array.isArray(attribute?.vals)
+          ? attribute.vals
+          : attribute?.value !== undefined
+            ? [attribute.value]
+            : [];
+
+      const values = rawValues
+        .map((value: unknown) => String(value))
+        .filter((value: string) => value.length > 0);
+
+      normalized[key] = values.length <= 1 ? values[0] || '' : values;
+    }
+
+    if (entry?.objectName) {
+      normalized.distinguishedname = String(entry.objectName);
+    } else if (entry?.pojo?.objectName) {
+      normalized.distinguishedname = String(entry.pojo.objectName);
+    }
+
+    return normalized;
+  }
+
+  private getLdapAttribute(row: Record<string, any>, key: string): string {
+    const value = row[key.toLowerCase()];
+
+    if (Array.isArray(value)) {
+      return value[0] ? String(value[0]) : '';
+    }
+
+    return value ? String(value) : '';
+  }
+
+  private buildAssetRawData(existingRawData: any, computer: ADComputer, reportedIpAddresses: string[]) {
+      const baseRawData = existingRawData && typeof existingRawData === 'object' ? existingRawData : {};
+      const existingAd = baseRawData.ad || {};
+      const existingIpEvidence = baseRawData.ip_evidence || {};
+      const adPrimaryIp = computer.IPv4Address || reportedIpAddresses[0] || null;
+
+      return {
+        ...baseRawData,
+        ad: {
+        ...existingAd,
+        dns_host_name: computer.DNSHostName || null,
+        distinguished_name: computer.DistinguishedName || null,
+        operating_system: computer.OperatingSystem || null,
+        enabled: computer.Enabled,
+        last_logon_timestamp: computer.LastLogonTimestamp || existingAd.last_logon_timestamp || null,
+        last_logon: computer.LastLogon || existingAd.last_logon || null,
+        last_logon_date: computer.LastLogonDate || existingAd.last_logon_date || null,
+        when_changed: computer.WhenChanged || existingAd.when_changed || null,
+          reported_ip_address: computer.IPv4Address || null,
+          reported_ip_addresses: reportedIpAddresses,
+          last_synced_at: new Date().toISOString()
+        },
+        ip_evidence: adPrimaryIp
+          ? {
+              ...existingIpEvidence,
+              ip_address: adPrimaryIp,
+              source: 'ad_dns',
+              last_seen_at: new Date().toISOString(),
+            }
+          : existingIpEvidence
+      };
+    }
+
+  private isComputerAccountRow(row: Record<string, any>): boolean {
+    const distinguishedName = this.getLdapAttribute(row, 'distinguishedname').toLowerCase();
+    if (distinguishedName.includes('cn=topology,') || distinguishedName.includes('cn=dfsr-globalsettings,')) {
+      return false;
+    }
+
+    return Boolean(
+      this.getLdapAttribute(row, 'useraccountcontrol') ||
+      this.getLdapAttribute(row, 'dnshostname') ||
+      this.getLdapAttribute(row, 'operatingsystem')
+    );
   }
 
   private async getPreferredSubnet(): Promise<PreferredSubnet | null> {
@@ -700,6 +720,21 @@ export class ADSyncService {
     } catch (error) {
       return '';
     }
+  }
+
+  private generalizedTimeToISOString(value: unknown): string {
+    const rawValue = Array.isArray(value) ? value[0] : value;
+
+    if (!rawValue) {
+      return '';
+    }
+
+    const parsedTime = Date.parse(String(rawValue));
+    if (Number.isNaN(parsedTime)) {
+      return '';
+    }
+
+    return new Date(parsedTime).toISOString();
   }
 
   private deriveComplianceStatus(

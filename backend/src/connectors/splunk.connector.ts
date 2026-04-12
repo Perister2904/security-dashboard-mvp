@@ -95,7 +95,7 @@ export class SplunkConnector extends BaseConnector {
         try {
           // Check if incident already exists
           const existingIncident = await pool.query(
-            'SELECT id FROM incidents WHERE source_id = $1 AND source = $2',
+            'SELECT id FROM incidents WHERE external_id = $1 AND source_tool = $2',
             [alert._key, 'splunk']
           );
 
@@ -127,26 +127,31 @@ export class SplunkConnector extends BaseConnector {
                 description,
                 severity,
                 status,
-                source,
-                source_id,
+                source_tool,
+                external_id,
                 detected_at,
                 affected_assets,
-                ioc_indicators
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                source_ip,
+                destination_ip,
+                raw_data
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
               [
                 alert.title || 'Splunk Alert',
                 alert.description || '',
                 this.normalizeSeverity(alert.severity),
-                'new',
+                'open',
                 'splunk',
                 alert._key,
                 new Date(alert._time * 1000),
                 affectedAssets,
+                alert.src_ip || null,
+                alert.dest_ip || null,
                 JSON.stringify({
                   src_ip: alert.src_ip,
                   dest_ip: alert.dest_ip,
                   user: alert.user,
-                  host: alert.host
+                  host: alert.host,
+                  source: alert.source
                 })
               ]
             );
@@ -161,7 +166,7 @@ export class SplunkConnector extends BaseConnector {
       // Update last sync time
       await pool.query(
         `UPDATE connector_configs 
-        SET last_sync = NOW(), status = 'active'
+        SET last_sync_at = NOW(), last_sync_status = 'success', last_sync_error = NULL
         WHERE id = $1`,
         [this.config.id]
       );
@@ -173,7 +178,7 @@ export class SplunkConnector extends BaseConnector {
 
       await pool.query(
         `UPDATE connector_configs 
-        SET status = 'error', last_error = $1
+        SET last_sync_status = 'error', last_sync_error = $1
         WHERE id = $2`,
         [error.message, this.config.id]
       );
@@ -248,7 +253,7 @@ export class SplunkConnector extends BaseConnector {
           if (existingAsset.rows.length > 0) {
             await pool.query(
               `UPDATE assets 
-              SET last_scan = NOW(), updated_at = NOW()
+              SET last_vulnerability_scan = NOW(), updated_at = NOW()
               WHERE id = $1`,
               [existingAsset.rows[0].id]
             );
@@ -256,21 +261,23 @@ export class SplunkConnector extends BaseConnector {
           } else {
             await pool.query(
               `INSERT INTO assets (
-                name,
-                type,
                 hostname,
                 ip_address,
-                os,
+                asset_type,
+                os_version,
                 department,
-                last_scan
-              ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+                criticality,
+                compliance_status,
+                last_vulnerability_scan
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
               [
                 asset.host,
-                'server',
-                asset.host,
                 asset.ip,
+                'server',
                 asset.os || 'Unknown',
-                asset.department || 'Unknown'
+                asset.department || 'Unknown',
+                'medium',
+                'unknown'
               ]
             );
             result.itemsCreated++;

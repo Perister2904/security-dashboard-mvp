@@ -7,6 +7,11 @@ export interface RealAsset {
   id: string;
   hostname: string;
   ip_address: string;
+  effective_ip_address?: string | null;
+  ad_primary_ip?: string | null;
+  ad_dns_ip_addresses?: string[];
+  ip_source?: string | null;
+  ip_last_seen?: string | null;
   asset_type: string;
   department: string;
   criticality: string;
@@ -16,6 +21,17 @@ export interface RealAsset {
   antivirus_status: string;
   edr_status: string;
   dlp_status: string;
+  edr_agent_version?: string | null;
+  edr_last_seen?: string | null;
+  dlp_agent_version?: string | null;
+  dlp_last_seen?: string | null;
+  antivirus_version?: string | null;
+  antivirus_last_scan?: string | null;
+  ad_last_seen?: string | null;
+  wazuh_last_seen?: string | null;
+  network_last_seen?: string | null;
+  last_observed_at?: string | null;
+  raw_data?: any;
   vulnerability_count: number;
   last_seen: string;
 }

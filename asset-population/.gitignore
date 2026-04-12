@@ -11,6 +11,9 @@ __pycache__/
 # Output files
 asset_scan_*.json
 sample_output.json
+real_assets.json
+ad_sync_output.json
+asset_scanner.log
 
 # Temporary files
 *.tmp

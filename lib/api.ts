@@ -208,6 +208,12 @@ export const assetsAPI = {
       method: 'GET',
     });
   },
+
+  async syncWazuhTelemetry() {
+    return apiRequest<any>('/assets/sync/wazuh', {
+      method: 'POST',
+    });
+  },
 };
 
 // Risks API

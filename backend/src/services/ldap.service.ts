@@ -25,8 +25,15 @@ class LDAPService {
   private config: LDAPConfig;
 
   constructor() {
+    const directDcUrl = process.env.AD_DC_IP ? `ldap://${process.env.AD_DC_IP}:389` : '';
+    const configuredUrl = process.env.LDAP_URL || '';
+    const ldapUrl =
+      configuredUrl && !/ldap:\/\/(localhost|127\.0\.0\.1)/i.test(configuredUrl)
+        ? configuredUrl
+        : directDcUrl || configuredUrl || 'ldap://localhost:389';
+
     this.config = {
-      url: process.env.LDAP_URL || 'ldap://localhost:389',
+      url: ldapUrl,
       bindDN: process.env.LDAP_BIND_DN || '',
       bindPassword: process.env.LDAP_BIND_PASSWORD || '',
       baseDN: process.env.LDAP_BASE_DN || 'DC=company,DC=local',
@@ -82,7 +89,7 @@ class LDAPService {
 
           res.on('searchEntry', (entry: ldap.SearchEntry) => {
             userDN = entry.objectName!;
-            userAttributes = entry.object;
+            userAttributes = (entry as any).object || {};
           });
 
           res.on('error', (err: Error) => {
@@ -159,7 +166,7 @@ class LDAPService {
 
           res.on('searchEntry', (entry: ldap.SearchEntry) => {
             userFound = true;
-            const attrs = entry.object;
+            const attrs = (entry as any).object || {};
             const ldapUser: LDAPUser = {
               dn: entry.objectName!,
               username: attrs.sAMAccountName as string || username,

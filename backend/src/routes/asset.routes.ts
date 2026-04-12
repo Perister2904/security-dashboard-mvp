@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth.middleware';
 import { assetService } from '../services/asset.service';
 import { networkDiscoveryService } from '../services/network-discovery.service';
+import { wazuhSyncService } from '../services/wazuh-sync.service';
 
 const router = Router();
 
@@ -15,6 +16,25 @@ router.get('/discovery/network', authorize('soc_analyst', 'ciso', 'ceo', 'admin'
   } catch (error) {
     console.error('Error running network discovery:', error);
     res.status(500).json({ error: 'Failed to run network discovery' });
+  }
+});
+
+// Sync Wazuh-derived endpoint telemetry from sample logs
+router.post('/sync/wazuh', authorize('soc_analyst', 'ciso', 'admin'), async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await wazuhSyncService.syncSampleTelemetry();
+    res.json({
+      success: result.success,
+      message: `Processed ${result.itemsProcessed} Wazuh events and updated ${result.itemsUpdated} assets.`,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error('Error syncing Wazuh telemetry:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync Wazuh telemetry',
+      message: error.message,
+    });
   }
 });
 

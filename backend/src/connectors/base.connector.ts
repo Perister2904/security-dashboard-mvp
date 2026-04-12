@@ -138,15 +138,15 @@ export abstract class BaseConnector {
   /**
    * Normalize status from external system to standard format
    */
-  protected normalizeStatus(externalStatus: string): 'new' | 'in-progress' | 'resolved' | 'closed' {
+  protected normalizeStatus(externalStatus: string): 'open' | 'in_progress' | 'resolved' | 'closed' {
     const status = externalStatus.toLowerCase();
-    
-    if (['new', 'open', 'created', 'detected'].includes(status)) return 'new';
-    if (['in-progress', 'in progress', 'investigating', 'assigned', 'working'].includes(status)) return 'in-progress';
+
+    if (['new', 'open', 'created', 'detected'].includes(status)) return 'open';
+    if (['in-progress', 'in progress', 'investigating', 'assigned', 'working'].includes(status)) return 'in_progress';
     if (['resolved', 'fixed', 'completed'].includes(status)) return 'resolved';
     if (['closed', 'archived'].includes(status)) return 'closed';
-    
-    return 'new';
+
+    return 'open';
   }
 
   /**

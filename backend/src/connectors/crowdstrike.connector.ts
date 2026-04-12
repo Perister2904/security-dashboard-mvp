@@ -94,7 +94,7 @@ export class CrowdStrikeConnector extends BaseConnector {
         try {
           // Check if incident already exists
           const existingIncident = await pool.query(
-            'SELECT id FROM incidents WHERE source_id = $1 AND source = $2',
+            'SELECT id FROM incidents WHERE external_id = $1 AND source_tool = $2',
             [detection.detection_id, 'crowdstrike']
           );
 
@@ -137,21 +137,23 @@ export class CrowdStrikeConnector extends BaseConnector {
                 description,
                 severity,
                 status,
-                source,
-                source_id,
+                source_tool,
+                external_id,
                 detected_at,
                 affected_assets,
-                ioc_indicators
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                source_ip,
+                raw_data
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
               [
                 title,
                 description,
                 severity,
-                'new',
+                'open',
                 'crowdstrike',
                 detection.detection_id,
                 new Date(detection.created_timestamp),
                 affectedAssets,
+                detection.device?.local_ip || null,
                 JSON.stringify({
                   hostname: detection.device?.hostname,
                   ip: detection.device?.local_ip,
@@ -171,7 +173,7 @@ export class CrowdStrikeConnector extends BaseConnector {
       // Update connector status
       await pool.query(
         `UPDATE connector_configs 
-        SET last_sync = NOW(), status = 'active'
+        SET last_sync_at = NOW(), last_sync_status = 'success', last_sync_error = NULL
         WHERE id = $1`,
         [this.config.id]
       );
@@ -183,7 +185,7 @@ export class CrowdStrikeConnector extends BaseConnector {
 
       await pool.query(
         `UPDATE connector_configs 
-        SET status = 'error', last_error = $1
+        SET last_sync_status = 'error', last_sync_error = $1
         WHERE id = $2`,
         [error.message, this.config.id]
       );
@@ -243,32 +245,41 @@ export class CrowdStrikeConnector extends BaseConnector {
               await pool.query(
                 `UPDATE assets 
                 SET 
-                  edr_installed = true,
-                  os = $1,
-                  last_scan = NOW(),
+                  edr_status = 'protected',
+                  edr_agent_version = $1,
+                  edr_last_seen = $2,
+                  os_version = $3,
                   updated_at = NOW()
-                WHERE id = $2`,
-                [device.os_version, existingAsset.rows[0].id]
+                WHERE id = $4`,
+                [device.agent_version, device.last_seen ? new Date(device.last_seen) : null, device.os_version, existingAsset.rows[0].id]
               );
               result.itemsUpdated++;
             } else {
               // Create new asset
               await pool.query(
                 `INSERT INTO assets (
-                  name,
-                  type,
                   hostname,
                   ip_address,
-                  os,
-                  edr_installed,
-                  last_scan
-                ) VALUES ($1, $2, $3, $4, $5, true, NOW())`,
+                  asset_type,
+                  os_type,
+                  os_version,
+                  edr_status,
+                  edr_agent_version,
+                  edr_last_seen,
+                  criticality,
+                  compliance_status
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
                 [
                   device.hostname,
-                  device.platform_name === 'Windows' ? 'workstation' : 'server',
-                  device.hostname,
                   device.local_ip,
-                  device.os_version
+                  device.platform_name === 'Windows' ? 'workstation' : 'server',
+                  device.platform_name?.toLowerCase() || 'unknown',
+                  device.os_version,
+                  'protected',
+                  device.agent_version,
+                  device.last_seen ? new Date(device.last_seen) : null,
+                  'medium',
+                  'unknown'
                 ]
               );
               result.itemsCreated++;

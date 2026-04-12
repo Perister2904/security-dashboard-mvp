@@ -337,6 +337,10 @@ export async function setupDatabaseTriggers(wsManager: WebSocketManager): Promis
     // Listen for PostgreSQL NOTIFY events
     const client = await pool.connect();
 
+    client.on('error', (error: Error) => {
+      logger.error('Database notification client error', { error: error.message });
+    });
+
     await client.query('LISTEN new_incident');
     await client.query('LISTEN incident_update');
 

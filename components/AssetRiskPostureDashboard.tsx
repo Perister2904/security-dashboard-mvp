@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
   Database,
   Laptop,
   Network,
@@ -32,6 +34,10 @@ type AuthenticatedDiscoveryAsset = {
   criticality: string;
   department: string;
   seen_on_network: boolean;
+  match_fields: Array<"hostname" | "ip" | "mac">;
+  match_score: number;
+  match_strength: "strong" | "medium" | "weak" | null;
+  match_reason: string | null;
 };
 
 type UnauthorizedDiscoveryAsset = {
@@ -60,6 +66,29 @@ type NetworkDiscoveryResponse = {
 
 type DisplayAsset = Asset & {
   seenOnNetwork: boolean;
+  telemetrySource?: string;
+  ipSource?: string;
+  ipLastSeen?: string;
+  adLastSeen?: string;
+  wazuhLastSeen?: string;
+  networkLastSeen?: string;
+  lastObservedAt?: string;
+  adPrimaryIp?: string;
+  adDnsIpAddresses?: string[];
+  networkMatchFields?: string[];
+  networkMatchScore?: number;
+  networkMatchStrength?: "strong" | "medium" | "weak" | null;
+  networkMatchReason?: string | null;
+};
+
+type RiskPostureResponse = {
+  overallScore: number;
+  averageRiskScore: number;
+  byCriticality: Array<{
+    criticality: string;
+    count: number;
+    avg_risk_score: number;
+  }>;
 };
 
 const EMPTY_COVERAGE: CoverageStats = {
@@ -118,26 +147,38 @@ function mapRealAsset(asset: RealAsset, seenOnNetwork: boolean): DisplayAsset {
     name: asset.hostname || "Unknown Asset",
     type: mapAssetType(asset.asset_type),
     department: asset.department || "Unknown",
-    ipAddress: asset.ip_address || "Unknown",
+    ipAddress: asset.effective_ip_address || asset.ip_address || "Unknown",
     criticality: mapCriticality(asset.criticality),
     complianceStatus: mapComplianceStatus(asset.compliance_status),
     edr: {
       installed: asset.edr_status === "protected",
       status: mapToolStatus(asset.edr_status),
-      version: "N/A",
+      version: asset.edr_agent_version || undefined,
+      lastUpdate: asset.edr_last_seen || undefined,
     },
     dlp: {
       installed: asset.dlp_status === "protected",
       status: mapToolStatus(asset.dlp_status),
-      version: "N/A",
+      version: asset.dlp_agent_version || undefined,
+      lastUpdate: asset.dlp_last_seen || undefined,
     },
     antivirus: {
       installed: asset.antivirus_status === "protected",
       status: mapToolStatus(asset.antivirus_status),
-      version: "N/A",
+      version: asset.antivirus_version || undefined,
+      lastUpdate: asset.antivirus_last_scan || undefined,
     },
-    lastScan: asset.last_seen || new Date().toISOString(),
+    lastScan: asset.last_observed_at || asset.last_seen || new Date().toISOString(),
     seenOnNetwork,
+    telemetrySource: asset.raw_data?.wazuh?.source || undefined,
+    ipSource: asset.ip_source || undefined,
+    ipLastSeen: asset.ip_last_seen || undefined,
+    adLastSeen: asset.ad_last_seen || undefined,
+    wazuhLastSeen: asset.wazuh_last_seen || undefined,
+    networkLastSeen: asset.network_last_seen || undefined,
+    lastObservedAt: asset.last_observed_at || asset.last_seen || undefined,
+    adPrimaryIp: asset.ad_primary_ip || undefined,
+    adDnsIpAddresses: asset.ad_dns_ip_addresses || [],
   };
 }
 
@@ -155,7 +196,28 @@ function mapDiscoveryAsset(asset: AuthenticatedDiscoveryAsset): DisplayAsset {
     antivirus: { installed: false, status: "Unknown", version: "N/A" },
     lastScan: new Date().toISOString(),
     seenOnNetwork: asset.seen_on_network,
+    ipSource: asset.seen_on_network ? "network_scan" : undefined,
+    ipLastSeen: asset.seen_on_network ? new Date().toISOString() : undefined,
+    networkLastSeen: asset.seen_on_network ? new Date().toISOString() : undefined,
+    lastObservedAt: asset.seen_on_network ? new Date().toISOString() : undefined,
+    adDnsIpAddresses: [],
+    networkMatchFields: asset.match_fields || [],
+    networkMatchScore: asset.match_score || 0,
+    networkMatchStrength: asset.match_strength || null,
+    networkMatchReason: asset.match_reason || null,
   };
+}
+
+function formatIpSource(value?: string) {
+  if (value === "wazuh") return "Wazuh";
+  if (value === "network_scan") return "Network Scan";
+  if (value === "ad_dns") return "AD DNS";
+  if (value === "manual") return "Stored Asset Record";
+  return "Unknown";
+}
+
+function formatTimestamp(value?: string | null) {
+  return value ? new Date(value).toLocaleString() : "No evidence yet";
 }
 
 function getAssetIcon(type: Asset["type"]) {
@@ -173,7 +235,7 @@ function getToolStatusBadge(status: Asset["edr"]["status"]) {
 
 function getDiscoveryStatusText(discovery: NetworkDiscoveryResponse) {
   if (discovery.scan_status === "completed") {
-    return `nmap scanned ${discovery.scan_range} and matched the results against the AD-authenticated inventory using hostname, MAC, and IP evidence.`;
+    return `nmap scanned ${discovery.scan_range} and only trusted hosts with at least two corroborating signals from hostname, MAC, and IP, with recent evidence strengthening the match.`;
   }
 
   if (discovery.scan_status === "failed") {
@@ -187,34 +249,39 @@ export default function AssetRiskPostureDashboard() {
   const [assets, setAssets] = useState<DisplayAsset[]>([]);
   const [coverageStats, setCoverageStats] = useState<CoverageStats>(EMPTY_COVERAGE);
   const [networkDiscovery, setNetworkDiscovery] = useState<NetworkDiscoveryResponse>(EMPTY_DISCOVERY);
+  const [riskPosture, setRiskPosture] = useState<RiskPostureResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncingWazuh, setIsSyncingWazuh] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [lastSyncMessage, setLastSyncMessage] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [expandedAssetId, setExpandedAssetId] = useState<string | null>(null);
 
   const fetchInventoryData = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
 
-    const [realAssetsResult, coverageResult] = await Promise.allSettled([
+    const [realAssetsResult, coverageResult, riskPostureResult] = await Promise.allSettled([
       fetchRealAssets(),
       assetsAPI.getCoverage(),
+      assetsAPI.getRiskPosture(),
     ]);
 
     const realAssets = realAssetsResult.status === "fulfilled" ? realAssetsResult.value : [];
     const nextCoverage =
       coverageResult.status === "fulfilled" ? (coverageResult.value?.data as CoverageStats | undefined) ?? EMPTY_COVERAGE : EMPTY_COVERAGE;
+    const nextRiskPosture =
+      riskPostureResult.status === "fulfilled" ? (riskPostureResult.value?.data as RiskPostureResponse | undefined) ?? null : null;
 
-    const mappedAssets =
-      realAssets.length > 0
-        ? realAssets.map((asset) => mapRealAsset(asset, false))
-        : [];
-
-    setAssets(mappedAssets);
+    setAssets((currentAssets) => {
+      const seenById = new Map(currentAssets.map((asset) => [asset.id, asset.seenOnNetwork]));
+      return realAssets.length > 0 ? realAssets.map((asset) => mapRealAsset(asset, seenById.get(asset.id) ?? false)) : [];
+    });
     setCoverageStats(nextCoverage);
+    setRiskPosture(nextRiskPosture);
 
-    if (realAssetsResult.status === "rejected" && coverageResult.status === "rejected") {
+    if (realAssetsResult.status === "rejected" && coverageResult.status === "rejected" && riskPostureResult.status === "rejected") {
       setLoadError("Backend data could not be loaded.");
     }
 
@@ -228,14 +295,25 @@ export default function AssetRiskPostureDashboard() {
     try {
       const discoveryResponse = await assetsAPI.getNetworkDiscovery();
       const nextDiscovery = (discoveryResponse?.data as NetworkDiscoveryResponse | undefined) ?? EMPTY_DISCOVERY;
-      const seenById = new Map(nextDiscovery.authenticated_assets.map((asset) => [asset.id, asset.seen_on_network]));
+      const discoveryById = new Map(nextDiscovery.authenticated_assets.map((asset) => [asset.id, asset]));
 
       setNetworkDiscovery(nextDiscovery);
       setAssets((currentAssets) =>
         currentAssets.length > 0
           ? currentAssets.map((asset) => ({
               ...asset,
-              seenOnNetwork: seenById.get(asset.id) ?? false,
+              ipAddress: discoveryById.get(asset.id)?.ip_address || asset.ipAddress,
+              ipSource: discoveryById.get(asset.id)?.seen_on_network ? "network_scan" : asset.ipSource,
+              ipLastSeen: discoveryById.get(asset.id)?.seen_on_network ? nextDiscovery.scanned_at || asset.ipLastSeen : asset.ipLastSeen,
+              seenOnNetwork: discoveryById.get(asset.id)?.seen_on_network ?? false,
+              networkLastSeen: discoveryById.get(asset.id)?.seen_on_network ? nextDiscovery.scanned_at || asset.networkLastSeen : asset.networkLastSeen,
+              lastObservedAt: discoveryById.get(asset.id)?.seen_on_network
+                ? nextDiscovery.scanned_at || asset.lastObservedAt
+                : asset.lastObservedAt,
+              networkMatchFields: discoveryById.get(asset.id)?.match_fields || [],
+              networkMatchScore: discoveryById.get(asset.id)?.match_score || 0,
+              networkMatchStrength: discoveryById.get(asset.id)?.match_strength || null,
+              networkMatchReason: discoveryById.get(asset.id)?.match_reason || null,
             }))
           : nextDiscovery.authenticated_assets.map(mapDiscoveryAsset)
       );
@@ -283,28 +361,40 @@ export default function AssetRiskPostureDashboard() {
     }
   }, [fetchInventoryData]);
 
+  const handleWazuhSync = useCallback(async () => {
+    setIsSyncingWazuh(true);
+    setLastSyncMessage("Syncing Wazuh telemetry from sample logs...");
+
+    try {
+      const result = await assetsAPI.syncWazuhTelemetry();
+      if (result.success) {
+        setLastSyncMessage(result.message || "Wazuh telemetry sync completed.");
+      } else {
+        setLastSyncMessage(`Wazuh sync failed: ${result.error || result.message || "Unknown error"}`);
+      }
+      await fetchInventoryData();
+    } catch (error) {
+      setLastSyncMessage(`Wazuh sync failed: ${String(error)}`);
+    } finally {
+      setIsSyncingWazuh(false);
+      window.setTimeout(() => setLastSyncMessage(""), 5000);
+    }
+  }, [fetchInventoryData]);
+
   const authenticatedTotal = networkDiscovery.summary.authenticated_total || assets.length;
   const authenticatedSeen = networkDiscovery.summary.authenticated_seen_on_network;
   const unauthorizedTotal = networkDiscovery.summary.unauthorized_total;
-  const compliantAssets = assets.filter((asset) => asset.complianceStatus === "Compliant").length;
-  const assetsWithEDR = assets.filter((asset) => asset.edr.installed).length;
-  const assetsWithDLP = assets.filter((asset) => asset.dlp.installed).length;
-  const assetsWithAV = assets.filter((asset) => asset.antivirus.installed).length;
-  const denominator = coverageStats.total_assets || assets.length;
-  const postureScore =
-    denominator > 0
-      ? Math.round(
-          ((coverageStats.compliance_pct || Math.round((compliantAssets / denominator) * 100)) * 0.4) +
-            ((coverageStats.edr_coverage_pct || Math.round((assetsWithEDR / denominator) * 100)) * 0.3) +
-            ((coverageStats.dlp_coverage_pct || Math.round((assetsWithDLP / denominator) * 100)) * 0.2) +
-            ((coverageStats.av_coverage_pct || Math.round((assetsWithAV / denominator) * 100)) * 0.1)
-        )
-      : 0;
+  const postureScore = riskPosture?.overallScore ?? 0;
 
-  const criticalityDistribution = ["Critical", "High", "Medium", "Low"].map((level) => ({
-    level,
-    count: assets.filter((asset) => asset.criticality === level).length,
-  }));
+  const criticalityDistribution = riskPosture?.byCriticality?.length
+    ? riskPosture.byCriticality.map((item) => ({
+        level: item.criticality.charAt(0).toUpperCase() + item.criticality.slice(1),
+        count: item.count,
+      }))
+    : ["Critical", "High", "Medium", "Low"].map((level) => ({
+        level,
+        count: assets.filter((asset) => asset.criticality === level).length,
+      }));
 
   return (
     <div className="space-y-4">
@@ -317,10 +407,14 @@ export default function AssetRiskPostureDashboard() {
                 <span>Authenticated AD inventory vs live subnet discovery</span>
               </div>
               <p className="max-w-3xl text-sm text-slate-200">
-                Active Directory defines authenticated assets. Use Sync AD to refresh inventory, then Scan Now when you want a live subnet comparison against nmap.
+                Active Directory defines authenticated assets. Use Sync AD to refresh inventory, then Refresh when you want a live subnet comparison against nmap.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button onClick={handleWazuhSync} disabled={isSyncingWazuh} className="btn border-white/20 bg-white/10 text-white hover:bg-white/20">
+                <Shield className={`h-4 w-4 ${isSyncingWazuh ? "animate-pulse" : ""}`} />
+                {isSyncingWazuh ? "Syncing Wazuh..." : "Sync Wazuh"}
+              </button>
               <button onClick={handleADSync} disabled={isSyncing} className="btn border-white/20 bg-white/10 text-white hover:bg-white/20">
                 <Database className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
                 {isSyncing ? "Syncing AD..." : "Sync AD"}
@@ -330,7 +424,11 @@ export default function AssetRiskPostureDashboard() {
           {(lastSyncMessage || loadError) && (
             <div
               className={`rounded-xl px-3 py-2 text-xs ${
-                loadError ? "bg-red-500/15 text-red-100" : lastSyncMessage.startsWith("AD sync imported") ? "bg-emerald-500/15 text-emerald-100" : "bg-amber-500/15 text-amber-100"
+                loadError
+                  ? "bg-red-500/15 text-red-100"
+                  : lastSyncMessage.startsWith("AD sync imported") || lastSyncMessage.startsWith("Processed") || lastSyncMessage.includes("completed")
+                    ? "bg-emerald-500/15 text-emerald-100"
+                    : "bg-amber-500/15 text-amber-100"
               }`}
             >
               {loadError || lastSyncMessage}
@@ -417,7 +515,7 @@ export default function AssetRiskPostureDashboard() {
           <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
             <div>
               <h3 className="text-sm font-bold">Authenticated AD Assets</h3>
-              <p className="text-xs text-gray-500">Known assets with network visibility status</p>
+              <p className="text-xs text-gray-500">Known assets with network visibility status. Click an asset row to inspect versions and source-specific observation evidence.</p>
             </div>
             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
               {authenticatedTotal} assets
@@ -444,7 +542,11 @@ export default function AssetRiskPostureDashboard() {
                   </tr>
                 )}
                 {assets.map((asset) => (
-                  <tr key={asset.id} className="border-t border-gray-100 dark:border-gray-800">
+                  <Fragment key={asset.id}>
+                  <tr
+                    className="cursor-pointer border-t border-gray-100 transition-colors hover:bg-slate-50 dark:border-gray-800 dark:hover:bg-slate-950/40"
+                    onClick={() => setExpandedAssetId((current) => (current === asset.id ? null : asset.id))}
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div
@@ -460,9 +562,10 @@ export default function AssetRiskPostureDashboard() {
                         </div>
                         <div>
                           <div className="font-semibold">{asset.name}</div>
-                          <div className="text-[11px] text-gray-500">
-                            {asset.type} · {asset.department}
-                          </div>
+                          <div className="text-[11px] text-gray-500">{asset.type} - {asset.department}</div>
+                        </div>
+                        <div className="ml-auto text-gray-400">
+                          {expandedAssetId === asset.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </div>
                       </div>
                     </td>
@@ -482,6 +585,126 @@ export default function AssetRiskPostureDashboard() {
                       </span>
                     </td>
                   </tr>
+                  {expandedAssetId === asset.id && (
+                    <tr className="border-t border-gray-100 bg-slate-50/70 dark:border-gray-800 dark:bg-slate-950/30">
+                      <td colSpan={6} className="px-4 py-4">
+                          <div className="grid gap-3 md:grid-cols-3">
+                            {[
+                              {
+                                label: "EDR",
+                                status: asset.edr.status,
+                              version: asset.edr.version,
+                              lastUpdate: asset.edr.lastUpdate,
+                            },
+                            {
+                              label: "DLP",
+                              status: asset.dlp.status,
+                              version: asset.dlp.version,
+                              lastUpdate: asset.dlp.lastUpdate,
+                            },
+                            {
+                              label: "Antivirus",
+                              status: asset.antivirus.status,
+                              version: asset.antivirus.version,
+                              lastUpdate: asset.antivirus.lastUpdate,
+                            },
+                          ].map((control) => (
+                            <div key={control.label} className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-slate-900">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">{control.label}</span>
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{control.status}</span>
+                              </div>
+                              <div className="mt-3 space-y-1 text-xs text-gray-600 dark:text-gray-300">
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Version:</span>{" "}
+                                  {control.version || "No version evidence"}
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Last evidence:</span>{" "}
+                                  {control.lastUpdate ? new Date(control.lastUpdate).toLocaleString() : "No recent evidence"}
+                                </div>
+                              </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 grid gap-3 md:grid-cols-2">
+                            <div className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-slate-900">
+                              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Observation Evidence</div>
+                              <div className="mt-3 space-y-1 text-xs text-gray-600 dark:text-gray-300">
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Latest observed:</span>{" "}
+                                  {formatTimestamp(asset.lastObservedAt)}
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">AD last logon:</span>{" "}
+                                  {formatTimestamp(asset.adLastSeen)}
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Wazuh telemetry:</span>{" "}
+                                  {formatTimestamp(asset.wazuhLastSeen)}
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Network seen:</span>{" "}
+                                  {formatTimestamp(asset.networkLastSeen)}
+                                </div>
+                              </div>
+                            </div>
+                              <div className="rounded-2xl border border-gray-200 bg-white p-3 text-xs text-gray-600 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-300">
+                                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Evidence Source</div>
+                                <div className="mt-3 space-y-1">
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">Displayed IP:</span>{" "}
+                                    {asset.ipAddress || "No current IP recorded"}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">IP source:</span>{" "}
+                                    {formatIpSource(asset.ipSource)}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">IP last seen:</span>{" "}
+                                    {formatTimestamp(asset.ipLastSeen)}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">AD DNS IPs:</span>{" "}
+                                    {asset.adDnsIpAddresses && asset.adDnsIpAddresses.length > 0
+                                      ? asset.adDnsIpAddresses.join(", ")
+                                      : "No AD DNS IPs recorded"}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">Telemetry source:</span>{" "}
+                                    {asset.telemetrySource || "No Wazuh source recorded"}
+                                  </div>
+                                  <div>
+                                  <span className="font-semibold text-gray-800 dark:text-gray-100">Network status:</span>{" "}
+                                  {asset.seenOnNetwork ? "Seen in latest nmap comparison" : "Not seen in latest nmap comparison"}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">Match strength:</span>{" "}
+                                    {asset.networkMatchStrength
+                                      ? `${asset.networkMatchStrength.charAt(0).toUpperCase()}${asset.networkMatchStrength.slice(1)}`
+                                      : "No trusted correlation in latest scan"}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">Matched fields:</span>{" "}
+                                    {asset.networkMatchFields && asset.networkMatchFields.length > 0
+                                      ? asset.networkMatchFields.join(", ")
+                                      : "No corroborating field combination recorded"}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">Match reason:</span>{" "}
+                                    {asset.networkMatchReason || "The latest scan did not establish a strong authenticated match."}
+                                  </div>
+                                  <div>
+                                    <span className="font-semibold text-gray-800 dark:text-gray-100">AD identity:</span>{" "}
+                                    {asset.name}
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

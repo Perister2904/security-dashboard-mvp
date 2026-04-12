@@ -1,13 +1,16 @@
 import { Router, Response, Request } from 'express';
+import { authenticate, authorize, AuthRequest } from '../middleware/auth.middleware';
 import { adSyncService } from '../services/ad-sync.service';
 import logger from '../utils/logger';
 
 const router = Router();
 
+router.use(authenticate);
+
 /**
- * Trigger Active Directory sync (PUBLIC - no auth for demo)
+ * Trigger Active Directory sync
  */
-router.post('/sync', async (req: Request, res: Response) => {
+router.post('/sync', authorize('ciso', 'admin'), async (req: AuthRequest, res: Response) => {
   try {
     logger.info('AD sync triggered via API');
     const result = await adSyncService.syncFromAD();

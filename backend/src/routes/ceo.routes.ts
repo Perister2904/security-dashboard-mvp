@@ -17,6 +17,27 @@ router.get('/summary', authorize('ceo', 'ciso', 'admin'), async (req: AuthReques
   }
 });
 
+// Backward-compatible aliases
+router.get('/overview', authorize('ceo', 'ciso', 'admin'), async (req: AuthRequest, res: Response) => {
+  try {
+    const summary = await ceoService.getExecutiveSummary();
+    res.json({ success: true, data: summary });
+  } catch (error) {
+    console.error('Error fetching CEO overview:', error);
+    res.status(500).json({ error: 'Failed to fetch executive summary' });
+  }
+});
+
+router.get('/executive-summary', authorize('ceo', 'ciso', 'admin'), async (req: AuthRequest, res: Response) => {
+  try {
+    const summary = await ceoService.getExecutiveSummary();
+    res.json({ success: true, data: summary });
+  } catch (error) {
+    console.error('Error fetching executive summary:', error);
+    res.status(500).json({ error: 'Failed to fetch executive summary' });
+  }
+});
+
 // Get financial impact analysis
 router.get('/financial-impact', authorize('ceo', 'ciso', 'admin'), async (req: AuthRequest, res: Response) => {
   try {

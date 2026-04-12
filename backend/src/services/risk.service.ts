@@ -31,6 +31,7 @@ export const riskService = {
         title,
         description,
         category,
+        risk_type,
         priority,
         likelihood,
         impact,
@@ -38,9 +39,10 @@ export const riskService = {
         status,
         owner,
         mitigation_plan,
-        residual_risk,
-        review_date,
-        created_by,
+        mitigation_status,
+        estimated_loss,
+        due_date,
+        next_review_date,
         created_at,
         updated_at
       FROM risks
@@ -60,11 +62,9 @@ export const riskService = {
     const result = await pool.query(
       `SELECT 
         r.*,
-        u1.username as owner_name,
-        u2.username as created_by_name
+        u.username as assigned_to_name
       FROM risks r
-      LEFT JOIN users u1 ON r.owner = u1.id
-      LEFT JOIN users u2 ON r.created_by = u2.id
+      LEFT JOIN users u ON r.assigned_to = u.id
       WHERE r.id = $1`,
       [id]
     );
@@ -80,13 +80,17 @@ export const riskService = {
       title,
       description,
       category,
+      risk_type,
       priority,
       likelihood,
       impact,
       owner,
+      assigned_to,
       mitigation_plan,
-      residual_risk,
-      review_date
+      mitigation_status,
+      estimated_loss,
+      due_date,
+      next_review_date
     } = riskData;
 
     const result = await pool.query(
@@ -94,28 +98,34 @@ export const riskService = {
         title,
         description,
         category,
+        risk_type,
         priority,
         likelihood,
         impact,
         owner,
+        assigned_to,
         mitigation_plan,
-        residual_risk,
-        review_date,
-        created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        mitigation_status,
+        estimated_loss,
+        due_date,
+        next_review_date
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         title,
         description,
         category,
+        risk_type,
         priority,
         likelihood,
         impact,
         owner,
+        assigned_to || null,
         mitigation_plan,
-        residual_risk,
-        review_date,
-        userId
+        mitigation_status,
+        estimated_loss,
+        due_date,
+        next_review_date
       ]
     );
 
@@ -129,8 +139,21 @@ export const riskService = {
 
   async updateRisk(id: string, updates: any): Promise<any> {
     const allowedFields = [
-      'title', 'description', 'category', 'priority', 'likelihood', 'impact',
-      'status', 'owner', 'mitigation_plan', 'residual_risk', 'review_date'
+      'title',
+      'description',
+      'category',
+      'risk_type',
+      'priority',
+      'likelihood',
+      'impact',
+      'status',
+      'owner',
+      'assigned_to',
+      'mitigation_plan',
+      'mitigation_status',
+      'estimated_loss',
+      'due_date',
+      'next_review_date'
     ];
     
     const updateFields = [];

@@ -21,8 +21,8 @@ interface IncidentFilters {
   analyst?: string;
   fromDate?: string;
   toDate?: string;
-  page?: number;
   limit?: number;
+  offset?: number;
 }
 
 export const socService = {
@@ -33,30 +33,39 @@ export const socService = {
 
     const result = await pool.query(`
       SELECT 
-        active_incidents,
-        critical_incidents,
-        mttr,
-        mtd,
-        mtr,
-        mtc,
-        alert_volume,
-        false_positive_rate,
-        coverage_score,
-        avg_severity
-      FROM current_soc_metrics
+        COUNT(*) FILTER (WHERE status IN ('open', 'in_progress')) as active_incidents,
+        COUNT(*) FILTER (WHERE severity = 'critical' AND status IN ('open', 'in_progress')) as critical_incidents,
+        ROUND(AVG(time_to_resolve_hours) FILTER (WHERE time_to_resolve_hours IS NOT NULL), 2) as mttr,
+        ROUND(AVG(time_to_detect_minutes) FILTER (WHERE time_to_detect_minutes IS NOT NULL), 2) as mtd,
+        ROUND(AVG(time_to_respond_minutes) FILTER (WHERE time_to_respond_minutes IS NOT NULL), 2) as mtr,
+        ROUND(AVG(time_to_contain_minutes) FILTER (WHERE time_to_contain_minutes IS NOT NULL), 2) as mtc,
+        COUNT(*) FILTER (WHERE detected_at >= NOW() - INTERVAL '24 hours') as alerts_24h,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') as incidents_created,
+        COUNT(*) FILTER (WHERE resolved_at >= NOW() - INTERVAL '30 days') as incidents_resolved,
+        ROUND(
+          COUNT(*) FILTER (WHERE status = 'false_positive')::numeric / NULLIF(COUNT(*), 0) * 100,
+          2
+        ) as false_positive_rate,
+        ROUND(
+          COUNT(*) FILTER (WHERE severity = 'critical')::numeric / NULLIF(COUNT(*), 0) * 100,
+          2
+        ) as escalation_rate
+      FROM incidents
+      WHERE detected_at >= NOW() - INTERVAL '30 days'
     `);
 
     const metrics = result.rows[0] || {
-      activeIncidents: 0,
-      criticalIncidents: 0,
+      active_incidents: 0,
+      critical_incidents: 0,
       mttr: 0,
       mtd: 0,
       mtr: 0,
       mtc: 0,
-      alertVolume: 0,
-      falsePositiveRate: 0,
-      coverageScore: 0,
-      avgSeverity: 0
+      alerts_24h: 0,
+      incidents_created: 0,
+      incidents_resolved: 0,
+      false_positive_rate: 0,
+      escalation_rate: 0
     };
 
     await cacheSet(cacheKey, metrics, 60); // Cache for 1 minute
@@ -70,14 +79,16 @@ export const socService = {
 
     const result = await pool.query(
       `SELECT 
-        metric_date,
+        timestamp,
         metric_name,
         metric_value,
-        department
+        metric_unit,
+        metric_category,
+        metadata
       FROM metrics_history
-      WHERE metric_date >= NOW() - INTERVAL '1 day' * $1
-      AND metric_name IN ('mttr', 'mtd', 'mtr', 'mtc', 'alert_volume', 'false_positive_rate')
-      ORDER BY metric_date DESC`,
+      WHERE timestamp >= NOW() - INTERVAL '1 day' * $1
+      AND metric_name IN ('mttr', 'mtd', 'mtr', 'mtc', 'alerts_24h', 'false_positive_rate')
+      ORDER BY timestamp DESC`,
       [days]
     );
 
@@ -85,10 +96,9 @@ export const socService = {
     return result.rows;
   },
 
-  async getIncidents(filters: IncidentFilters): Promise<{ incidents: any[]; total: number; page: number; limit: number }> {
-    const page = filters.page || 1;
+  async getIncidents(filters: IncidentFilters): Promise<{ incidents: any[]; total: number; limit: number; offset: number }> {
     const limit = filters.limit || 20;
-    const offset = (page - 1) * limit;
+    const offset = filters.offset || 0;
 
     let whereConditions = [];
     let params: any[] = [];
@@ -134,33 +144,33 @@ export const socService = {
         description,
         severity,
         status,
-        source,
+        source_tool,
+        external_id,
         assigned_to,
         detected_at,
         responded_at,
         contained_at,
         resolved_at,
-        mtd,
-        mtr,
-        mtc,
-        mttr,
-        false_positive,
+        time_to_detect_minutes,
+        time_to_respond_minutes,
+        time_to_contain_minutes,
+        time_to_resolve_hours,
         affected_assets,
-        ioc_indicators,
+        raw_data,
         created_at,
         updated_at
       FROM incidents
       ${whereClause}
-      ORDER BY detected_at DESC
+      ORDER BY detected_at DESC NULLS LAST
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
       params
     );
 
     return {
       incidents: dataResult.rows,
-      total: parseInt(countResult.rows[0].total),
-      page,
-      limit
+      total: parseInt(countResult.rows[0].total, 10),
+      limit,
+      offset
     };
   },
 
@@ -194,7 +204,7 @@ export const socService = {
   },
 
   async updateIncident(id: string, updates: any): Promise<any> {
-    const allowedFields = ['status', 'assigned_to', 'responded_at', 'contained_at', 'resolved_at', 'false_positive'];
+    const allowedFields = ['status', 'assigned_to', 'responded_at', 'contained_at', 'resolved_at'];
     const updateFields = [];
     const values: any[] = [];
     let paramIndex = 1;
@@ -239,7 +249,7 @@ export const socService = {
         title,
         severity,
         status,
-        source,
+        source_tool,
         detected_at,
         assigned_to
       FROM incidents
@@ -263,8 +273,8 @@ export const socService = {
         u.email,
         COUNT(i.id) as total_incidents,
         COUNT(CASE WHEN i.status = 'resolved' THEN 1 END) as resolved_incidents,
-        ROUND(AVG(i.mttr), 2) as avg_mttr,
-        ROUND(AVG(i.mtr), 2) as avg_mtr,
+        ROUND(AVG(i.time_to_resolve_hours), 2) as avg_mttr,
+        ROUND(AVG(i.time_to_respond_minutes), 2) as avg_mtr,
         COUNT(CASE WHEN i.severity = 'critical' THEN 1 END) as critical_handled
       FROM users u
       LEFT JOIN incidents i ON i.assigned_to = u.id

@@ -392,16 +392,16 @@ function Test-Scanner {
         return
     }
     
-    Write-Host "Running scanner in test mode..." -ForegroundColor Yellow
+    Write-Host "Checking scanner command-line help..." -ForegroundColor Yellow
     
     try {
-        $output = python $scannerPath --demo 2>&1
+        $output = python $scannerPath --help 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Check "Scanner executed successfully" $true
+            Write-Check "Scanner command is available" $true
             
             if ($Detailed) {
                 Write-Host ""
-                Write-Host "Sample output:" -ForegroundColor Cyan
+                Write-Host "Scanner usage:" -ForegroundColor Cyan
                 Write-Host $output
             }
         }

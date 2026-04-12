@@ -9,20 +9,8 @@ export function DataSourcesPanel() {
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate real-time updates
-      setSources(currentSources => 
-        currentSources.map(source => ({
-          ...source,
-          recordsProcessed: source.recordsProcessed + Math.floor(Math.random() * 100),
-          lastUpdate: Math.random() > 0.7 ? "Just now" : source.lastUpdate,
-          status: Math.random() > 0.95 ? 'Degraded' : source.status
-        }))
-      );
-      setLastRefresh(new Date());
-    }, 10000); // Update every 10 seconds
-
-    return () => clearInterval(interval);
+    setSources(dataSources);
+    setLastRefresh(new Date());
   }, []);
 
   const getStatusIcon = (status: string) => {
@@ -78,6 +66,9 @@ export function DataSourcesPanel() {
       </div>
 
       <div className="space-y-3">
+        {sources.length === 0 && (
+          <div className="text-sm text-gray-500">No data sources from backend.</div>
+        )}
         {sources.map((source, index) => (
           <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <div className="flex items-center gap-3">

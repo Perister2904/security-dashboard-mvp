@@ -1,6 +1,8 @@
 # Security Dashboard Backend
 
-Enterprise-grade backend for Security Operations Center (SOC) dashboard with LDAP/AD integration, PostgreSQL, Redis, and security tool connectors.
+Enterprise-grade backend for Security Operations Center (SOC) dashboard with LDAP/AD integration, PostgreSQL, and security tool connectors.
+
+Note: Redis/BullMQ background workers are disabled in this build. All caching is in-process no-op, and scheduled jobs are not included.
 
 ## 🏗️ Architecture
 

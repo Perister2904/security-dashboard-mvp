@@ -84,7 +84,7 @@ export class ServiceNowConnector extends BaseConnector {
         try {
           // Check if incident already exists
           const existingIncident = await pool.query(
-            'SELECT id FROM incidents WHERE source_id = $1 AND source = $2',
+            'SELECT id FROM incidents WHERE external_id = $1 AND source_tool = $2',
             [incident.sys_id, 'servicenow']
           );
 
@@ -97,10 +97,10 @@ export class ServiceNowConnector extends BaseConnector {
           else severity = 'low';
 
           // Map ServiceNow state to our status
-          let status: 'new' | 'in-progress' | 'resolved' | 'closed';
+          let status: 'open' | 'in_progress' | 'resolved' | 'closed';
           const state = parseInt(incident.state);
-          if (state === 1) status = 'new';
-          else if (state >= 2 && state <= 5) status = 'in-progress';
+          if (state === 1) status = 'open';
+          else if (state >= 2 && state <= 5) status = 'in_progress';
           else if (state === 6) status = 'resolved';
           else status = 'closed';
 
@@ -108,7 +108,7 @@ export class ServiceNowConnector extends BaseConnector {
           const affectedAssets: string[] = [];
           if (incident.cmdb_ci?.display_value) {
             const asset = await pool.query(
-              'SELECT id FROM assets WHERE name = $1 OR hostname = $1',
+              'SELECT id FROM assets WHERE hostname = $1',
               [incident.cmdb_ci.display_value]
             );
             if (asset.rows.length > 0) {
@@ -140,8 +140,8 @@ export class ServiceNowConnector extends BaseConnector {
                 description,
                 severity,
                 status,
-                source,
-                source_id,
+                source_tool,
+                external_id,
                 detected_at,
                 resolved_at,
                 affected_assets
@@ -169,7 +169,7 @@ export class ServiceNowConnector extends BaseConnector {
       // Update connector status
       await pool.query(
         `UPDATE connector_configs 
-        SET last_sync = NOW(), status = 'active'
+        SET last_sync_at = NOW(), last_sync_status = 'success', last_sync_error = NULL
         WHERE id = $1`,
         [this.config.id]
       );
@@ -181,7 +181,7 @@ export class ServiceNowConnector extends BaseConnector {
 
       await pool.query(
         `UPDATE connector_configs 
-        SET status = 'error', last_error = $1
+        SET last_sync_status = 'error', last_sync_error = $1
         WHERE id = $2`,
         [error.message, this.config.id]
       );
@@ -229,8 +229,8 @@ export class ServiceNowConnector extends BaseConnector {
           }
 
           const existingAsset = await pool.query(
-            'SELECT id FROM assets WHERE name = $1 OR hostname = $2 OR ip_address = $3',
-            [ci.name, ci.name, ci.ip_address]
+            'SELECT id FROM assets WHERE hostname = $1 OR ip_address = $2',
+            [ci.name, ci.ip_address]
           );
 
           if (existingAsset.rows.length > 0) {
@@ -240,8 +240,7 @@ export class ServiceNowConnector extends BaseConnector {
               SET 
                 criticality = $1,
                 department = $2,
-                os = $3,
-                last_scan = NOW(),
+                os_version = $3,
                 updated_at = NOW()
               WHERE id = $4`,
               [
@@ -256,23 +255,22 @@ export class ServiceNowConnector extends BaseConnector {
             // Create new asset
             await pool.query(
               `INSERT INTO assets (
-                name,
-                type,
                 hostname,
                 ip_address,
-                os,
+                asset_type,
+                os_version,
                 department,
                 criticality,
-                last_scan
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+                compliance_status
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
               [
                 ci.name,
-                ci.classification || 'server',
-                ci.name,
                 ci.ip_address || '',
+                (ci.classification || 'server').toLowerCase(),
                 ci.os || 'Unknown',
                 ci.u_department || 'Unknown',
-                criticality
+                criticality,
+                'unknown'
               ]
             );
             result.itemsCreated++;
