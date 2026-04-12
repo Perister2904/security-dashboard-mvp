@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle, RefreshCw, Shield, TrendingDown, TrendingUp } from "lucide-react";
 import { ceoAPI, socAPI } from "@/lib/api";
+import { demoExecutiveSummary, demoSocSummary, demoTopRisks } from "@/lib/demo-data";
 
 type ExecutiveSummaryResponse = {
   security?: {
@@ -60,6 +61,7 @@ export default function CEORiskSummary() {
   const [topRisks, setTopRisks] = useState<TopRisk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -72,14 +74,17 @@ export default function CEORiskSummary() {
         ceoAPI.getTopRisks(6).catch(() => null),
       ]);
 
+      setIsDemoMode(false);
+
       setSummary((summaryResponse?.data as ExecutiveSummaryResponse | undefined) ?? EMPTY_SUMMARY);
       setSocMetrics((socResponse?.data as SocMetricsResponse | undefined) ?? EMPTY_SOC);
       setTopRisks(Array.isArray(topRisksResponse?.data) ? topRisksResponse.data : []);
     } catch (error) {
-      setLoadError("Executive summary data could not be loaded.");
-      setSummary(EMPTY_SUMMARY);
-      setSocMetrics(EMPTY_SOC);
-      setTopRisks([]);
+      setIsDemoMode(true);
+      setLoadError("Live backend unavailable. Showing presentation demo data.");
+      setSummary(demoExecutiveSummary);
+      setSocMetrics(demoSocSummary);
+      setTopRisks(demoTopRisks);
     } finally {
       setIsLoading(false);
     }
@@ -100,14 +105,16 @@ export default function CEORiskSummary() {
     <div className="space-y-4">
       <div
         className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${
-          loadError
-            ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200"
+          isDemoMode
+            ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200"
+            : loadError
+              ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200"
             : "border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-200"
         }`}
       >
         <div className="flex items-center gap-2">
-          {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : loadError ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-          <span>{isLoading ? "Loading executive data..." : loadError ? loadError : "Connected to live backend"}</span>
+          {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : isDemoMode || loadError ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+          <span>{isLoading ? "Loading executive data..." : isDemoMode ? loadError : loadError ? loadError : "Connected to live backend"}</span>
         </div>
         <button
           onClick={() => void fetchData()}
@@ -119,94 +126,90 @@ export default function CEORiskSummary() {
         </button>
       </div>
 
-      {!loadError && (
-        <>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <div className="card p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Average Risk Score</div>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="text-3xl font-bold">{averageRiskScore}</div>
-                {riskTrendIcon}
-              </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Average Risk Score</div>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="text-3xl font-bold">{averageRiskScore}</div>
+            {riskTrendIcon}
+          </div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Open Risks</div>
+          <div className="mt-2 text-3xl font-bold text-red-600">{summary.risks?.open || 0}</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Critical Incidents</div>
+          <div className="mt-2 text-3xl font-bold text-orange-600">{summary.security?.criticalIncidents || 0}</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Asset Coverage</div>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="text-3xl font-bold text-blue-600">{coverage}%</div>
+            <Shield className="h-4 w-4 text-blue-500" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[0.42fr_0.58fr]">
+        <div className="card p-4">
+          <h3 className="text-sm font-bold">Executive Snapshot</h3>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Active incidents</span>
+              <span className="font-semibold">{summary.security?.activeIncidents || 0}</span>
             </div>
-            <div className="card p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Open Risks</div>
-              <div className="mt-2 text-3xl font-bold text-red-600">{summary.risks?.open || 0}</div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 dark:text-gray-300">24h alert volume</span>
+              <span className="font-semibold">{summary.security?.alertVolume || 0}</span>
             </div>
-            <div className="card p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Critical Incidents</div>
-              <div className="mt-2 text-3xl font-bold text-orange-600">{summary.security?.criticalIncidents || 0}</div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Average incident MTTR</span>
+              <span className="font-semibold">{summary.security?.mttr || 0}h</span>
             </div>
-            <div className="card p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Asset Coverage</div>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="text-3xl font-bold text-blue-600">{coverage}%</div>
-                <Shield className="h-4 w-4 text-blue-500" />
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Average response time</span>
+              <span className="font-semibold">{socMetrics.mtr || 0}m</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Authenticated assets</span>
+              <span className="font-semibold">{summary.assets?.total || 0}</span>
             </div>
           </div>
+        </div>
 
-          <div className="grid gap-4 lg:grid-cols-[0.42fr_0.58fr]">
-            <div className="card p-4">
-              <h3 className="text-sm font-bold">Executive Snapshot</h3>
-              <div className="mt-4 space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Active incidents</span>
-                  <span className="font-semibold">{summary.security?.activeIncidents || 0}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">24h alert volume</span>
-                  <span className="font-semibold">{summary.security?.alertVolume || 0}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Average incident MTTR</span>
-                  <span className="font-semibold">{summary.security?.mttr || 0}h</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Average response time</span>
-                  <span className="font-semibold">{socMetrics.mtr || 0}m</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Authenticated assets</span>
-                  <span className="font-semibold">{summary.assets?.total || 0}</span>
-                </div>
-              </div>
+        {topRisks.length > 0 && (
+          <div className="card p-0 overflow-hidden">
+            <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+              <h3 className="text-sm font-bold">Top Business Risks</h3>
             </div>
-
-            {topRisks.length > 0 && (
-              <div className="card p-0 overflow-hidden">
-                <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-                  <h3 className="text-sm font-bold">Top Business Risks</h3>
-                </div>
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {topRisks.map((risk) => (
-                    <div key={risk.id} className="px-4 py-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-semibold text-gray-900 dark:text-gray-100">{risk.title}</div>
-                          {risk.description && <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">{risk.description}</div>}
-                          <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
-                            {risk.priority && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300">{risk.priority}</span>}
-                            {risk.status && <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{risk.status}</span>}
-                            {risk.owner && <span>Owner: {risk.owner}</span>}
-                          </div>
-                          {risk.mitigation_plan && (
-                            <div className="mt-2 text-xs text-blue-700 dark:text-blue-300">Mitigation: {risk.mitigation_plan}</div>
-                          )}
-                        </div>
-                        <div className="rounded-xl bg-red-50 px-3 py-2 text-right dark:bg-red-950/30">
-                          <div className="text-[10px] uppercase tracking-[0.2em] text-red-700 dark:text-red-300">Risk</div>
-                          <div className="text-2xl font-bold text-red-800 dark:text-red-200">{risk.risk_score}</div>
-                        </div>
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {topRisks.map((risk) => (
+                <div key={risk.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">{risk.title}</div>
+                      {risk.description && <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">{risk.description}</div>}
+                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                        {risk.priority && <span className="rounded-full bg-orange-100 px-2 py-1 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300">{risk.priority}</span>}
+                        {risk.status && <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{risk.status}</span>}
+                        {risk.owner && <span>Owner: {risk.owner}</span>}
                       </div>
+                      {risk.mitigation_plan && (
+                        <div className="mt-2 text-xs text-blue-700 dark:text-blue-300">Mitigation: {risk.mitigation_plan}</div>
+                      )}
                     </div>
-                  ))}
+                    <div className="rounded-xl bg-red-50 px-3 py-2 text-right dark:bg-red-950/30">
+                      <div className="text-[10px] uppercase tracking-[0.2em] text-red-700 dark:text-red-300">Risk</div>
+                      <div className="text-2xl font-bold text-red-800 dark:text-red-200">{risk.risk_score}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

@@ -15,6 +15,13 @@ import {
   XCircle,
 } from "lucide-react";
 import { assetsAPI } from "@/lib/api";
+import {
+  demoAssets,
+  demoCoverageStats,
+  demoNetworkDiscovery,
+  demoRiskPosture,
+  isPresentationDemoMode,
+} from "@/lib/demo-data";
 import { fetchRealAssets, syncFromActiveDirectory, type RealAsset } from "@/lib/real-api";
 import { type Asset } from "@/lib/soc-data";
 
@@ -257,6 +264,7 @@ export default function AssetRiskPostureDashboard() {
   const [lastSyncMessage, setLastSyncMessage] = useState("");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [expandedAssetId, setExpandedAssetId] = useState<string | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const fetchInventoryData = useCallback(async () => {
     setIsLoading(true);
@@ -280,9 +288,20 @@ export default function AssetRiskPostureDashboard() {
     });
     setCoverageStats(nextCoverage);
     setRiskPosture(nextRiskPosture);
+    setIsDemoMode(false);
 
-    if (realAssetsResult.status === "rejected" && coverageResult.status === "rejected" && riskPostureResult.status === "rejected") {
-      setLoadError("Backend data could not be loaded.");
+    const shouldUseDemoData =
+      realAssets.length === 0 &&
+      coverageResult.status === "rejected" &&
+      riskPostureResult.status === "rejected";
+
+    if (shouldUseDemoData) {
+      setIsDemoMode(true);
+      setLoadError("Live backend unavailable. Showing presentation demo data.");
+      setAssets(demoAssets as DisplayAsset[]);
+      setCoverageStats(demoCoverageStats);
+      setRiskPosture(demoRiskPosture);
+      setNetworkDiscovery(demoNetworkDiscovery as NetworkDiscoveryResponse);
     }
 
     setIsLoading(false);
@@ -291,6 +310,14 @@ export default function AssetRiskPostureDashboard() {
   const scanNetwork = useCallback(async () => {
     setIsScanning(true);
     setLoadError(null);
+
+    if (isDemoMode || isPresentationDemoMode()) {
+      setNetworkDiscovery(demoNetworkDiscovery as NetworkDiscoveryResponse);
+      setAssets(demoAssets as DisplayAsset[]);
+      setLastSyncMessage("Presentation demo refreshed with simulated network discovery evidence.");
+      setIsScanning(false);
+      return;
+    }
 
     try {
       const discoveryResponse = await assetsAPI.getNetworkDiscovery();
@@ -322,7 +349,7 @@ export default function AssetRiskPostureDashboard() {
     } finally {
       setIsScanning(false);
     }
-  }, []);
+  }, [isDemoMode]);
 
   useEffect(() => {
     let isMounted = true;
@@ -345,6 +372,17 @@ export default function AssetRiskPostureDashboard() {
     setIsSyncing(true);
     setLastSyncMessage("Syncing Active Directory inventory...");
 
+    if (isDemoMode || isPresentationDemoMode()) {
+      setAssets(demoAssets as DisplayAsset[]);
+      setCoverageStats(demoCoverageStats);
+      setRiskPosture(demoRiskPosture);
+      setNetworkDiscovery(demoNetworkDiscovery as NetworkDiscoveryResponse);
+      setLastSyncMessage("Presentation demo refreshed with a successful AD sync simulation.");
+      setIsSyncing(false);
+      window.setTimeout(() => setLastSyncMessage(""), 5000);
+      return;
+    }
+
     try {
       const result = await syncFromActiveDirectory();
       if (result.success) {
@@ -359,11 +397,19 @@ export default function AssetRiskPostureDashboard() {
       setIsSyncing(false);
       window.setTimeout(() => setLastSyncMessage(""), 5000);
     }
-  }, [fetchInventoryData]);
+  }, [fetchInventoryData, isDemoMode]);
 
   const handleWazuhSync = useCallback(async () => {
     setIsSyncingWazuh(true);
     setLastSyncMessage("Syncing Wazuh telemetry from sample logs...");
+
+    if (isDemoMode || isPresentationDemoMode()) {
+      setAssets(demoAssets as DisplayAsset[]);
+      setLastSyncMessage("Presentation demo refreshed with simulated Wazuh telemetry.");
+      setIsSyncingWazuh(false);
+      window.setTimeout(() => setLastSyncMessage(""), 5000);
+      return;
+    }
 
     try {
       const result = await assetsAPI.syncWazuhTelemetry();
@@ -379,7 +425,7 @@ export default function AssetRiskPostureDashboard() {
       setIsSyncingWazuh(false);
       window.setTimeout(() => setLastSyncMessage(""), 5000);
     }
-  }, [fetchInventoryData]);
+  }, [fetchInventoryData, isDemoMode]);
 
   const authenticatedTotal = networkDiscovery.summary.authenticated_total || assets.length;
   const authenticatedSeen = networkDiscovery.summary.authenticated_seen_on_network;
@@ -425,7 +471,9 @@ export default function AssetRiskPostureDashboard() {
             <div
               className={`rounded-xl px-3 py-2 text-xs ${
                 loadError
-                  ? "bg-red-500/15 text-red-100"
+                  ? isDemoMode
+                    ? "bg-amber-500/15 text-amber-100"
+                    : "bg-red-500/15 text-red-100"
                   : lastSyncMessage.startsWith("AD sync imported") || lastSyncMessage.startsWith("Processed") || lastSyncMessage.includes("completed")
                     ? "bg-emerald-500/15 text-emerald-100"
                     : "bg-amber-500/15 text-amber-100"

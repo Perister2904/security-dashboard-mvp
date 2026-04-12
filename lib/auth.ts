@@ -1,5 +1,6 @@
 // Authentication and Role-based Access Control
 import { authAPI, setAuthToken, clearAuthToken, getAuthToken, setAuthFailureHandler } from './api';
+import { getDemoUserForCredentials, isPresentationDemoMode } from './demo-data';
 
 export interface User {
   id: string;
@@ -105,6 +106,24 @@ export class SessionManager {
       return null;
     } catch (error) {
       console.error('Login error:', error);
+
+      const demoUser = getDemoUserForCredentials(emailOrUsername, password);
+      if (demoUser) {
+        this.currentUser = demoUser as User;
+        this.lastActivity = Date.now();
+        this.refreshToken = null;
+        clearAuthToken();
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('auth_mode', 'demo');
+          localStorage.setItem('current_user', JSON.stringify(this.currentUser));
+          localStorage.removeItem('refresh_token');
+        }
+
+        notifyAuthStateChanged();
+        return this.currentUser;
+      }
+
       throw error;
     }
   }
@@ -114,8 +133,20 @@ export class SessionManager {
     if (typeof window !== 'undefined') {
       const token = getAuthToken();
       const cachedUser = localStorage.getItem('current_user');
+      const authMode = localStorage.getItem('auth_mode');
       this.refreshToken = localStorage.getItem('refresh_token');
       
+      if (authMode === 'demo' && cachedUser) {
+        try {
+          clearAuthToken();
+          this.currentUser = JSON.parse(cachedUser);
+          this.lastActivity = Date.now();
+          return this.currentUser;
+        } catch (e) {
+          console.error('Failed to restore demo session');
+        }
+      }
+
       if (token && cachedUser) {
         try {
           this.currentUser = JSON.parse(cachedUser);
@@ -160,6 +191,12 @@ export class SessionManager {
   static async validateSession(): Promise<User | null> {
     const restoredUser = this.restoreSession();
     const token = getAuthToken();
+
+    if (isPresentationDemoMode() && restoredUser) {
+      this.currentUser = restoredUser;
+      this.lastActivity = Date.now();
+      return restoredUser;
+    }
 
     if (!restoredUser || !token) {
       this.logout();
@@ -227,6 +264,7 @@ export class SessionManager {
     clearAuthToken();
     
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_mode');
       localStorage.removeItem('current_user');
       localStorage.removeItem('refresh_token');
     }
@@ -237,5 +275,9 @@ export class SessionManager {
   static hasPermission(permission: string): boolean {
     const user = this.getCurrentUser();
     return user ? user.permissions.includes(permission) || user.permissions.includes('full_access') : false;
+  }
+
+  static isDemoMode(): boolean {
+    return isPresentationDemoMode();
   }
 }
