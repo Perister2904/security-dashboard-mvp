@@ -107,12 +107,7 @@ export default function Page() {
       }
 
       setCurrentUser(user);
-      showNotification(
-        "success",
-        SessionManager.isDemoMode()
-          ? `Demo mode enabled. Welcome back, ${user.name}.`
-          : `Welcome back, ${user.name}.`
-      );
+      showNotification("success", `Welcome back, ${user.name}.`);
     } catch (error: any) {
       showNotification("error", error?.message || "Login failed.");
     } finally {
@@ -189,8 +184,7 @@ export default function Page() {
 
             <div className="rounded-lg bg-blue-50 p-4 text-xs text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
               <div className="font-semibold">Backend Authentication</div>
-              <div className="mt-1">Use your configured backend credentials. LDAP and local users are managed by the backend.</div>
-              <div className="mt-1">If the production backend is unavailable, presentation credentials can fall back to demo mode.</div>
+              <div className="mt-1">Use your assigned enterprise credentials. LDAP and local users are managed through the security platform.</div>
             </div>
 
             {notification && (

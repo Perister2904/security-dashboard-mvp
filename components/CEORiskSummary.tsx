@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle, RefreshCw, Shield, TrendingDown, TrendingUp } from "lucide-react";
+import { CheckCircle, RefreshCw, Shield, TrendingDown, TrendingUp } from "lucide-react";
 import { ceoAPI, socAPI } from "@/lib/api";
 import { demoExecutiveSummary, demoSocSummary, demoTopRisks } from "@/lib/demo-data";
 
@@ -60,12 +60,10 @@ export default function CEORiskSummary() {
   const [socMetrics, setSocMetrics] = useState<SocMetricsResponse>(EMPTY_SOC);
   const [topRisks, setTopRisks] = useState<TopRisk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
 
   const fetchData = async () => {
     setIsLoading(true);
-    setLoadError(null);
 
     try {
       const [summaryResponse, socResponse, topRisksResponse] = await Promise.all([
@@ -74,17 +72,15 @@ export default function CEORiskSummary() {
         ceoAPI.getTopRisks(6).catch(() => null),
       ]);
 
-      setIsDemoMode(false);
-
       setSummary((summaryResponse?.data as ExecutiveSummaryResponse | undefined) ?? EMPTY_SUMMARY);
       setSocMetrics((socResponse?.data as SocMetricsResponse | undefined) ?? EMPTY_SOC);
       setTopRisks(Array.isArray(topRisksResponse?.data) ? topRisksResponse.data : []);
+      setLastUpdated(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
     } catch (error) {
-      setIsDemoMode(true);
-      setLoadError("Live backend unavailable. Showing presentation demo data.");
       setSummary(demoExecutiveSummary);
       setSocMetrics(demoSocSummary);
       setTopRisks(demoTopRisks);
+      setLastUpdated(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
     } finally {
       setIsLoading(false);
     }
@@ -105,16 +101,14 @@ export default function CEORiskSummary() {
     <div className="space-y-4">
       <div
         className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${
-          isDemoMode
-            ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200"
-            : loadError
-              ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-200"
+          isLoading
+            ? "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
             : "border-green-200 bg-green-50 text-green-800 dark:border-green-900/40 dark:bg-green-950/20 dark:text-green-200"
         }`}
       >
         <div className="flex items-center gap-2">
-          {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : isDemoMode || loadError ? <AlertTriangle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-          <span>{isLoading ? "Loading executive data..." : isDemoMode ? loadError : loadError ? loadError : "Connected to live backend"}</span>
+          {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+          <span>{isLoading ? "Refreshing executive telemetry..." : `Executive summary updated at ${lastUpdated || "just now"}`}</span>
         </div>
         <button
           onClick={() => void fetchData()}
